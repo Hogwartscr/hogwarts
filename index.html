@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хогвартс ВГП</title>
-    <script src="https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge@2.14.0/dist/browser.min.js"></script>
+    <!-- ДОБАВЛЕН DEFER: Скрипт загружается в фоне и не вешает страницу -->
+    <script src="https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge@2.14.0/dist/browser.min.js" defer></script>
     <style>
         :root { --primary: #BEA7B9; --accent: #975F8F; --dark-accent: #48294E; --panel: #1F1B3D; --bg: #161228; --text: #EADCE6; }
         *{box-sizing:border-box}
@@ -259,34 +260,36 @@
     let chatTimer = null;
     let editItemIndex = -1; 
 
-    // ЗАЩИТА ОТ ВЕЧНОЙ ЗАГРУЗКИ (3 СЕКУНДЫ)
+    // ЗАЩИТА ОТ ВЕЧНОЙ ЗАГРУЗКИ (СРАБОТАЕТ ЧЕРЕЗ 2 СЕКУНДЫ, ЕСЛИ ВК МОЛЧИТ)
     const timeoutId = setTimeout(() => {
         const loadingEl = document.getElementById('loading');
         if (loadingEl && loadingEl.style.display !== 'none') {
             loadingEl.style.display = 'none';
             showMenu();
-            if(errorBox) errorBox.innerText = "ВК не ответил вовремя. Если вы в ВК, попробуйте перезагрузить приложение.";
         }
-    }, 3000);
+    }, 2000);
 
-    if (window.vkBridge) {
-        vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
+    // Ждем, пока загрузится страница, чтобы скрипт ВК успел подгрузиться
+    window.addEventListener('load', () => {
+        if (window.vkBridge) {
+            vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
+                clearTimeout(timeoutId);
+                vkUser = info;
+                document.getElementById('loading').style.display = 'none';
+                showMenu();
+            }).catch(e => { 
+                clearTimeout(timeoutId);
+                if(errorBox) errorBox.innerText = "Ошибка ВК: " + e.message; 
+                document.getElementById('loading').style.display = 'none';
+                showMenu();
+            });
+        } else {
             clearTimeout(timeoutId);
-            vkUser = info;
+            if(errorBox) errorBox.innerText = "Библиотека VK Bridge не загрузилась!";
             document.getElementById('loading').style.display = 'none';
             showMenu();
-        }).catch(e => { 
-            clearTimeout(timeoutId);
-            if(errorBox) errorBox.innerText = "Ошибка ВК: " + e.message; 
-            document.getElementById('loading').style.display = 'none';
-            showMenu();
-        });
-    } else {
-        clearTimeout(timeoutId);
-        if(errorBox) errorBox.innerText = "Библиотека VK Bridge не загрузилась!";
-        document.getElementById('loading').style.display = 'none';
-        showMenu();
-    }
+        }
+    });
 
     function hideAll() {
         ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
