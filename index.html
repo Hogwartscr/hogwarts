@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хогвартс ВГП</title>
+    
+    <!-- Загружаем VK Bridge -->
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+    
+    <!-- ЗАГРУЖАЕМ FIREBASE ЧЕРЕЗ CLOUDFLARE (Самый надежный CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.1/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.1/firebase-database-compat.min.js"></script>
+    
     <style>
         :root { --primary: #BEA7B9; --accent: #975F8F; --dark-accent: #48294E; --panel: #1F1B3D; --bg: #161228; --text: #EADCE6; }
         *{box-sizing:border-box}
@@ -64,11 +71,16 @@
         .chat-input-area { display: flex; gap: 10px; }
         .chat-input-area input { margin: 0; }
         .chat-input-area button { margin: 0; }
+        
+        #error-box { color: #ff5555; font-size: 14px; margin-top: 20px; font-family: monospace; background: rgba(255,0,0,0.1); padding: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div id="loading" class="center-menu" style="color: var(--primary); font-size: 18px;">🔮 Загрузка...</div>
+<div id="loading" class="center-menu" style="color: var(--primary); font-size: 18px;">
+    🔮 Загрузка...
+    <div id="error-box"></div>
+</div>
 
 <!-- ГЛАВНОЕ МЕНЮ -->
 <div id="main-menu" class="center-menu hidden">
@@ -113,7 +125,7 @@
     <label>Имя:</label><input type="text" id="edit-name">
     <label>Ссылка ВК:</label><input type="text" id="edit-link">
     <label>Пароль:</label><input type="text" id="edit-pass">
-    <label>Фото (ссылка на картинку):</label><input type="text" id="edit-photo" placeholder="https://...">
+    <label>Фото (ссылка):</label><input type="text" id="edit-photo" placeholder="https://...">
     <button onclick="saveEdit()" style="margin-top:20px; background:#4CAF50; color:white;">Сохранить</button>
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
@@ -122,9 +134,7 @@
 <div id="cabinet" class="container cabinet hidden">
     <header class="cabinet-top">
         <span class="eyebrow" id="header-title">Хогвартс / Досье</span>
-        <div id="header-buttons">
-            <button class="text-button" style="color:#ff5555;" onclick="location.reload()">Выйти</button>
-        </div>
+        <div id="header-buttons"></div>
     </header>
     
     <div class="character">
@@ -151,18 +161,14 @@
         <div><label><span>MP</span></label><strong id="mana">0</strong></div>
     </div>
 
-    <div class="book-header">
-        <h2>Книга персонажа</h2>
-    </div>
+    <div class="book-header"><h2>Книга персонажа</h2></div>
 
-    <!-- ВКЛАДКИ -->
     <nav class="tabs">
         <button data-tab="skills" class="active" onclick="switchTab('skills')">Навыки</button>
         <button data-tab="spells" onclick="switchTab('spells')">Заклинания</button>
         <button data-tab="potions" onclick="switchTab('potions')">Зелья</button>
         <button data-tab="diary" onclick="switchTab('diary')">📖 Дневник</button>
         <button data-tab="homework" onclick="switchTab('homework')">📝 ДЗ</button>
-        <!-- ЭТА ВКЛАДКА ТЕПЕРЬ ДЛЯ ВСЕХ -->
         <button data-tab="students" onclick="switchTab('students')">👥 База профилей</button>
         <button data-tab="messages" onclick="switchTab('messages')">🦉 Совы</button>
     </nav>
@@ -171,6 +177,14 @@
 </div>
 
 <script>
+    const errorBox = document.getElementById('error-box');
+    
+    // Ловим ошибки
+    window.onerror = function(msg) {
+        errorBox.innerText += "ОШИБКА: " + msg + "\n";
+        return false;
+    };
+
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
     const DIRECTOR_ID = 836264843; 
     const DIRECTOR_SECRET = "коньяк"; 
@@ -180,19 +194,34 @@
     let viewProfile = null;   
     let isAdminView = false;
     let isGuestView = false;
-    let currentChatId = null;
     let chatListener = null;
+    let firebaseReady = false;
 
+    // Инициализация Firebase
+    try {
+        if (typeof firebase !== 'undefined') {
+            const firebaseConfig = { databaseURL: DB_URL };
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            firebaseReady = true;
+        } else {
+            errorBox.innerText += "Библиотека Firebase не загрузилась! Проверьте блокировщики.\n";
+        }
+    } catch(e) { errorBox.innerText += "Ошибка Firebase: " + e.message + "\n"; }
+
+    // Запуск ВК
     if (window.vkBridge) {
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
             document.getElementById('loading').style.display = 'none';
             showMenu();
-        }).catch(e => alert("Ошибка ВК: " + e.message));
+        }).catch(e => errorBox.innerText += "Ошибка ВК Bridge: " + e.message + "\n");
+    } else {
+        errorBox.innerText += "VK Bridge не загрузился!\n";
     }
 
     function hideAll() {
         ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        if(chatListener && firebaseReady) { chatListener.off(); chatListener = null; }
     }
     function showMenu() { hideAll(); document.getElementById('main-menu').classList.remove('hidden'); }
     function showLogin() { hideAll(); document.getElementById('login-screen').classList.remove('hidden'); }
@@ -253,7 +282,6 @@
         document.getElementById('saved-link').textContent = profile.vkLink || '—';
         
         let showPass = false;
-        // Пароль видят только: Директор (в админке) и сам пользователь (в своем кабинете). Гости - нет.
         if (adminMode) showPass = true;
         else if (!guestMode && profile.id === vkUser.id) showPass = true;
 
@@ -270,7 +298,6 @@
             document.getElementById('avatar-img').classList.add('hidden');
         }
 
-        // Кнопки в шапке
         let btnHtml = '';
         if (adminMode) {
             document.getElementById('header-title').textContent = "РЕЖИМ ДИРЕКТОРА / " + profile.name;
@@ -288,7 +315,6 @@
         }
         document.getElementById('header-buttons').innerHTML = btnHtml;
 
-        // Показ кнопки "Написать" (если смотрим чужой профиль)
         if (guestMode && profile.id !== vkUser.id) {
             document.getElementById('visit-actions').classList.remove('hidden');
         } else {
@@ -322,6 +348,7 @@
     function cancelEdit() { openCabinet(viewProfile, isAdminView, isGuestView); }
 
     function switchTab(tab) {
+        if(chatListener && firebaseReady) { chatListener.off(); chatListener = null; }
         document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
         const btn = document.querySelector(`.tabs button[data-tab="${tab}"]`);
         if (btn) btn.classList.add('active');
@@ -398,7 +425,6 @@
         switchTab(field);
     }
 
-    // СПИСОК ВСЕХ ПРОФИЛЕЙ (ДЛЯ ВСЕХ)
     async function renderStudentsList(container) {
         container.innerHTML = `<div class="center-menu">Загрузка...</div>`;
         const res = await fetch(`${DB_URL}/students.json`);
@@ -406,7 +432,7 @@
         
         let html = `<h2>База профилей</h2><div class="admin-panel">`;
         Object.values(allStudents).forEach(student => {
-            if(student.id !== vkUser.id) { // не показываем себя
+            if(student.id !== vkUser.id) { 
                 html += `
                 <div class="admin-card">
                     <div style="display:flex; gap:10px; align-items:center;">
@@ -416,7 +442,6 @@
                             <span style="font-size:12px; color:var(--accent);">${student.role}</span>
                         </div>
                     </div>
-                    <!-- Кнопка для просмотра профиля -->
                     <button onclick="visitProfile('${student.id}')" style="background:var(--primary); color:var(--bg); margin-top:10px;">
                         ${myProfile.role === 'director' ? '🚪 Зайти в комнату' : '👁 Посмотреть профиль'}
                     </button>
@@ -430,14 +455,8 @@
     async function visitProfile(studentId) {
         const res = await fetch(`${DB_URL}/students/${studentId}.json`);
         const data = await res.json();
-        
-        // Если зашел директор, он редактирует (adminMode = true)
-        // Если зашел студент, он просто смотрит (guestMode = true)
-        if (myProfile.role === 'director') {
-            openCabinet(data, true, false); 
-        } else {
-            openCabinet(data, false, true); 
-        }
+        if (myProfile.role === 'director') openCabinet(data, true, false); 
+        else openCabinet(data, false, true); 
     }
 
     function backToStudents() {
@@ -445,7 +464,6 @@
         document.querySelector('.tabs button[data-tab="students"]').click();
     }
 
-    // МЕССЕНДЖЕР (СОВЫ)
     async function renderMessagesList(container) {
         container.innerHTML = `<div class="center-menu">Загрузка диалогов...</div>`;
         const res = await fetch(`${DB_URL}/students.json`);
@@ -474,16 +492,16 @@
         openChat(viewProfile.id, viewProfile.name);
     }
 
-    async function openChat(targetId, targetName) {
-        currentChatId = getChatId(vkUser.id, targetId);
+    function openChat(targetId, targetName) {
+        const chatId = getChatId(vkUser.id, targetId);
         const root = document.getElementById('book-content');
         
         root.innerHTML = `
             <h2>Переписка с ${targetName}</h2>
             <div class="chat-container">
-                <div class="chat-messages" id="chat-box"></div>
+                <div class="chat-messages" id="chat-box"><div style="text-align:center; color:var(--accent);">Загрузка...</div></div>
                 <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Сообщение или ссылка на файл...">
+                    <input type="text" id="chat-input" placeholder="Сообщение или ссылка...">
                     <button onclick="sendMsg('${targetId}')">Отправить</button>
                 </div>
             </div>
@@ -492,21 +510,40 @@
 
         const chatBox = document.getElementById('chat-box');
         
-        if (chatListener) chatListener.off();
+        if (chatListener && firebaseReady) { chatListener.off(); chatListener = null; }
         
-        chatListener = firebase.database().ref(`messages/${currentChatId}`).on('value', (snapshot) => {
-            const msgs = snapshot.val() || {};
-            chatBox.innerHTML = '';
-            Object.values(msgs).forEach(m => {
-                const isMe = m.senderId === vkUser.id;
-                let content = m.text;
-                if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
-                    content = `<img src="${m.text}">`;
-                }
-                chatBox.innerHTML += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
+        if (firebaseReady) {
+            chatListener = firebase.database().ref(`messages/${chatId}`).on('value', (snapshot) => {
+                const msgs = snapshot.val() || {};
+                chatBox.innerHTML = '';
+                Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
+                    const isMe = m.senderId === vkUser.id;
+                    let content = m.text;
+                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
+                        content = `<img src="${m.text}">`;
+                    }
+                    chatBox.innerHTML += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
             });
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
+        } else {
+            const loadLoop = async () => {
+                if(!document.getElementById('chat-box')) return;
+                const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
+                const msgs = await res.json() || {};
+                let html = '';
+                Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
+                    const isMe = m.senderId === vkUser.id;
+                    let content = m.text;
+                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) content = `<img src="${m.text}">`;
+                    html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
+                });
+                chatBox.innerHTML = html;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                setTimeout(loadLoop, 3000);
+            };
+            loadLoop();
+        }
     }
 
     async function sendMsg(targetId) {
@@ -514,6 +551,7 @@
         const text = input.value.trim();
         if (!text) return;
 
+        const chatId = getChatId(vkUser.id, targetId);
         const msg = {
             senderId: vkUser.id,
             senderName: myProfile.name,
@@ -521,22 +559,8 @@
             time: Date.now()
         };
 
-        await fetch(`${DB_URL}/messages/${currentChatId}.json`, {
-            method: 'POST',
-            body: JSON.stringify(msg)
-        });
         input.value = '';
-    }
-</script>
-<!-- Подключаем Firebase SDK только для чата -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-<script>
-    const firebaseConfig = {
-        databaseURL: "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app"
-    };
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+        await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
     }
 </script>
 </body>
