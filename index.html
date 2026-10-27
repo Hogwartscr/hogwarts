@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хогвартс ВГП</title>
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-    
     <style>
         :root { --primary: #BEA7B9; --accent: #975F8F; --dark-accent: #48294E; --panel: #1F1B3D; --bg: #161228; --text: #EADCE6; }
         *{box-sizing:border-box}
@@ -13,7 +12,7 @@
         .container{max-width:600px;padding:30px;background:var(--panel);border:1px solid var(--dark-accent);border-radius:8px;box-shadow:0 24px 100px rgba(0,0,0,0.8);margin: 0 auto;}
         .in-cabinet .container{max-width:1100px;padding:32px 40px;background:linear-gradient(120deg, rgba(31,27,61,0.95), rgba(22,18,40,0.98));border: 1px solid var(--accent);}
         h1,h2,h3{font-weight:normal;color:var(--primary);margin-top:0}
-        button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:14px;border:none;cursor:pointer;width:100%;margin-top:15px;font-size: 16px;}
+        button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:12px;border:none;cursor:pointer;width:100%;margin-top:10px;font-size: 14px;}
         button:hover{background:var(--accent); color:white;}
         input,select,textarea{font-family:inherit;background:rgba(0,0,0,0.2);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:12px;font-size:16px;width:100%;margin-top:5px}
         select option{background:var(--panel)}
@@ -21,25 +20,49 @@
         .cabinet-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--dark-accent);padding-bottom:18px;gap:10px}
         .eyebrow{font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
         .text-button{width:auto;margin:0;padding:8px 0;background:transparent;color:var(--primary);font-size:14px}
+        
         .character{display:grid;grid-template-columns:180px 1fr;gap:34px;margin:32px 0 16px;align-items:center}
         .portrait-wrap{height:230px;position:relative;border:1px solid var(--accent);padding:6px;background:var(--bg);box-shadow:0 0 15px rgba(151,95,143,0.3)}
         #portrait-empty{height:100%;display:grid;place-items:center;font-size:76px;color:var(--accent);background:radial-gradient(ellipse at 50% 40%,#48294E55,#161228)}
+        
         .cabinet h1{font-size:42px;line-height:1.15;margin:0;color:var(--primary)}
-        .character-subtitle{font-size:14px;color:var(--accent);line-height:1.5}
         .character-details{display:flex;gap:26px;flex-wrap:wrap;margin:24px 0 10px}
         .character-details span{font-size:12px; color: var(--accent);}
         .character-details strong{display:block;font-size:15px;font-weight:normal;color:var(--text);margin-top:7px}
-        .resources{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:24px;padding:22px 24px;background:rgba(72,41,78,0.3);border:1px solid var(--accent);border-left:4px solid var(--primary);margin:22px 0 38px;border-radius:4px;}
+        
+        .resources{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:24px;padding:22px 24px;background:rgba(72,41,78,0.3);border:1px solid var(--accent);border-left:4px solid var(--primary);margin:22px 0 38px;border-radius:4px;}
         .resources label{margin:0;display:flex;justify-content:space-between}
-        .resources input{font-size:28px;color:var(--primary);border:0;border-bottom:2px solid var(--accent);padding:4px 0;background:none;border-radius:0}
+        .resources span{font-size:11px;letter-spacing:2px;color:var(--primary)}
+        .resources strong{display:block;font-size:36px;color:var(--primary);margin-top:8px}
+        
+        .book-header { margin-top: 40px; border-top: 1px solid var(--dark-accent); padding-top: 20px; }
         .tabs{display:flex;gap:26px;border-bottom:1px solid var(--dark-accent);margin:24px 0}
         .tabs button{border-radius:0;width:auto;background:none;color:var(--accent);font-size:16px;padding:12px 0;margin:0;border-bottom:2px solid transparent}
         .tabs button[aria-pressed=true]{color:var(--primary);border-color:var(--primary)}
-        .school-panel{padding:24px;border:1px solid var(--accent);margin:20px 0;background:rgba(72,41,78,0.2);border-radius:6px;}
-        .school-panel button{width:auto;margin:12px 12px 0 0; padding: 10px 15px;}
+        
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .skill-card { border: 1px solid var(--accent); background: rgba(31,27,61,0.6); padding: 20px; border-radius: 4px; display: flex; flex-direction: column; }
+        .skill-card h3 { color: var(--primary); font-size: 22px; margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px; }
+        .skill-card p { font-size: 14px; color: var(--text); line-height: 1.5; margin-bottom: 20px; flex-grow: 1; }
+        .skill-card .status { font-size: 12px; color: var(--accent); margin-bottom: 10px; }
+        .skill-card button { margin-top: 0; background: transparent; border: 1px solid var(--dark-accent); color: var(--accent); cursor: not-allowed; }
+        
         .hint{font-size:14px;color:var(--accent);line-height:1.7;}
-        .location{min-height:150px;text-align:left;padding:24px;border:1px solid var(--accent);background:linear-gradient(130deg, rgba(72,41,78,0.4), rgba(31,27,61,0.8));color:var(--text);margin:0;border-radius:4px;}
-        .location b{display:block;font-size:24px;font-weight:normal;margin-bottom:15px;color:var(--primary);}
+
+        /* ИНВЕНТАРЬ */
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; margin-top: 20px;}
+        .inv-item { width: 80px; height: 80px; border: 1px solid var(--accent); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(31,27,61,0.6); cursor: pointer; transition: 0.2s;}
+        .inv-item.unlocked { box-shadow: 0 0 10px var(--accent); border-color: var(--primary); }
+        .inv-item.locked { opacity: 0.3; filter: grayscale(100%); }
+        .inv-icon { font-size: 32px; margin-bottom: 5px; }
+        .inv-name { font-size: 10px; text-align: center; color: var(--text); }
+
+        /* ПАНЕЛЬ ДИРЕКТОРА */
+        .admin-panel { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;}
+        .admin-card { padding: 15px; border: 1px solid var(--accent); border-radius: 6px; background: rgba(72,41,78,0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;}
+        .admin-card h3 { margin: 0 0 5px 0; font-size: 18px; }
+        .admin-actions { display: flex; gap: 10px; margin-top: 10px; width: 100%;}
+        .admin-actions button { margin: 0; padding: 8px; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -47,7 +70,7 @@
 <main class="container">
     <div id="loading" style="text-align:center; padding: 50px 0; color: var(--primary); font-size: 18px;">
         🔮 Загрузка...
-        <div id="error-box" style="color: #ff5555; font-size: 12px; margin-top: 20px; font-family: monospace; text-align: left; word-break: break-all;"></div>
+        <div id="error-box" style="color: #ff5555; font-size: 12px; margin-top: 20px; font-family: monospace; text-align: left;"></div>
     </div>
 
     <section id="student-profile" hidden>
@@ -71,6 +94,7 @@
 
     <section id="cabinet" class="cabinet" hidden>
         <header class="cabinet-top"><span class="eyebrow">Хогвартс / Досье</span></header>
+        
         <div class="character">
             <div class="portrait-wrap"><div id="portrait-empty">✦</div></div>
             <div class="character-info">
@@ -84,92 +108,72 @@
                 <button id="edit-profile" class="text-button">✏️ Изменить анкету</button>
             </div>
         </div>
+        
         <div class="resources">
-            <div><label>Опыт · XP</label><strong id="xp" style="font-size:36px;color:var(--primary);">0</strong></div>
-            <div><label>Мана · MP</label><strong id="mana" style="font-size:36px;color:var(--primary);">0</strong></div>
+            <div><label><span>Опыт · XP</span></label><strong id="xp">0</strong></div>
+            <div><label><span>Мана · MP</span></label><strong id="mana">0</strong></div>
         </div>
+
+        <div class="book-header">
+            <span class="eyebrow">Знания, Сила и Инвентарь</span>
+            <h2>Книга персонажа</h2>
+        </div>
+
         <nav class="tabs">
-            <button data-page="world" aria-pressed="true">Замок</button>
-            <button data-page="director" id="director-tab" hidden>👑 Кабинет директора</button>
+            <button data-page="skills" aria-pressed="true">Навыки</button>
+            <button data-page="inventory">Инвентарь</button>
+            <button data-page="messages">✉️ Совы (ЛС)</button>
+            <button data-page="director" id="director-tab" hidden>👑 Директор</button>
         </nav>
-        <section id="school-content"></section>
+        
+        <section id="book-content"></section>
     </section>
 </main>
 
 <script>
-    const errorBox = document.getElementById('error-box');
-    window.onerror = function(msg) { errorBox.innerText += "ОШИБКА: " + msg + "\n"; return false; };
-
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
-    const DIRECTOR_ID = 836264843; 
+    const DIRECTOR_ID = 836264843; // Ваш ID
+    
     let vkUser = null;
     let studentProfile = null;
     let allStudents = {};
     const $ = id => document.getElementById(id);
 
-    // Запуск без ожидания внешних библиотек
     if (window.vkBridge) {
-        errorBox.innerText = "Инициализация ВК...\n";
-        vkBridge.send('VKWebAppInit').then(() => {
-            errorBox.innerText += "Получение профиля...\n";
-            return vkBridge.send('VKWebAppGetUserInfo');
-        }).then(info => {
+        vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
             initApp();
-        }).catch(e => {
-            errorBox.innerText += "Ошибка ВК: " + e.message;
-            $('loading').innerText = "Ошибка ВК";
         });
-    } else {
-        errorBox.innerText = "Библиотека ВК (vk-bridge) не загрузилась. Обновите страницу.";
     }
 
     async function initApp() {
-        errorBox.innerText += "Запрос к базе данных...\n";
         if (vkUser.id === DIRECTOR_ID) $('director-tab').hidden = false;
 
         try {
-            // Прямой запрос к базе (работает как обычный сайт, без библиотек)
-            const res = await fetch(DB_URL + "/.json");
+            const res = await fetch(DB_URL + "/students.json");
             const data = await res.json() || {};
-            allStudents = data.students || {};
+            allStudents = data;
             studentProfile = allStudents[vkUser.id];
 
-            if (studentProfile) {
-                renderCabinet();
-            } else {
-                $('loading').hidden = true;
-                $('student-profile').hidden = false;
-            }
-        } catch (e) {
-            errorBox.innerText += "Ошибка базы: " + e.message + "\n(Возможно, база заблокирована в РФ)";
-        }
+            if (studentProfile) renderCabinet();
+            else { $('loading').hidden = true; $('student-profile').hidden = false; }
+        } catch (e) { console.error(e); }
     }
 
     $('save-profile').onclick = async () => {
         const name = $('charName').value;
         if (!name) return alert("Введите имя!");
         
-        $('save-profile').innerText = "Сохранение...";
         const profile = {
             id: vkUser.id, name: name, faculty: $('faculty').value,
             wand: $('wand').value, patronus: $('patronus').value,
             xp: studentProfile?.xp || 0, mana: studentProfile?.mana || 0,
-            role: vkUser.id === DIRECTOR_ID ? 'director' : 'student'
+            role: vkUser.id === DIRECTOR_ID ? 'director' : 'student',
+            inventory: studentProfile?.inventory || [] // Пустой инвентарь по умолчанию
         };
-
-        try {
-            // Прямая запись в базу
-            await fetch(DB_URL + "/students/" + vkUser.id + ".json", {
-                method: 'PUT',
-                body: JSON.stringify(profile)
-            });
-            studentProfile = profile;
-            renderCabinet();
-        } catch(e) {
-            alert("Ошибка сохранения: " + e.message);
-            $('save-profile').innerText = "Сохранить профиль";
-        }
+        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
+        studentProfile = profile;
+        renderCabinet();
     };
 
     $('edit-profile').onclick = () => {
@@ -193,43 +197,88 @@
         $('xp').textContent = studentProfile.xp || 0;
         $('mana').textContent = studentProfile.mana || 0;
         $('room-name').textContent = 'Гостиная · ' + studentProfile.faculty;
-        renderPage('world');
+        renderPage('skills');
     }
 
     document.querySelectorAll('[data-page]').forEach(btn => {
-        btn.onclick = () => renderPage(btn.dataset.page);
+        btn.onclick = () => {
+            document.querySelectorAll('[data-page]').forEach(b => b.setAttribute('aria-pressed', b.dataset.page === btn.dataset.page));
+            renderPage(btn.dataset.page);
+        };
     });
 
     function renderPage(page) {
-        document.querySelectorAll('[data-page]').forEach(b => b.setAttribute('aria-pressed', b.dataset.page === page));
-        const root = $('school-content');
-
-        if (page === 'world') {
-            root.innerHTML = `<h2>Учебные кабинеты</h2><p class="hint">В разработке.</p>`;
-        } else if (page === 'director') {
+        const root = $('book-content');
+        
+        if (page === 'skills') {
+            root.innerHTML = `<p class="hint">Здесь будут ваши навыки, которые открываются за XP.</p>`;
+        } 
+        else if (page === 'inventory') {
+            // Иконки инвентаря (заглушки для примера)
+            const items = [
+                { id: 1, name: 'Люмос', icon: '✨', unlocked: true },
+                { id: 2, name: 'Экспеллиармус', icon: '⚡', unlocked: false },
+                { id: 3, name: 'Зелье силы', icon: '🧪', unlocked: true },
+                { id: 4, name: 'Аконит', icon: '🌿', unlocked: true },
+                { id: 5, name: 'Феникс', icon: '🔥', unlocked: false }
+            ];
+            
+            root.innerHTML = `<h3>Ваш инвентарь</h3>
+            <div class="inventory-grid">
+                ${items.map(item => `
+                    <div class="inv-item ${item.unlocked ? 'unlocked' : 'locked'}" title="${item.name}">
+                        <div class="inv-icon">${item.icon}</div>
+                        <div class="inv-name">${item.name}</div>
+                    </div>
+                `).join('')}
+            </div>`;
+        }
+        else if (page === 'messages') {
+            root.innerHTML = `<h3>Совы (Личные сообщения)</h3>
+            <p class="hint">Здесь вы сможете писать другим студентам и профессорам.</p>
+            <textarea placeholder="Напишите сообщение..." style="height:100px;"></textarea>
+            <button onclick="alert('Отправка сообщений появится в следующем обновлении!')">Отправить сову</button>`;
+        }
+        else if (page === 'director') {
             if (vkUser.id !== DIRECTOR_ID) return; 
             
             root.innerHTML = `<h2>Кабинет директора</h2>
-            ${Object.values(allStudents).map(s => `
-                <div class="school-panel">
-                    <p><strong>${s.name}</strong> — ${s.xp} XP</p>
-                    <button onclick="giveXP('${s.id}', 10)">+10 XP</button>
-                </div>
-            `).join('')}`;
+            <p class="hint">Управление студентами и выдача наград.</p>
+            <div class="admin-panel">
+                ${Object.values(allStudents).map(student => `
+                    <div class="admin-card">
+                        <div>
+                            <h3>${student.name} (${student.faculty})</h3>
+                            <span style="font-size:12px;">XP: ${student.xp || 0} | MP: ${student.mana || 0}</span>
+                        </div>
+                        <div class="admin-actions">
+                            <button onclick="giveReward('${student.id}', 'xp', 10)">+10 XP</button>
+                            <button onclick="giveReward('${student.id}', 'mana', 10)">+10 MP</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>`;
         }
     }
 
-    window.giveXP = async (studentId, amount) => {
-        const current = allStudents[studentId]?.xp || 0;
-        const newXp = current + amount;
+    // Функция выдачи наград Директором
+    window.giveReward = async (studentId, type, amount) => {
+        if (vkUser.id !== DIRECTOR_ID) return alert("У вас нет прав!");
         
-        await fetch(DB_URL + "/students/" + studentId + "/xp.json", {
+        // Находим текущее значение
+        const currentVal = allStudents[studentId][type] || 0;
+        const newVal = currentVal + amount;
+
+        // Обновляем в Firebase
+        await fetch(DB_URL + "/students/" + studentId + "/" + type + ".json", {
             method: 'PUT',
-            body: JSON.stringify(newXp)
+            body: JSON.stringify(newVal)
         });
-        
-        allStudents[studentId].xp = newXp;
+
+        // Обновляем на экране
+        allStudents[studentId][type] = newVal;
         renderPage('director');
+        alert(`Выдано ${amount} ${type.toUpperCase()} для ${allStudents[studentId].name}`);
     };
 </script>
 </body>
