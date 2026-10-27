@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хогвартс ВГП</title>
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-    <!-- Подключаем Firebase -->
-    <script src="https://cdn.jsdelivr.net/npm/firebase@9.0.0/firebase-app-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@9.0.0/firebase-database-compat.js"></script>
     
     <style>
         :root { --primary: #BEA7B9; --accent: #975F8F; --dark-accent: #48294E; --panel: #1F1B3D; --bg: #161228; --text: #EADCE6; }
@@ -48,13 +45,11 @@
 <body>
 
 <main class="container">
-    <!-- БЛОК ЗАГРУЗКИ С ОШИБКАМИ -->
     <div id="loading" style="text-align:center; padding: 50px 0; color: var(--primary); font-size: 18px;">
-        🔮 Загрузка магии...
-        <div id="error-box" style="color: #ff5555; font-size: 14px; margin-top: 20px; font-family: monospace; text-align: left;"></div>
+        🔮 Загрузка...
+        <div id="error-box" style="color: #ff5555; font-size: 12px; margin-top: 20px; font-family: monospace; text-align: left; word-break: break-all;"></div>
     </div>
 
-    <!-- КАРТОЧКА СТУДЕНТА -->
     <section id="student-profile" hidden>
         <h1>Карточка студента</h1>
         <p class="hint">Заполните данные один раз, и они сохранятся в базе.</p>
@@ -74,7 +69,6 @@
         <button type="button" id="save-profile">Сохранить профиль</button>
     </section>
 
-    <!-- ЛИЧНЫЙ КАБИНЕТ -->
     <section id="cabinet" class="cabinet" hidden>
         <header class="cabinet-top"><span class="eyebrow">Хогвартс / Досье</span></header>
         <div class="character">
@@ -104,95 +98,78 @@
 
 <script>
     const errorBox = document.getElementById('error-box');
-    
-    // Ловим все ошибки на странице и показываем на экране
-    window.onerror = function(msg, url, line, col, error) {
-        errorBox.innerText += "ОШИБКА: " + msg + "\n";
-        return false;
-    };
+    window.onerror = function(msg) { errorBox.innerText += "ОШИБКА: " + msg + "\n"; return false; };
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBe4V7S106dXf5uS9-Y-wHP7ZOUH0_VX1Q",
-        authDomain: "hogwartscr.firebaseapp.com",
-        databaseURL: "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "hogwartscr",
-        storageBucket: "hogwartscr.firebasestorage.app",
-        messagingSenderId: "79365001784",
-        appId: "1:79365001784:web:9ec8447b3825b2d277c7d",
-        measurementId: "G-73DK3E75WM"
-    };
-
-    let db;
-    try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-    } catch (e) {
-        errorBox.innerText += "Ошибка Firebase: " + e.message + "\n";
-    }
-
+    const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
     const DIRECTOR_ID = 836264843; 
     let vkUser = null;
     let studentProfile = null;
     let allStudents = {};
-
     const $ = id => document.getElementById(id);
-    
-    function show(id) {
-        $('loading').hidden = true;
-        ['student-profile', 'cabinet'].forEach(s => $(s).hidden = s !== id);
-        document.body.classList.toggle('in-cabinet', id === 'cabinet');
-        window.scrollTo(0,0);
-    }
 
+    // Запуск без ожидания внешних библиотек
     if (window.vkBridge) {
-        $('loading').innerText = "🔮 Подключение к ВК...";
-        vkBridge.send('VKWebAppInit')
-            .then(() => {
-                $('loading').innerText = "🔮 Получение профиля ВК...";
-                return vkBridge.send('VKWebAppGetUserInfo');
-            })
-            .then(info => {
-                vkUser = info;
-                initApp();
-            })
-            .catch(e => {
-                errorBox.innerText += "Ошибка ВК: " + e.message + "\n";
-                $('loading').innerText = "Ошибка авторизации.";
-            });
+        errorBox.innerText = "Инициализация ВК...\n";
+        vkBridge.send('VKWebAppInit').then(() => {
+            errorBox.innerText += "Получение профиля...\n";
+            return vkBridge.send('VKWebAppGetUserInfo');
+        }).then(info => {
+            vkUser = info;
+            initApp();
+        }).catch(e => {
+            errorBox.innerText += "Ошибка ВК: " + e.message;
+            $('loading').innerText = "Ошибка ВК";
+        });
     } else {
-        errorBox.innerText = "VK Bridge не загрузился! Проверьте блокировщики.";
+        errorBox.innerText = "Библиотека ВК (vk-bridge) не загрузилась. Обновите страницу.";
     }
 
-    function initApp() {
+    async function initApp() {
+        errorBox.innerText += "Запрос к базе данных...\n";
         if (vkUser.id === DIRECTOR_ID) $('director-tab').hidden = false;
 
-        $('loading').innerText = "🔮 Загрузка базы данных...";
-        db.ref('/').on('value', (snapshot) => {
-            const data = snapshot.val() || {};
+        try {
+            // Прямой запрос к базе (работает как обычный сайт, без библиотек)
+            const res = await fetch(DB_URL + "/.json");
+            const data = await res.json() || {};
             allStudents = data.students || {};
             studentProfile = allStudents[vkUser.id];
 
             if (studentProfile) {
                 renderCabinet();
             } else {
-                show('student-profile'); 
+                $('loading').hidden = true;
+                $('student-profile').hidden = false;
             }
-        }, (error) => {
-            errorBox.innerText += "Ошибка базы: " + error.message + "\n";
-        });
+        } catch (e) {
+            errorBox.innerText += "Ошибка базы: " + e.message + "\n(Возможно, база заблокирована в РФ)";
+        }
     }
 
-    $('save-profile').onclick = () => {
+    $('save-profile').onclick = async () => {
         const name = $('charName').value;
         if (!name) return alert("Введите имя!");
         
+        $('save-profile').innerText = "Сохранение...";
         const profile = {
             id: vkUser.id, name: name, faculty: $('faculty').value,
             wand: $('wand').value, patronus: $('patronus').value,
             xp: studentProfile?.xp || 0, mana: studentProfile?.mana || 0,
             role: vkUser.id === DIRECTOR_ID ? 'director' : 'student'
         };
-        db.ref('students/' + vkUser.id).set(profile);
+
+        try {
+            // Прямая запись в базу
+            await fetch(DB_URL + "/students/" + vkUser.id + ".json", {
+                method: 'PUT',
+                body: JSON.stringify(profile)
+            });
+            studentProfile = profile;
+            renderCabinet();
+        } catch(e) {
+            alert("Ошибка сохранения: " + e.message);
+            $('save-profile').innerText = "Сохранить профиль";
+        }
     };
 
     $('edit-profile').onclick = () => {
@@ -200,17 +177,22 @@
         $('faculty').value = studentProfile.faculty;
         $('wand').value = studentProfile.wand || '';
         $('patronus').value = studentProfile.patronus || '';
-        show('student-profile');
+        $('student-profile').hidden = false;
+        $('cabinet').hidden = true;
     };
 
     function renderCabinet() {
+        $('loading').hidden = true;
+        $('student-profile').hidden = true;
+        $('cabinet').hidden = false;
+        document.body.classList.add('in-cabinet');
+        
         $('cabinet-title').textContent = studentProfile.name;
         $('saved-wand').textContent = studentProfile.wand || 'Не указана';
         $('saved-patronus').textContent = studentProfile.patronus || 'Неизвестен';
         $('xp').textContent = studentProfile.xp || 0;
         $('mana').textContent = studentProfile.mana || 0;
         $('room-name').textContent = 'Гостиная · ' + studentProfile.faculty;
-        show('cabinet');
         renderPage('world');
     }
 
@@ -226,22 +208,28 @@
             root.innerHTML = `<h2>Учебные кабинеты</h2><p class="hint">В разработке.</p>`;
         } else if (page === 'director') {
             if (vkUser.id !== DIRECTOR_ID) return; 
-            renderDirector(root);
+            
+            root.innerHTML = `<h2>Кабинет директора</h2>
+            ${Object.values(allStudents).map(s => `
+                <div class="school-panel">
+                    <p><strong>${s.name}</strong> — ${s.xp} XP</p>
+                    <button onclick="giveXP('${s.id}', 10)">+10 XP</button>
+                </div>
+            `).join('')}`;
         }
     }
 
-    function renderDirector(root) {
-        root.innerHTML = `<h2>Кабинет директора</h2>
-        ${Object.values(allStudents).map(s => `
-            <div class="school-panel">
-                <p><strong>${s.name}</strong> — ${s.xp} XP</p>
-                <button onclick="giveXP('${s.id}', 10)">+10 XP</button>
-            </div>
-        `).join('')}`;
-    }
-
-    window.giveXP = (studentId, amount) => {
-        db.ref('students/' + studentId + '/xp').transaction(c => (c || 0) + amount);
+    window.giveXP = async (studentId, amount) => {
+        const current = allStudents[studentId]?.xp || 0;
+        const newXp = current + amount;
+        
+        await fetch(DB_URL + "/students/" + studentId + "/xp.json", {
+            method: 'PUT',
+            body: JSON.stringify(newXp)
+        });
+        
+        allStudents[studentId].xp = newXp;
+        renderPage('director');
     };
 </script>
 </body>
