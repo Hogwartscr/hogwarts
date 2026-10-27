@@ -11,8 +11,8 @@
         body{font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:var(--text);min-height:100vh;padding:36px 20px;}
         .container{max-width:600px;padding:30px;background:var(--panel);border:1px solid var(--dark-accent);border-radius:8px;box-shadow:0 24px 100px rgba(0,0,0,0.8);margin: 0 auto;}
         .in-cabinet .container{max-width:1100px;padding:32px 40px;background:linear-gradient(120deg, rgba(31,27,61,0.95), rgba(22,18,40,0.98));border: 1px solid var(--accent);}
-        h1,h2,h3{font-weight:normal;color:var(--primary);margin-top:0}
-        button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:12px;border:none;cursor:pointer;width:100%;margin-top:10px;font-size: 14px;}
+        h1,h2,h3{font-weight:normal;color:var(--primary);margin-top:0; text-align: center;}
+        button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:14px;border:none;cursor:pointer;width:100%;margin-top:10px;font-size: 16px;}
         button:hover{background:var(--accent); color:white;}
         input,select,textarea{font-family:inherit;background:rgba(0,0,0,0.2);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:10px;font-size:14px;width:100%;margin-top:5px}
         select option{background:var(--panel)}
@@ -26,29 +26,29 @@
         .portrait-wrap{height:230px;position:relative;border:1px solid var(--accent);padding:6px;background:var(--bg);box-shadow:0 0 15px rgba(151,95,143,0.3)}
         #portrait-empty{height:100%;display:grid;place-items:center;font-size:76px;color:var(--accent);background:radial-gradient(ellipse at 50% 40%,#48294E55,#161228)}
         
-        .cabinet h1{font-size:42px;line-height:1.15;margin:0;color:var(--primary)}
+        .cabinet h1{font-size:42px;line-height:1.15;margin:0;color:var(--primary); text-align: left;}
         .character-details{display:flex;gap:26px;flex-wrap:wrap;margin:24px 0 10px}
         .character-details span{font-size:12px; color: var(--accent);}
-        .character-details strong{display:block;font-size:15px;font-weight:normal;color:var(--text);margin-top:7px}
+        .character-details strong{display:block;font-size:15px;font-weight:normal;color:var(--text);margin-top:7px; word-break: break-all;}
         
         .resources{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:24px;padding:22px 24px;background:rgba(72,41,78,0.3);border:1px solid var(--accent);border-left:4px solid var(--primary);margin:22px 0 38px;border-radius:4px;}
         .resources label{margin:0;display:flex;justify-content:space-between}
         .resources span{font-size:11px;letter-spacing:2px;color:var(--primary)}
         .resources strong{display:block;font-size:36px;color:var(--primary);margin-top:8px}
         
-        .book-header { margin-top: 40px; border-top: 1px solid var(--dark-accent); padding-top: 20px; }
+        .book-header { margin-top: 40px; border-top: 1px solid var(--dark-accent); padding-top: 20px; text-align: left;}
         .tabs{display:flex;gap:26px;border-bottom:1px solid var(--dark-accent);margin:24px 0; flex-wrap:wrap;}
         .tabs button{border-radius:0;width:auto;background:none;color:var(--accent);font-size:16px;padding:12px 0;margin:0;border-bottom:2px solid transparent}
         .tabs button[aria-pressed=true]{color:var(--primary);border-color:var(--primary)}
         
-        .hint{font-size:14px;color:var(--accent);line-height:1.7;}
+        .hint{font-size:14px;color:var(--accent);line-height:1.7; text-align: center;}
         .admin-panel { display: grid; gap: 15px; margin-top: 20px;}
-        .admin-card { padding: 15px; border: 1px solid var(--accent); border-radius: 6px; background: rgba(72,41,78,0.2); }
+        .admin-card { padding: 15px; border: 1px solid var(--accent); border-radius: 6px; background: rgba(72,41,78,0.2); text-align: left;}
         .admin-actions { display: flex; gap: 10px; margin-top: 10px;}
         .admin-actions button { margin: 0; padding: 8px; font-size: 12px; }
         
         .role-switch { text-align: center; margin-top: 20px; border-top: 1px dashed var(--dark-accent); padding-top: 15px; }
-        .role-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 13px; display: block; margin-top: 8px; font-size: 15px;}
+        .role-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 14px;}
     </style>
 </head>
 <body>
@@ -58,62 +58,38 @@
         🔮 Загрузка...
     </div>
 
-    <!-- ГЛАВНОЕ МЕНЮ (3 КНОПКИ) -->
+    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ (3 КНОПКИ) -->
     <section id="main-menu" hidden>
-        <h1 style="text-align: center;">Вход в Хогвартс</h1>
-        <p class="hint" style="text-align: center;">Выберите свою роль для входа или регистрации.</p>
+        <h1>Добро пожаловать в Хогвартс</h1>
+        <p class="hint">Выберите, кем вы хотите зарегистрироваться.</p>
         
-        <button type="button" onclick="openAuth('student')" style="margin-top: 30px;">🎓 Я Студент</button>
-        <button type="button" onclick="openAuth('professor')" style="margin-top: 10px;">📖 Я Профессор</button>
-        <button type="button" onclick="openAuth('director')" style="margin-top: 10px; background: #99564b; color: white;">👑 Я Директор</button>
+        <button type="button" onclick="openRegister('student')" style="margin-top: 30px;">🎓 Зарегистрироваться как Студент</button>
+        <button type="button" onclick="openRegister('professor')" style="margin-top: 15px;">📖 Зарегистрироваться как Профессор</button>
+        <button type="button" onclick="openRegister('director')" style="margin-top: 15px; background: #99564b; color: white;">👑 Войти как Директор</button>
     </section>
 
-    <!-- ФОРМА АВТОРИЗАЦИИ (СТУДЕНТ/ПРОФЕССОР) -->
-    <section id="auth-user" hidden>
-        <h1 id="auth-title">Вход</h1>
+    <!-- ЭКРАН 2: ФОРМА РЕГИСТРАЦИИ -->
+    <section id="register-screen" hidden>
+        <h1 id="reg-title">Регистрация</h1>
+        <p class="hint" id="reg-desc">Заполните данные и придумайте пароль.</p>
         
-        <!-- Блок регистрации (скрыт, если профиль уже есть) -->
-        <div id="register-block" hidden>
-            <p class="hint">Вы здесь впервые. Заполните анкету и придумайте пароль.</p>
-            <label>Имя персонажа:</label>
-            <input type="text" id="reg-name" placeholder="Имя Фамилия">
-            
-            <label>Ссылка на вашу страницу ВК:</label>
-            <input type="text" id="reg-link" placeholder="https://vk.com/ваша_страница">
-            
-            <label>Придумайте пароль для входа:</label>
-            <input type="password" id="reg-pass" placeholder="Ваш пароль">
-            
-            <button type="button" onclick="registerUser()">Зарегистрироваться</button>
-        </div>
-
-        <!-- Блок входа (если профиль уже есть) -->
-        <div id="login-block" hidden>
-            <p class="hint">Вы уже зарегистрированы. Введите свой пароль для входа.</p>
-            <label>Ваш пароль:</label>
-            <input type="password" id="login-pass" placeholder="Введите пароль">
-            <button type="button" onclick="loginUser()">Войти в профиль</button>
-            <p id="login-error" style="color: #ff5555; font-size: 13px; margin-top: 10px; display: none;">Неверный пароль!</p>
-        </div>
+        <label>Имя персонажа:</label>
+        <input type="text" id="reg-name" placeholder="Имя Фамилия">
+        
+        <label>Ссылка на вашу страницу ВК:</label>
+        <input type="text" id="reg-link" placeholder="https://vk.com/ваш_ник">
+        
+        <label>Придумайте пароль для входа:</label>
+        <input type="password" id="reg-pass" placeholder="Ваш пароль">
+        
+        <button type="button" id="btn-submit-reg" style="margin-top: 20px;">Сохранить и войти</button>
 
         <div class="role-switch">
             <a onclick="toggleLogin('main')">← Вернуться в главное меню</a>
         </div>
     </section>
 
-    <!-- ФОРМА ВХОДА ДИРЕКТОРА -->
-    <section id="auth-director" hidden>
-        <h1>Вход для Директора</h1>
-        <label>Кодовое слово:</label>
-        <input type="password" id="dir-secret" placeholder="Введите кодовое слово">
-        <button type="button" id="btn-login-director">Войти в кабинет</button>
-        
-        <div class="role-switch">
-            <a onclick="toggleLogin('main')">← Вернуться в главное меню</a>
-        </div>
-    </section>
-
-    <!-- ЛИЧНЫЙ КАБИНЕТ -->
+    <!-- ЭКРАН 3: ЛИЧНЫЙ КАБИНЕТ -->
     <section id="cabinet" class="cabinet" hidden>
         <header class="cabinet-top">
             <span class="eyebrow">Хогвартс / Досье</span>
@@ -129,7 +105,7 @@
                 <h1 id="cabinet-title"></h1>
                 <p id="cabinet-role" class="character-subtitle"></p>
                 <div class="character-details">
-                    <span>Ссылка <strong id="saved-link"></strong></span>
+                    <span>Моя страница ВК <strong id="saved-link"></strong></span>
                 </div>
             </div>
         </div>
@@ -141,12 +117,12 @@
 
         <div class="book-header">
             <span class="eyebrow">Управление</span>
-            <h2>Книга персонажа</h2>
+            <h2 style="text-align:left;">Книга персонажа</h2>
         </div>
 
         <nav class="tabs">
             <button data-page="skills" aria-pressed="true">Навыки</button>
-            <button data-page="director" id="director-tab" hidden>👑 Директор</button>
+            <button data-page="director" id="director-tab" hidden>👑 База данных</button>
         </nav>
         
         <section id="book-content"></section>
@@ -155,15 +131,16 @@
 
 <script>
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
-    const DIRECTOR_ID = 836264843; 
-    const DIRECTOR_SECRET = "коньяк"; 
+    const DIRECTOR_ID = 836264843; // Ваш VK ID
+    const DIRECTOR_SECRET = "коньяк"; // Пароль Директора
     
     let vkUser = null;
     let studentProfile = null;
     let allStudents = {};
-    let currentRole = 'student'; // 'student' или 'professor'
+    let regRole = 'student'; 
     const $ = id => document.getElementById(id);
 
+    // Запуск
     if (window.vkBridge) {
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
@@ -175,101 +152,80 @@
     function toggleLogin(screen) {
         $('loading').hidden = true;
         $('main-menu').hidden = screen !== 'main';
-        $('auth-user').hidden = screen !== 'user';
-        $('auth-director').hidden = screen !== 'director';
+        $('register-screen').hidden = screen !== 'register';
         $('cabinet').hidden = screen !== 'cabinet';
         document.body.classList.toggle('in-cabinet', screen === 'cabinet');
     }
 
-    async function openAuth(role) {
-        currentRole = role;
+    // Открытие формы регистрации
+    window.openRegister = (role) => {
+        regRole = role;
+        toggleLogin('register');
         
-        if (role === 'director') {
-            toggleLogin('director');
-            return;
+        if (role === 'student') {
+            $('reg-title').textContent = 'Регистрация Студента';
+            $('reg-desc').textContent = 'Заполните данные. Пароль понадобится для входа.';
+        } else if (role === 'professor') {
+            $('reg-title').textContent = 'Регистрация Профессора';
+            $('reg-desc').textContent = 'Заполните данные. Пароль понадобится для входа.';
+        } else if (role === 'director') {
+            $('reg-title').textContent = 'Вход для Директора';
+            $('reg-desc').textContent = 'Введите вашу ссылку и кодовое слово (коньяк).';
         }
+    };
 
-        // Если студент/профессор, проверяем есть ли он в базе
-        $('auth-title').textContent = role === 'student' ? 'Вход для Студента' : 'Вход для Профессора';
-        toggleLogin('user');
-
-        try {
-            const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
-            const data = await res.json();
-
-            if (data) {
-                studentProfile = data;
-                $('register-block').hidden = true;
-                $('login-block').hidden = false;
-            } else {
-                $('register-block').hidden = false;
-                $('login-block').hidden = true;
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    // РЕГИСТРАЦИЯ СТУДЕНТА/ПРОФЕССОРА
-    window.registerUser = async () => {
+    // Обработка кнопки "Сохранить и войти"
+    $('btn-submit-reg').onclick = async () => {
         const name = $('reg-name').value.trim();
         const link = $('reg-link').value.trim();
         const pass = $('reg-pass').value.trim();
 
-        if (!name || !link || !pass) return alert("Заполните все поля!");
+        if (!name || !link || !pass) return alert("Пожалуйста, заполните все поля!");
 
-        const profile = {
-            id: vkUser.id, 
-            name: name, 
-            vkLink: link,
-            role: currentRole,
-            secretCode: pass, 
-            xp: 0, 
-            mana: 0, 
-            faculty: "Не распределен"
-        };
+        // Проверка для Директора
+        if (regRole === 'director') {
+            if (vkUser.id !== DIRECTOR_ID) return alert("Доступ запрещен. Вы не Директор.");
+            if (pass.toLowerCase() !== DIRECTOR_SECRET) return alert("Неверное кодовое слово!");
 
-        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
-        studentProfile = profile;
-        renderCabinet();
-    };
-
-    // ВХОД СТУДЕНТА/ПРОФЕССОРА
-    window.loginUser = () => {
-        const pass = $('login-pass').value.trim();
-        if (pass === studentProfile.secretCode) {
+            // Создаем профиль директора
+            const directorProfile = {
+                id: vkUser.id, name: name, vkLink: link, role: 'director', 
+                secretCode: pass, xp: 9999, mana: 9999
+            };
+            await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(directorProfile) });
+            studentProfile = directorProfile;
             renderCabinet();
-        } else {
-            $('login-error').style.display = 'block';
+            return;
         }
-    };
 
-    // ВХОД ДИРЕКТОРА
-    $('btn-login-director').onclick = async () => {
-        const secret = $('dir-secret').value.toLowerCase().trim();
-        
-        if (vkUser.id !== DIRECTOR_ID) return alert("У вас нет прав Директора!");
-        if (secret !== DIRECTOR_SECRET) return alert("Неверное кодовое слово!");
+        // Если это студент или профессор
+        try {
+            const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
+            const existingData = await res.json();
+            
+            // Если профиль уже есть и пароль не совпадает - не даем перезаписать
+            if (existingData && existingData.secretCode !== pass) {
+                return alert("Вы уже зарегистрированы! Введите свой старый пароль, чтобы обновить данные, или выберите другую роль.");
+            }
 
-        // Создаем или перезаписываем профиль директора
-        const directorProfile = {
-            id: vkUser.id, 
-            name: "Теодор Нотт", 
-            vkLink: "https://vk.com/nott_cr",
-            role: 'director', 
-            secretCode: "admin", 
-            xp: 9999, 
-            mana: 9999
-        };
-        
-        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(directorProfile) });
-        studentProfile = directorProfile;
-        renderCabinet();
+            const profile = {
+                id: vkUser.id, name: name, vkLink: link, role: regRole,
+                secretCode: pass, xp: existingData?.xp || 0, mana: existingData?.mana || 0
+            };
+            
+            await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
+            studentProfile = profile;
+            renderCabinet();
+        } catch(e) {
+            alert("Ошибка базы данных!");
+        }
     };
 
     $('logout-btn').onclick = () => {
         studentProfile = null;
-        $('dir-secret').value = '';
-        $('login-pass').value = '';
-        $('login-error').style.display = 'none';
+        $('reg-name').value = '';
+        $('reg-link').value = '';
+        $('reg-pass').value = '';
         toggleLogin('main'); 
     };
 
@@ -277,11 +233,11 @@
         toggleLogin('cabinet');
         
         $('cabinet-title').textContent = studentProfile.name;
-        $('cabinet-role').textContent = studentProfile.role === 'director' ? '👑 Директор Хогвартса' : (studentProfile.role === 'professor' ? '📖 Профессор' : 'Студент');
+        $('cabinet-role').textContent = studentProfile.role === 'director' ? '👑 Директор Хогвартса' : (studentProfile.role === 'professor' ? '📖 Профессор' : '🎓 Студент');
         $('saved-link').textContent = studentProfile.vkLink || 'Не указана';
         $('xp').textContent = studentProfile.xp || 0;
         $('mana').textContent = studentProfile.mana || 0;
-        $('room-name').textContent = 'Профиль персонажа';
+        $('room-name').textContent = 'Личное досье';
         
         if (studentProfile.role === 'director') $('director-tab').hidden = false;
         
@@ -299,7 +255,7 @@
         const root = $('book-content');
         
         if (page === 'skills') {
-            root.innerHTML = `<p class="hint">Здесь будут ваши навыки.</p>`;
+            root.innerHTML = `<p class="hint">Здесь будут ваши навыки и заклинания.</p>`;
         } 
         else if (page === 'director') {
             if (studentProfile.role !== 'director') return; 
@@ -307,13 +263,12 @@
             fetch(DB_URL + "/students.json").then(r => r.json()).then(data => {
                 allStudents = data || {};
                 
-                root.innerHTML = `<h2>База данных студентов</h2>
+                root.innerHTML = `<h2>Все учетные записи</h2>
                 <div class="admin-panel">
                     ${Object.values(allStudents).map(student => `
                         <div class="admin-card">
-                            <h3>${student.name}</h3>
-                            <p style="font-size:13px; margin:5px 0;">Роль: <span style="color:var(--primary);">${student.role}</span></p>
-                            <p style="font-size:13px; margin:5px 0;">Ссылка: <a href="${student.vkLink}" target="_blank" style="color:var(--accent);">${student.vkLink}</a></p>
+                            <h3 style="text-align:left;">${student.name} <span style="font-size:12px; color:var(--primary);">(${student.role})</span></h3>
+                            <p style="font-size:13px; margin:5px 0;">Профиль ВК: <a href="${student.vkLink}" target="_blank" style="color:var(--accent);">${student.vkLink}</a></p>
                             <span style="font-size:12px;">XP: ${student.xp || 0} | MP: ${student.mana || 0}</span>
                             <div class="admin-actions">
                                 <button onclick="giveReward('${student.id}', 'xp', 10)">+10 XP</button>
