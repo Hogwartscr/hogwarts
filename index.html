@@ -66,7 +66,6 @@
         <div id="error-box" style="color: #ff5555; font-size: 12px; margin-top: 20px; font-family: monospace;"></div>
     </div>
 
-    <!-- ФОРМА РЕГИСТРАЦИИ (СТУДЕНТ) -->
     <section id="student-register" hidden>
         <h1>Приёмная комиссия</h1>
         <p class="hint">Заполните анкету. Ваш профиль намертво привяжется к этому аккаунту ВК.</p>
@@ -106,7 +105,7 @@
         </div>
     </section>
 
-    <!-- ФОРМА ВХОДА (ДИРЕКТОР) -->
+    <!-- ТЕ САМЫЕ ИЗМЕНЕНИЯ: ПОЛЕ ДЛЯ ССЫЛКИ -->
     <section id="director-login" hidden>
         <h1>Вход для персонала</h1>
         <p class="hint">Только для администрации Хогвартса.</p>
@@ -124,7 +123,6 @@
         </div>
     </section>
 
-    <!-- ЛИЧНЫЙ КАБИНЕТ -->
     <section id="cabinet" class="cabinet" hidden>
         <header class="cabinet-top">
             <span class="eyebrow">Хогвартс / Досье</span>
@@ -216,22 +214,19 @@
         } catch(e) { console.log(e); }
     }
 
-    // Функция для получения ID по короткому имени (использует VK Bridge)
     async function resolveScreenName(input) {
-        // Очищаем ввод от лишних символов, оставляя только короткое имя
         let screenName = input.trim();
         if (screenName.includes('/')) {
-            screenName = screenName.split('/').pop(); // Берем последнюю часть после /
+            screenName = screenName.split('/').pop();
         }
-        screenName = screenName.split('?')[0]; // Убираем параметры, если есть
+        screenName = screenName.split('?')[0];
 
         try {
-            // Используем метод users.get для получения ID по screen_name
             const response = await vkBridge.send('VKWebAppCallAPIMethod', {
                 method: 'users.get',
                 params: {
                     user_ids: screenName,
-                    v: '5.131' // Версия API
+                    v: '5.131'
                 }
             });
             if (response.response && response.response.length > 0) {
@@ -243,7 +238,6 @@
         return null;
     }
 
-    // РЕГИСТРАЦИЯ СТУДЕНТА
     $('btn-register-student').onclick = async () => {
         const name = $('reg-name').value;
         const secret = $('reg-secret').value.toLowerCase().trim();
@@ -252,17 +246,10 @@
         if (secret !== "жаба прыг скок") return alert("Неверный код-пароль!");
 
         const profile = {
-            id: vkUser.id,
-            name: name,
-            faculty: $('reg-faculty').value,
-            studentId: $('reg-student-id').value,
-            course: $('reg-course').value,
-            wand: "Не указана",
-            patronus: "Неизвестен",
-            xp: 0, 
-            mana: 0,
-            role: 'student',
-            inventory: []
+            id: vkUser.id, name: name, faculty: $('reg-faculty').value,
+            studentId: $('reg-student-id').value, course: $('reg-course').value,
+            wand: "Не указана", patronus: "Неизвестен",
+            xp: 0, mana: 0, role: 'student', inventory: []
         };
         
         await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
@@ -270,25 +257,17 @@
         renderCabinet();
     };
 
-    // ВХОД ДИРЕКТОРА (с использованием ссылки/короткого имени)
     $('btn-login-director').onclick = async () => {
         const link = $('dir-link').value.trim();
         const secret = $('dir-secret').value.toLowerCase().trim();
         
-        if (!link) return alert("Введите ссылку на вашу страницу ВК или короткое имя!");
+        if (!link) return alert("Введите ссылку или короткое имя ВК!");
         if (secret !== DIRECTOR_SECRET) return alert("Неверное кодовое слово!");
 
-        // Получаем ID из введенной ссылки/имени
         const resolvedId = await resolveScreenName(link);
         
-        if (!resolvedId) {
-            return alert("Не удалось определить ID по этой ссылке. Проверьте правильность ввода.");
-        }
-
-        // СТРОГАЯ ПРОВЕРКА: Совпадает ли полученный ID с ID Директора?
-        if (resolvedId !== DIRECTOR_ID) {
-            return alert("ДОСТУП ЗАПРЕЩЕН. Эта страница ВК не принадлежит Директору.");
-        }
+        if (!resolvedId) return alert("Не удалось определить ID по ссылке.");
+        if (resolvedId !== DIRECTOR_ID) return alert("ДОСТУП ЗАПРЕЩЕН. Это не страница Директора.");
 
         isDirectorSession = true;
         
