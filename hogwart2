@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хогвартс ВГП</title>
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+    <!-- Подключаем Firebase (через рабочий сервер) -->
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.0.0/firebase-app-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.0.0/firebase-database-compat.js"></script>
+    
+    <style>
+        :root{--gold:#c9ad72;--muted:#b8b2a3;--line:#c9ad7230;--accent:#99564b}*{box-sizing:border-box}body{font-family:Georgia,'Times New Roman',serif;background:#171d1c;color:#efe7d5;min-height:100vh;padding:36px 20px;background-attachment:fixed;background-size:cover;background-position:center}body.in-cabinet{background-image:linear-gradient(90deg,#1017139c,#10171348),url('assets/gryffindor.svg')}body[data-house=slytherin]{--accent:#5c8a76}body[data-house=ravenclaw]{--accent:#6e8ba8}body[data-house=hufflepuff]{--accent:#b69c51}.container{max-width:600px;padding:30px;background:#151c1aeb;border:1px solid var(--line);border-radius:4px;box-shadow:0 24px 100px #0d1413a0;margin: 0 auto;}.in-cabinet .container{max-width:1100px;padding:32px 40px;background:linear-gradient(120deg,#141c1af5,#141c1ad9);backdrop-filter:blur(5px)}h1,h2,h3{font-weight:normal;color:#eee3cb}h2{font-size:30px;margin:8px 0}button{background:var(--gold);color:#201e18;border-radius:3px;font-family:inherit;font-weight:normal;transition:background .2s,transform .2s;padding:12px;border:none;cursor:pointer;width:100%;margin-top:15px}button:hover{background:#dfc895}button:active{transform:translateY(1px)}button:disabled{cursor:not-allowed;opacity:.5}input,select,textarea{font-family:inherit;background:#ffffff08;color:#eee3cb;border:1px solid #c9ad7245;border-radius:3px;padding:12px;font-size:16px;width:100%;margin-top:5px}select option{background:#202b26}label{color:var(--gold);font-weight:normal;display:block;margin-top:15px}.cabinet{border:0;padding:0}.cabinet-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:18px;gap:10px}.eyebrow,.cabinet .eyebrow{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}.text-button{width:auto;margin:0;padding:8px 0;background:transparent;color:var(--gold);font-size:13px}.text-button:hover{background:transparent;color:#f3dfb7}.character{display:grid;grid-template-columns:180px 1fr;gap:34px;margin:32px 0 16px;align-items:center}.portrait-wrap{height:230px;position:relative;border:1px solid #b69d635c;padding:6px;background:#292e25;box-shadow:0 0 0 5px #b69d6310}.portrait-wrap img{width:100%;height:100%;object-fit:cover}#portrait-empty{height:100%;display:grid;place-items:center;font-size:76px;color:#bba575;background:radial-gradient(ellipse at 50% 40%,#59634b55,#121b16)}.portrait-upload{position:absolute;bottom:6px;left:6px;right:6px;padding:12px 6px;text-align:center;background:#101813e6;margin:0;font-size:12px;cursor:pointer}.character .eyebrow{margin:0 0 12px}.cabinet h1{font-size:42px;line-height:1.15;margin:0;color:#f0e7d6}.character-subtitle{font-size:14px;color:var(--muted);line-height:1.5}.character-details{display:flex;gap:26px;flex-wrap:wrap;margin:24px 0 10px}.character-details span{font-size:11px;color:var(--muted)}.character-details strong{display:block;font-size:15px;font-weight:normal;color:#e4dac4;margin-top:7px;overflow-wrap:anywhere}#cabinet-status{font-size:13px;min-height:20px;color:#cebd92}.resources{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:24px;padding:22px 24px;background:#ffffff04;border:1px solid var(--line);border-left:3px solid var(--accent);margin:22px 0 38px}.resources label{margin:0;display:flex;justify-content:space-between}.resources label span{font-size:11px;letter-spacing:2px;color:var(--muted)}.resources input{font-size:28px;color:#f5e6bf;border:0;border-bottom:2px solid var(--accent);padding:4px 0;background:none;border-radius:0}.resources p{font-size:11px;color:var(--muted);margin-bottom:0}.resources button{font-size:13px;margin:0;padding:13px;width:auto}.journal-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.secondary{background:transparent;border:1px solid #c9ad7260;color:var(--gold);width:auto;margin:0;font-size:13px;padding:11px 17px}.secondary:hover{background:#c9ad7215}.hint{font-size:13px;color:var(--muted);line-height:1.7;max-width:700px}.tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin:24px 0}.tabs button{border-radius:0;width:auto;background:none;color:var(--muted);font-size:15px;padding:12px 0;margin:0;border-bottom:2px solid transparent}.tabs button[aria-pressed=true]{color:#e7ce96;border-color:var(--gold)}.entries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.entry{padding:23px;background:linear-gradient(140deg,#ffffff06,transparent);border:1px solid var(--line);border-radius:3px;display:flex;flex-direction:column}.entry-head{display:flex;align-items:center;gap:13px}.entry-icon{font-size:28px;color:var(--gold)}.entry h3{font-size:21px;margin:0;overflow-wrap:anywhere}.entry p{font-size:14px;line-height:1.7;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}.entry-state{font-size:12px;line-height:1.6;color:#d3c298;margin-top:auto;padding-top:10px}.entry-action{margin-top:17px;font-size:13px;padding:11px;border:1px solid #c9ad7250;background:#c9ad7214;color:#e4cb98}.remove{align-self:flex-end;margin-top:12px;font-size:11px}.empty-state{color:var(--muted);padding:25px 0;font-size:15px}.castle-intro{padding:26px 0 30px;border-bottom:1px solid var(--line)}.castle-intro h2{font-size:38px}.locations{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin:24px 0}.location{min-height:150px;text-align:left;padding:24px;border:1px solid var(--line);background:linear-gradient(130deg,#42534355,#111b18);color:#eee3cb;margin:0}.location b{display:block;font-size:24px;font-weight:normal;margin-bottom:15px}.location span{font-size:13px;line-height:1.7;color:#d2c3a3}.school-panel{padding:24px;border:1px solid var(--line);margin:20px 0;background:#ffffff03}.school-panel p{line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}.school-panel button{width:auto;margin:12px 12px 0 0}.school-panel h3{font-size:24px}.badge{font-size:12px;color:#d4bf8c}.school-panel details{padding:12px 0}.school-panel summary{cursor:pointer;color:var(--gold)}.school-panel textarea{min-height:130px}.tabs{flex-wrap:wrap}.school-panel form{max-width:720px}
+        .welcome-text { line-height: 1.7; color: #d8d4ca; text-align: left; }
+        .welcome h1 { font-family: Georgia, serif; text-align: left; font-weight: normal; font-size: 30px; line-height: 1.25; margin: 12px 0 22px; }
+        .welcome ul, .welcome ol { padding-left: 23px; }
+        .welcome li { margin: 12px 0; padding-left: 4px; }
+    </style>
+</head>
+<body>
+
+<main class="container">
+    <!-- ЭКРАН ПРИВЕТСТВИЯ -->
+    <section id="welcome" class="welcome">
+        <p class="eyebrow">Хогвартс · Школа магии</p>
+        <h1>Добро пожаловать в Школу, дорогой волшебник!</h1>
+        <div class="welcome-text">
+            <p>Хогвартс является единственной школой магии в Великобритании и Ирландии. В неё принимаются дети, достигшие 11 лет и обладающие магическими способностями. Как только ребёнок начинает проявлять магические силы, его имя сразу вписывается Пером приёма в специальную Книгу доступа.</p>
+            <h2>Что вы можете сделать</h2>
+            <ul>
+                <li><strong>Создать профиль:</strong> Заполните анкету студента.</li>
+                <li><strong>Играть:</strong> Читайте лекции, отвечайте на тесты и пишите РП-практики. Преподаватель проверяет работы и начисляет опыт и ману.</li>
+            </ul>
+        </div>
+        <button type="button" id="start">Создать профиль / Войти</button>
+        <button type="button" id="director-preview-open" style="display:none; background:#99564b; color:white; margin-top:10px;">👑 Панель директора</button>
+        <p class="help" style="margin-top:20px; font-size:12px; color:#888;">Если возникнут вопросы, пишите в сообщения сообщества.</p>
+    </section>
+
+    <!-- КАРТОЧКА СТУДЕНТА -->
+    <section id="student-profile" hidden>
+        <button type="button" id="back" class="secondary" style="margin-bottom:20px;">← На главную</button>
+        <h1>Карточка студента</h1>
+        <p class="hint">Профиль сохраняется в общей базе школы и привязывается к вашему аккаунту ВКонтакте.</p>
+        <label>Имя персонажа:</label>
+        <input type="text" id="charName" placeholder="Например: Теодор Нотт">
+        <label>Факультет:</label>
+        <select id="faculty">
+            <option value="Гриффиндор">Гриффиндор</option>
+            <option value="Слизерин">Слизерин</option>
+            <option value="Когтевран">Когтевран</option>
+            <option value="Пуффендуй">Пуффендуй</option>
+        </select>
+        <label>Волшебная палочка:</label>
+        <input type="text" id="wand" placeholder="Древесина и сердцевина">
+        <label>Патронус:</label>
+        <input type="text" id="patronus" placeholder="Ваше животное">
+        <button type="button" id="save-profile">Сохранить профиль</button>
+    </section>
+
+    <!-- ЛИЧНЫЙ КАБИНЕТ -->
+    <section id="cabinet" class="cabinet" hidden>
+        <header class="cabinet-top">
+            <span class="eyebrow">Хогвартс / Досье</span>
+            <button id="cabinet-home" class="text-button">На главную ↗</button>
+        </header>
+        
+        <div class="character">
+            <div class="portrait-wrap">
+                <div id="portrait-empty">✦</div>
+            </div>
+            <div class="character-info">
+                <p id="room-name" class="eyebrow"></p>
+                <h1 id="cabinet-title"></h1>
+                <p class="character-subtitle">Студент школы чародейства и волшебства</p>
+                <div class="character-details">
+                    <span>Палочка <strong id="saved-wand"></strong></span>
+                    <span>Патронус <strong id="saved-patronus"></strong></span>
+                </div>
+                <button id="edit-profile" class="text-button">Изменить анкету ↗</button>
+            </div>
+        </div>
+        
+        <div class="resources">
+            <div><label>Опыт · XP</label><strong id="xp" style="font-size:36px;color:#f5e6bf;">0</strong></div>
+            <div><label>Мана · MP</label><strong id="mana" style="font-size:36px;color:#f5e6bf;">0</strong></div>
+        </div>
+
+        <nav class="tabs">
+            <button data-page="world" aria-pressed="true">Замок</button>
+            <button data-page="book">Мои знания</button>
+            <button data-page="history">Журнал</button>
+            <button data-page="director" id="director-tab" hidden>Директор</button>
+        </nav>
+        <section id="school-content"></section>
+    </section>
+</main>
+
+<script>
+    // ==========================================
+    // 1. ИНИЦИАЛИЗАЦИЯ FIREBASE
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyBe4V7S106dXf5uS9-Y-wHP7ZOUH0_VX1Q",
+        authDomain: "hogwartscr.firebaseapp.com",
+        databaseURL: "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "hogwartscr",
+        storageBucket: "hogwartscr.firebasestorage.app",
+        messagingSenderId: "79365001784",
+        appId: "1:79365001784:web:9ec8447b3825b2d277c7d",
+        measurementId: "G-73DK3E75WM"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ВАШ VK ID (Директор)
+    const DIRECTOR_ID = 836264843; 
+
+    // ==========================================
+    // 2. ПЕРЕМЕННЫЕ И ЛОГИКА
+    // ==========================================
+    let vkUser = null;
+    let studentProfile = null;
+    let allStudents = {};
+    let submissions = {};
+    let lessons = {};
+
+    const $ = id => document.getElementById(id);
+    function show(id) {
+        ['welcome', 'student-profile', 'cabinet'].forEach(s => $(s).hidden = s !== id);
+        document.body.classList.toggle('in-cabinet', id === 'cabinet');
+        window.scrollTo(0,0);
+    }
+
+    // Инициализация ВК
+    if (window.vkBridge) vkBridge.send('VKWebAppInit');
+
+    $('start').onclick = async () => {
+        try {
+            if (window.vkBridge) {
+                const info = await vkBridge.send('VKWebAppGetUserInfo');
+                vkUser = info;
+                initApp();
+            } else {
+                alert("Откройте приложение через ВКонтакте!");
+            }
+        } catch (e) { alert("Ошибка авторизации: " + e.message); }
+    };
+
+    $('director-preview-open').onclick = () => {
+        if (vkUser && vkUser.id === DIRECTOR_ID) {
+            openCabinet('director');
+        }
+    };
+
+    async function initApp() {
+        // Проверка на директора
+        if (vkUser.id === DIRECTOR_ID) {
+            $('director-preview-open').style.display = 'block';
+            $('director-tab').hidden = false;
+        }
+
+        // Загружаем данные из Firebase
+        db.ref('/').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            allStudents = data.students || {};
+            submissions = data.submissions || {};
+            lessons = data.lessons || {};
+            
+            studentProfile = allStudents[vkUser.id];
+
+            if (studentProfile) {
+                renderCabinet();
+            } else {
+                show('student-profile');
+            }
+        });
+    }
+
+    // Сохранение профиля
+    $('save-profile').onclick = () => {
+        const name = $('charName').value;
+        if (!name) return alert("Введите имя!");
+        
+        const profile = {
+            id: vkUser.id,
+            name: name,
+            faculty: $('faculty').value,
+            wand: $('wand').value,
+            patronus: $('patronus').value,
+            xp: studentProfile?.xp || 0,
+            mana: studentProfile?.mana || 0,
+            role: vkUser.id === DIRECTOR_ID ? 'director' : 'student'
+        };
+
+        db.ref('students/' + vkUser.id).set(profile);
+    };
+
+    $('edit-profile').onclick = () => {
+        $('charName').value = studentProfile.name;
+        $('faculty').value = studentProfile.faculty;
+        $('wand').value = studentProfile.wand;
+        $('patronus').value = studentProfile.patronus;
+        show('student-profile');
+    };
+
+    $('back').onclick = () => show(studentProfile ? 'cabinet' : 'welcome');
+    $('cabinet-home').onclick = () => show('welcome');
+
+    function renderCabinet() {
+        $('cabinet-title').textContent = studentProfile.name;
+        $('saved-wand').textContent = studentProfile.wand || 'Не указана';
+        $('saved-patronus').textContent = studentProfile.patronus || 'Неизвестен';
+        $('xp').textContent = studentProfile.xp || 0;
+        $('mana').textContent = studentProfile.mana || 0;
+        $('room-name').textContent = 'Гостиная · ' + studentProfile.faculty;
+        document.body.dataset.house = studentProfile.faculty.toLowerCase();
+        show('cabinet');
+        renderPage('world');
+    }
+
+    // ==========================================
+    // 3. РЕНДЕР ВКЛАДОК (Лекции, Задания, Директор)
+    // ==========================================
+    document.querySelectorAll('[data-page]').forEach(btn => {
+        btn.onclick = () => renderPage(btn.dataset.page);
+    });
+
+    function renderPage(page) {
+        document.querySelectorAll('[data-page]').forEach(b => b.setAttribute('aria-pressed', b.dataset.page === page));
+        const root = $('school-content');
+
+        if (page === 'world') {
+            root.innerHTML = `<h2>Учебные кабинеты</h2>
+            <p class="hint">Здесь появятся лекции и задания от преподавателей.</p>
+            <div class="locations">
+                <button class="location"><span>01</span><b>Кабинет заклинаний</b><span>Лекции и практика ↗</span></button>
+                <button class="location"><span>02</span><b>Класс зельеварения</b><span>Рецепты и работы ↗</span></button>
+            </div>`;
+        } else if (page === 'book') {
+            root.innerHTML = `<h2>Книга знаний</h2>
+            <p class="hint">Здесь отображаются ваши изученные заклинания (появятся после проверки ДЗ).</p>`;
+        } else if (page === 'history') {
+            root.innerHTML = `<h2>Журнал начислений</h2><p class="empty-state">Пока нет начислений.</p>`;
+        } else if (page === 'director') {
+            if (vkUser.id !== DIRECTOR_ID) return;
+            renderDirector(root);
+        }
+    }
+
+    function renderDirector(root) {
+        root.innerHTML = `<h2>Кабинет директора</h2>
+        <p class="hint">Всего студентов: ${Object.keys(allStudents).length}</p>
+        <div class="school-panel">
+            <h3>Добавить лекцию</h3>
+            <label>Название<input id="l-title" placeholder="Например: Основы трансфигурации"></label>
+            <label>Лекция (текст)<textarea id="l-text"></textarea></label>
+            <button onclick="createLesson()">Опубликовать</button>
+        </div>
+        <h3>Список студентов</h3>
+        ${Object.values(allStudents).map(s => `
+            <div class="school-panel">
+                <p><strong>${s.name}</strong> (${s.faculty}) — ${s.xp} XP / ${s.mana} MP</p>
+                <button onclick="giveXP('${s.id}', 10)">+10 XP</button>
+            </div>
+        `).join('')}`;
+    }
+
+    window.createLesson = () => {
+        const title = $('l-title').value;
+        const text = $('l-text').value;
+        if(!title) return;
+        db.ref('lessons').push({ title, text, author: vkUser.id });
+        alert('Лекция добавлена!');
+    };
+
+    window.giveXP = (studentId, amount) => {
+        db.ref('students/' + studentId + '/xp').transaction(current => (current || 0) + amount);
+        alert('Баллы начислены!');
+    };
+
+</script>
+</body>
+</html>
