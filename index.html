@@ -4,14 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хогвартс ВГП</title>
-    
-    <!-- Загружаем VK Bridge -->
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-    
-    <!-- ЗАГРУЖАЕМ FIREBASE ЧЕРЕЗ CLOUDFLARE (Самый надежный CDN) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.1/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.1/firebase-database-compat.min.js"></script>
-    
     <style>
         :root { --primary: #BEA7B9; --accent: #975F8F; --dark-accent: #48294E; --panel: #1F1B3D; --bg: #161228; --text: #EADCE6; }
         *{box-sizing:border-box}
@@ -61,7 +54,7 @@
         .center-menu button { max-width: 400px; margin: 10px auto; display: block; }
         .hidden { display: none !important; }
 
-        /* Стили для чата */
+        /* Чат */
         .chat-container { border: 1px solid var(--accent); border-radius: 6px; padding: 15px; margin-top: 15px; background: rgba(0,0,0,0.3); }
         .chat-messages { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding-right: 10px;}
         .msg { padding: 10px; border-radius: 8px; max-width: 80%; font-size: 14px; word-wrap: break-word;}
@@ -71,16 +64,11 @@
         .chat-input-area { display: flex; gap: 10px; }
         .chat-input-area input { margin: 0; }
         .chat-input-area button { margin: 0; }
-        
-        #error-box { color: #ff5555; font-size: 14px; margin-top: 20px; font-family: monospace; background: rgba(255,0,0,0.1); padding: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div id="loading" class="center-menu" style="color: var(--primary); font-size: 18px;">
-    🔮 Загрузка...
-    <div id="error-box"></div>
-</div>
+<div id="loading" class="center-menu" style="color: var(--primary); font-size: 18px;">🔮 Загрузка...</div>
 
 <!-- ГЛАВНОЕ МЕНЮ -->
 <div id="main-menu" class="center-menu hidden">
@@ -177,14 +165,6 @@
 </div>
 
 <script>
-    const errorBox = document.getElementById('error-box');
-    
-    // Ловим ошибки
-    window.onerror = function(msg) {
-        errorBox.innerText += "ОШИБКА: " + msg + "\n";
-        return false;
-    };
-
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
     const DIRECTOR_ID = 836264843; 
     const DIRECTOR_SECRET = "коньяк"; 
@@ -194,34 +174,19 @@
     let viewProfile = null;   
     let isAdminView = false;
     let isGuestView = false;
-    let chatListener = null;
-    let firebaseReady = false;
+    let chatTimer = null;
 
-    // Инициализация Firebase
-    try {
-        if (typeof firebase !== 'undefined') {
-            const firebaseConfig = { databaseURL: DB_URL };
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            firebaseReady = true;
-        } else {
-            errorBox.innerText += "Библиотека Firebase не загрузилась! Проверьте блокировщики.\n";
-        }
-    } catch(e) { errorBox.innerText += "Ошибка Firebase: " + e.message + "\n"; }
-
-    // Запуск ВК
     if (window.vkBridge) {
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
             document.getElementById('loading').style.display = 'none';
             showMenu();
-        }).catch(e => errorBox.innerText += "Ошибка ВК Bridge: " + e.message + "\n");
-    } else {
-        errorBox.innerText += "VK Bridge не загрузился!\n";
+        }).catch(e => document.getElementById('loading').innerText = "Ошибка ВК");
     }
 
     function hideAll() {
         ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
-        if(chatListener && firebaseReady) { chatListener.off(); chatListener = null; }
+        if(chatTimer) { clearInterval(chatTimer); chatTimer = null; }
     }
     function showMenu() { hideAll(); document.getElementById('main-menu').classList.remove('hidden'); }
     function showLogin() { hideAll(); document.getElementById('login-screen').classList.remove('hidden'); }
@@ -303,7 +268,7 @@
             document.getElementById('header-title').textContent = "РЕЖИМ ДИРЕКТОРА / " + profile.name;
             btnHtml = `
                 <button class="text-button" onclick="openEdit()" style="color:var(--primary);">✏️ Редактировать</button>
-                <button class="text-button" onclick="backToBase()" style="color:#ff5555;">← Назад в базу</button>`;
+                <button class="text-button" onclick="backToStudents()" style="color:#ff5555;">← Назад в базу</button>`;
         } else if (guestMode) {
             document.getElementById('header-title').textContent = "ПРОСМОТР ГОСТЯ / " + profile.name;
             btnHtml = `<button class="text-button" onclick="backToStudents()" style="color:var(--primary);">← Назад к профилям</button>`;
@@ -348,7 +313,7 @@
     function cancelEdit() { openCabinet(viewProfile, isAdminView, isGuestView); }
 
     function switchTab(tab) {
-        if(chatListener && firebaseReady) { chatListener.off(); chatListener = null; }
+        if(chatTimer) { clearInterval(chatTimer); chatTimer = null; }
         document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
         const btn = document.querySelector(`.tabs button[data-tab="${tab}"]`);
         if (btn) btn.classList.add('active');
@@ -510,40 +475,24 @@
 
         const chatBox = document.getElementById('chat-box');
         
-        if (chatListener && firebaseReady) { chatListener.off(); chatListener = null; }
-        
-        if (firebaseReady) {
-            chatListener = firebase.database().ref(`messages/${chatId}`).on('value', (snapshot) => {
-                const msgs = snapshot.val() || {};
-                chatBox.innerHTML = '';
-                Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
-                    const isMe = m.senderId === vkUser.id;
-                    let content = m.text;
-                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
-                        content = `<img src="${m.text}">`;
-                    }
-                    chatBox.innerHTML += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
-                });
-                chatBox.scrollTop = chatBox.scrollHeight;
+        const loadMsgs = async () => {
+            if(!document.getElementById('chat-box')) { clearInterval(chatTimer); return; }
+            const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
+            const msgs = await res.json() || {};
+            let html = '';
+            Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
+                const isMe = m.senderId === vkUser.id;
+                let content = m.text;
+                if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) content = `<img src="${m.text}">`;
+                html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
             });
-        } else {
-            const loadLoop = async () => {
-                if(!document.getElementById('chat-box')) return;
-                const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
-                const msgs = await res.json() || {};
-                let html = '';
-                Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
-                    const isMe = m.senderId === vkUser.id;
-                    let content = m.text;
-                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) content = `<img src="${m.text}">`;
-                    html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
-                });
-                chatBox.innerHTML = html;
-                chatBox.scrollTop = chatBox.scrollHeight;
-                setTimeout(loadLoop, 3000);
-            };
-            loadLoop();
-        }
+            chatBox.innerHTML = html;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        loadMsgs();
+        if(chatTimer) clearInterval(chatTimer);
+        chatTimer = setInterval(loadMsgs, 2000); // Обновление раз в 2 секунды
     }
 
     async function sendMsg(targetId) {
@@ -561,6 +510,22 @@
 
         input.value = '';
         await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
+        
+        // Мгновенно обновляем чат после отправки
+        const chatBox = document.getElementById('chat-box');
+        if(chatBox) {
+            const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
+            const msgs = await res.json() || {};
+            let html = '';
+            Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
+                const isMe = m.senderId === vkUser.id;
+                let content = m.text;
+                if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) content = `<img src="${m.text}">`;
+                html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
+            });
+            chatBox.innerHTML = html;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
     }
 </script>
 </body>
