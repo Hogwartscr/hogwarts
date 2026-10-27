@@ -66,6 +66,7 @@
         <div id="error-box" style="color: #ff5555; font-size: 12px; margin-top: 20px; font-family: monospace;"></div>
     </div>
 
+    <!-- ФОРМА РЕГИСТРАЦИИ (СТУДЕНТ) -->
     <section id="student-register" hidden>
         <h1>Приёмная комиссия</h1>
         <p class="hint">Заполните анкету. Ваш профиль намертво привяжется к этому аккаунту ВК.</p>
@@ -81,9 +82,6 @@
             <option value="Пуффендуй">🦡 Пуффендуй</option>
         </select>
 
-        <label>Номер в списке студентов:</label>
-        <input type="number" id="reg-student-id" placeholder="Например: 14">
-        
         <label>Курс:</label>
         <select id="reg-course">
             <option value="1">1 курс</option>
@@ -95,8 +93,9 @@
             <option value="7">7 курс</option>
         </select>
 
-        <label>Код-пароль (из сообщества):</label>
-        <input type="text" id="reg-secret" placeholder="Например: жаба прыг скок">
+        <!-- СТУДЕНТ САМ ПРИДУМЫВАЕТ КОД -->
+        <label>Придумайте свой секретный код-пароль:</label>
+        <input type="text" id="reg-secret" placeholder="Например: мой_любимый_патронус">
         
         <button type="button" id="btn-register-student">Подать документы</button>
 
@@ -105,7 +104,47 @@
         </div>
     </section>
 
-    <!-- ТЕ САМЫЕ ИЗМЕНЕНИЯ: ПОЛЕ ДЛЯ ССЫЛКИ -->
+    <!-- ФОРМА РЕДАКТИРОВАНИЯ ПРОФИЛЯ -->
+    <section id="edit-profile" hidden>
+        <h1>Редактирование анкеты</h1>
+        <p class="hint">Вы можете изменить свои данные в любой момент.</p>
+        
+        <label>Имя персонажа:</label>
+        <input type="text" id="edit-name">
+        
+        <label>Факультет:</label>
+        <select id="edit-faculty">
+            <option value="Гриффиндор">🦁 Гриффиндор</option>
+            <option value="Слизерин">🐍 Слизерин</option>
+            <option value="Когтевран">🦅 Когтевран</option>
+            <option value="Пуффендуй">🦡 Пуффендуй</option>
+        </select>
+
+        <label>Курс:</label>
+        <select id="edit-course">
+            <option value="1">1 курс</option>
+            <option value="2">2 курс</option>
+            <option value="3">3 курс</option>
+            <option value="4">4 курс</option>
+            <option value="5">5 курс</option>
+            <option value="6">6 курс</option>
+            <option value="7">7 курс</option>
+        </select>
+        
+        <label>Волшебная палочка:</label>
+        <input type="text" id="edit-wand" placeholder="Древесина и сердцевина">
+
+        <label>Патронус:</label>
+        <input type="text" id="edit-patronus" placeholder="Ваше животное">
+        
+        <label>Ваш секретный код:</label>
+        <input type="text" id="edit-secret" placeholder="Секретный код">
+        
+        <button type="button" id="btn-save-edit">Сохранить изменения</button>
+        <button type="button" class="text-button" style="margin-top:10px;" onclick="renderCabinet()">Отмена</button>
+    </section>
+
+    <!-- ФОРМА ВХОДА (ДИРЕКТОР) -->
     <section id="director-login" hidden>
         <h1>Вход для персонала</h1>
         <p class="hint">Только для администрации Хогвартса.</p>
@@ -123,10 +162,14 @@
         </div>
     </section>
 
+    <!-- ЛИЧНЫЙ КАБИНЕТ -->
     <section id="cabinet" class="cabinet" hidden>
         <header class="cabinet-top">
             <span class="eyebrow">Хогвартс / Досье</span>
-            <button id="logout-btn" class="text-button" style="color:#ff5555;">Выйти на главную</button>
+            <div>
+                <button id="btn-edit-profile" class="text-button" style="color:var(--primary); margin-right:15px;">✏️ Редактировать</button>
+                <button id="logout-btn" class="text-button" style="color:#ff5555;">Выйти</button>
+            </div>
         </header>
         
         <div class="character">
@@ -137,8 +180,8 @@
                 <p id="cabinet-role" class="character-subtitle">Студент школы чародейства и волшебства</p>
                 <div class="character-details">
                     <span>Курс <strong id="saved-course"></strong></span>
-                    <span>Студ. билет <strong id="saved-student-id"></strong></span>
                     <span>Палочка <strong id="saved-wand"></strong></span>
+                    <span>Патронус <strong id="saved-patronus"></strong></span>
                 </div>
             </div>
         </div>
@@ -195,6 +238,7 @@
         $('loading').hidden = true;
         $('student-register').hidden = role !== 'student';
         $('director-login').hidden = role !== 'director';
+        $('edit-profile').hidden = true;
         $('cabinet').hidden = true;
     }
 
@@ -216,40 +260,39 @@
 
     async function resolveScreenName(input) {
         let screenName = input.trim();
-        if (screenName.includes('/')) {
-            screenName = screenName.split('/').pop();
-        }
+        if (screenName.includes('/')) screenName = screenName.split('/').pop();
         screenName = screenName.split('?')[0];
 
         try {
             const response = await vkBridge.send('VKWebAppCallAPIMethod', {
                 method: 'users.get',
-                params: {
-                    user_ids: screenName,
-                    v: '5.131'
-                }
+                params: { user_ids: screenName, v: '5.131' }
             });
-            if (response.response && response.response.length > 0) {
-                return response.response[0].id;
-            }
-        } catch (error) {
-            console.error('Ошибка при получении ID:', error);
-        }
+            if (response.response && response.response.length > 0) return response.response[0].id;
+        } catch (error) { console.error(error); }
         return null;
     }
 
+    // РЕГИСТРАЦИЯ СТУДЕНТА (Свой пароль)
     $('btn-register-student').onclick = async () => {
         const name = $('reg-name').value;
-        const secret = $('reg-secret').value.toLowerCase().trim();
+        const secret = $('reg-secret').value.trim(); // Студент сам придумывает пароль
         
         if (!name) return alert("Введите имя персонажа!");
-        if (secret !== "жаба прыг скок") return alert("Неверный код-пароль!");
+        if (!secret) return alert("Придумайте секретный код-пароль!");
 
         const profile = {
-            id: vkUser.id, name: name, faculty: $('reg-faculty').value,
-            studentId: $('reg-student-id').value, course: $('reg-course').value,
-            wand: "Не указана", patronus: "Неизвестен",
-            xp: 0, mana: 0, role: 'student', inventory: []
+            id: vkUser.id, 
+            name: name, 
+            faculty: $('reg-faculty').value,
+            course: $('reg-course').value,
+            wand: "Не указана", 
+            patronus: "Неизвестен",
+            secretCode: secret, // Сохраняем придуманный код
+            xp: 0, 
+            mana: 0, 
+            role: 'student', 
+            inventory: []
         };
         
         await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
@@ -257,6 +300,7 @@
         renderCabinet();
     };
 
+    // ВХОД ДИРЕКТОРА
     $('btn-login-director').onclick = async () => {
         const link = $('dir-link').value.trim();
         const secret = $('dir-secret').value.toLowerCase().trim();
@@ -274,8 +318,8 @@
         if (!studentProfile || studentProfile.role !== 'director') {
             const profile = {
                 id: vkUser.id, name: vkUser.first_name + " " + vkUser.last_name, 
-                faculty: "Гриффиндор", course: "—", studentId: "ADMIN", 
-                wand: "Бузинная палочка", patronus: "Феникс",
+                faculty: "Гриффиндор", course: "—", 
+                wand: "Бузинная палочка", patronus: "Феникс", secretCode: "admin",
                 xp: 9999, mana: 9999, role: 'director', inventory: []
             };
             await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
@@ -283,6 +327,32 @@
         }
         
         renderCabinet();
+    };
+
+    // РЕДАКТИРОВАНИЕ ПРОФИЛЯ
+    $('btn-edit-profile').onclick = () => {
+        $('edit-name').value = studentProfile.name;
+        $('edit-faculty').value = studentProfile.faculty;
+        $('edit-course').value = studentProfile.course;
+        $('edit-wand').value = studentProfile.wand || '';
+        $('edit-patronus').value = studentProfile.patronus || '';
+        $('edit-secret').value = studentProfile.secretCode || '';
+        
+        $('cabinet').hidden = true;
+        $('edit-profile').hidden = false;
+    };
+
+    $('btn-save-edit').onclick = async () => {
+        studentProfile.name = $('edit-name').value;
+        studentProfile.faculty = $('edit-faculty').value;
+        studentProfile.course = $('edit-course').value;
+        studentProfile.wand = $('edit-wand').value;
+        studentProfile.patronus = $('edit-patronus').value;
+        studentProfile.secretCode = $('edit-secret').value;
+        
+        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(studentProfile) });
+        renderCabinet();
+        alert("Данные сохранены!");
     };
 
     $('logout-btn').onclick = () => {
@@ -296,14 +366,15 @@
         $('loading').hidden = true;
         $('student-register').hidden = true;
         $('director-login').hidden = true;
+        $('edit-profile').hidden = true;
         $('cabinet').hidden = false;
         document.body.classList.add('in-cabinet');
         
         $('cabinet-title').textContent = studentProfile.name;
         $('cabinet-role').textContent = studentProfile.role === 'director' ? '👑 Директор Хогвартса' : 'Студент ' + studentProfile.course + ' курса';
         $('saved-course').textContent = studentProfile.course;
-        $('saved-student-id').textContent = studentProfile.studentId;
         $('saved-wand').textContent = studentProfile.wand || 'Не указана';
+        $('saved-patronus').textContent = studentProfile.patronus || 'Неизвестен';
         $('xp').textContent = studentProfile.xp || 0;
         $('mana').textContent = studentProfile.mana || 0;
         $('room-name').textContent = 'Гостиная · ' + studentProfile.faculty;
