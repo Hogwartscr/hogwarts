@@ -14,7 +14,9 @@
         h1,h2,h3{font-weight:normal;color:var(--primary);margin-top:0;}
         button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:10px 15px;border:none;cursor:pointer;font-size: 14px;}
         button:hover{background:var(--accent); color:white;}
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         input,select,textarea{font-family:inherit;background:rgba(0,0,0,0.2);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:10px;font-size:14px;width:100%;margin-top:5px}
+        input:disabled { opacity: 0.5; cursor: not-allowed; }
         select option{background:var(--panel)}
         label{color:var(--primary);font-weight:normal;display:block;margin-top:12px; font-size:14px;}
         
@@ -85,7 +87,10 @@
 </head>
 <body>
 
-<div id="loading" class="center-menu" style="color: var(--primary); font-size: 18px;">🔮 Загрузка...</div>
+<div id="loading" class="center-menu" style="color: var(--primary); font-size: 18px;">
+    🔮 Загрузка...
+    <div id="error-box" style="color: #ff5555; font-size: 14px; margin-top: 20px; font-family: monospace; text-align: left;"></div>
+</div>
 
 <!-- ГЛАВНОЕ МЕНЮ -->
 <div id="main-menu" class="center-menu hidden">
@@ -204,6 +209,9 @@
 </div>
 
 <script>
+    const errorBox = document.getElementById('error-box');
+    window.onerror = function(msg) { if(errorBox) errorBox.innerText += "ОШИБКА: " + msg + "\n"; return false; };
+
     function updateCatText(text) {
         const bubble = document.getElementById('cat-bubble');
         if(bubble) bubble.innerHTML = text;
@@ -258,7 +266,9 @@
             vkUser = info;
             document.getElementById('loading').style.display = 'none';
             showMenu();
-        }).catch(e => alert("Ошибка ВК: " + e.message));
+        }).catch(e => { if(errorBox) errorBox.innerText = "Ошибка ВК: " + e.message; });
+    } else {
+        if(errorBox) errorBox.innerText = "Библиотека VK Bridge не загрузилась!";
     }
 
     function hideAll() {
@@ -297,7 +307,6 @@
         openCabinet(profile, false, false);
     }
 
-    // БЕСПРОИГРЫШНЫЙ ВХОД ДИРЕКТОРА
     async function doDirectorLogin() {
         if (vkUser.id !== DIRECTOR_ID) return alert("Вы не Директор!");
         
@@ -308,19 +317,17 @@
         const existing = await res.json();
 
         if (existing) {
-            // Если профиль есть, но пароль не совпадает
             if (existing.secretCode !== pass) {
                 const confirmReset = confirm("Пароль не совпадает. Хотите сбросить его на новый?");
                 if (confirmReset) {
                     existing.secretCode = pass;
                     await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ secretCode: pass }) });
                 } else {
-                    return; // Пользователь нажал Отмена
+                    return; 
                 }
             }
             myProfile = existing;
         } else {
-            // Первая регистрация Директора
             const profile = {
                 id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
                 role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "",
@@ -408,6 +415,16 @@
         document.getElementById('edit-xp').value = viewProfile.xp || 0;
         document.getElementById('edit-mp').value = viewProfile.mana || 0;
         
+        // БЛОКИРОВКА ПОЛЕЙ XP/MP ДЛЯ СТУДЕНТОВ
+        const isDirector = myProfile.role === 'director';
+        if (!isAdminView && !isDirector) {
+            document.getElementById('edit-xp').setAttribute('disabled', 'true');
+            document.getElementById('edit-mp').setAttribute('disabled', 'true');
+        } else {
+            document.getElementById('edit-xp').removeAttribute('disabled');
+            document.getElementById('edit-mp').removeAttribute('disabled');
+        }
+        
         document.getElementById('edit-photo-data').value = viewProfile.photo || '';
         if(viewProfile.photo) {
             document.getElementById('edit-photo-preview').innerHTML = `<img src="${viewProfile.photo}" style="max-width:100px; border-radius:4px;">`;
@@ -424,8 +441,12 @@
         viewProfile.vkLink = document.getElementById('edit-link').value;
         viewProfile.secretCode = document.getElementById('edit-pass').value;
         
-        viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
-        viewProfile.mana = Number(document.getElementById('edit-mp').value) || 0;
+        // СОХРАНЕНИЕ XP/MP ТОЛЬКО ДЛЯ ДИРЕКТОРА
+        const isDirector = myProfile.role === 'director';
+        if (isAdminView || isDirector) {
+            viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
+            viewProfile.mana = Number(document.getElementById('edit-mp').value) || 0;
+        }
 
         const newPhoto = document.getElementById('edit-photo-data').value;
         if(newPhoto) viewProfile.photo = newPhoto;
@@ -447,24 +468,26 @@
         
         const root = document.getElementById('book-content');
         
-        let canEdit = isAdminView || (!isGuestView && viewProfile.id === vkUser.id);
+        // ПРАВА НА РЕДАКТИРОВАНИЕ КАРТОЧЕК (ТОЛЬКО ДИРЕКТОР)
+        const isDirector = myProfile.role === 'director';
+        let canEditStats = isAdminView || isDirector;
 
         if (tab === 'skills') {
-            updateCatText("Здесь твои <b>Навыки</b>. Если ты Директор или владелец, прокрути вниз, чтобы добавить новый навык.");
-            renderList('skills', 'Навыки', '✦', root, canEdit);
+            updateCatText("Здесь твои <b>Навыки</b>. Ученики видят только свои карточки, а Директор может их добавлять.");
+            renderList('skills', 'Навыки', '✦', root, canEditStats);
         }
         else if (tab === 'spells') {
-            updateCatText("Это твои <b>Заклинания</b>. Можно загрузить картинку для каждого!");
-            renderList('spells', 'Заклинания', '⚡', root, canEdit);
+            updateCatText("Это твои <b>Заклинания</b>. Директор может добавлять их в твой профиль.");
+            renderList('spells', 'Заклинания', '⚡', root, canEditStats);
         }
         else if (tab === 'potions') {
-            updateCatText("Твои <b>Зелья</b>. Добавляй описание и красивую картинку.");
-            renderList('potions', 'Зелья', '🧪', root, canEdit);
+            updateCatText("Твои <b>Зелья</b>. Директор может добавлять их в твой профиль.");
+            renderList('potions', 'Зелья', '🧪', root, canEditStats);
         }
         else if (tab === 'notes') {
             updateCatText("Твой <b>Личный дневник</b>. Пиши сюда заметки.");
             root.innerHTML = `<div class="product-card"><div class="product-info"><h3>📝 Дневник</h3><p>${viewProfile.notes || 'Заметок пока нет.'}</p></div></div>`;
-            if (canEdit) {
+            if (canEditStats) {
                 root.innerHTML += `<div class="builder-box"><textarea id="edit-notes" rows="5">${viewProfile.notes||''}</textarea><button onclick="saveText('notes')" style="margin-top:10px; background:#4CAF50; color:white;">Сохранить заметки</button></div>`;
             }
         }
@@ -478,7 +501,7 @@
         }
     }
 
-    function renderList(type, title, icon, container, canEdit) {
+    function renderList(type, title, icon, container, canEditStats) {
         let html = `<div class="skills-grid">`;
         const items = viewProfile[type] || [];
         
@@ -497,7 +520,7 @@
                     : `<div style="font-size:50px;">${icon}</div>`;
 
                 let btnHtml = '';
-                if (canEdit) {
+                if (canEditStats) {
                     btnHtml = `
                         <div class="product-actions">
                             <button onclick="startEditItem('${type}', ${index})" style="background:#4CAF50; color:white; border:none;">Ред.</button>
@@ -526,7 +549,7 @@
         }
         html += `</div>`;
 
-        if (canEdit) {
+        if (canEditStats) {
             html += `
             <div class="builder-box" id="item-builder">
                 <h3 style="color:var(--primary);" id="builder-title">Добавить ${title}</h3>
