@@ -93,7 +93,8 @@
             <option value="7">7 курс</option>
         </select>
 
-        <label>Придумайте свой пароль для входа в профиль:</label>
+        <!-- ИСПРАВЛЕННЫЙ ТЕКСТ ДЛЯ СТУДЕНТА -->
+        <label>Придумайте кодовое слово-пароль:</label>
         <input type="password" id="reg-secret" placeholder="Ваш личный пароль">
         
         <button type="button" id="btn-register-student">Подать документы</button>
@@ -106,7 +107,7 @@
     <!-- ФОРМА ВХОДА (ПАРОЛЬ ДЛЯ СУЩЕСТВУЮЩЕГО ПРОФИЛЯ) -->
     <section id="student-login" hidden>
         <h1>Вход в профиль</h1>
-        <p class="hint">Введите ваш личный пароль, чтобы открыть досье.</p>
+        <p class="hint">Введите ваше кодовое слово-пароль, чтобы открыть досье.</p>
         
         <label>Ваш пароль:</label>
         <input type="password" id="login-secret" placeholder="Введите пароль">
@@ -141,7 +142,7 @@
         <input type="text" id="edit-wand">
         <label>Патронус:</label>
         <input type="text" id="edit-patronus">
-        <label>Новый пароль (если хотите сменить):</label>
+        <label>Новое кодовое слово-пароль (если хотите сменить):</label>
         <input type="password" id="edit-secret">
         
         <button type="button" id="btn-save-edit">Сохранить изменения</button>
@@ -153,11 +154,11 @@
         <h1>Вход для персонала</h1>
         <p class="hint">Только для администрации Хогвартса.</p>
         <label>Вставьте ссылку на ваш профиль ВК:</label>
-        <!-- ЗДЕСЬ УБРАН ПРИМЕР ВАШЕЙ ССЫЛКИ -->
         <input type="text" id="dir-link" placeholder="Вставьте ссылку сюда">
         
-        <label>Кодовое слово:</label>
-        <input type="password" id="dir-secret" placeholder="Введите кодовое слово">
+        <!-- ИСПРАВЛЕННЫЙ ТЕКСТ ДЛЯ ДИРЕКТОРА -->
+        <label>Придумайте кодовое слово-пароль:</label>
+        <input type="password" id="dir-secret" placeholder="Введите кодовое слово-пароль">
         
         <button type="button" id="btn-login-director">Войти в кабинет</button>
         <div class="role-switch">
