@@ -55,7 +55,7 @@
         .admin-actions button { margin: 0; padding: 8px; font-size: 12px; }
         
         .role-switch { text-align: center; margin-top: 20px; border-top: 1px dashed var(--dark-accent); padding-top: 15px; }
-        .role-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 13px;}
+        .role-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 13px; display: block; margin-top: 5px;}
     </style>
 </head>
 <body>
@@ -66,7 +66,7 @@
         <div id="error-box" style="color: #ff5555; font-size: 12px; margin-top: 20px; font-family: monospace;"></div>
     </div>
 
-    <!-- ФОРМА РЕГИСТРАЦИИ (НОВЫЙ СТУДЕНТ) -->
+    <!-- ГЛАВНОЕ МЕНЮ (РЕГИСТРАЦИЯ) -->
     <section id="student-register" hidden>
         <h1>Приёмная комиссия</h1>
         <p class="hint">Заполните анкету. Профиль привяжется к этому аккаунту ВК.</p>
@@ -93,7 +93,6 @@
             <option value="7">7 курс</option>
         </select>
 
-        <!-- ИСПРАВЛЕННЫЙ ТЕКСТ ДЛЯ СТУДЕНТА -->
         <label>Придумайте кодовое слово-пароль:</label>
         <input type="password" id="reg-secret" placeholder="Ваш личный пароль">
         
@@ -102,9 +101,13 @@
         <div class="role-switch" id="role-switch-block" style="display:none;">
             Вы преподаватель? <a onclick="toggleLogin('director')">Войти как Директор</a>
         </div>
+        
+        <div class="role-switch" id="role-switch-login" style="display:none;">
+            Уже есть профиль? <a onclick="toggleLogin('login')">Войти в свой кабинет</a>
+        </div>
     </section>
 
-    <!-- ФОРМА ВХОДА (ПАРОЛЬ ДЛЯ СУЩЕСТВУЮЩЕГО ПРОФИЛЯ) -->
+    <!-- ВХОД В ПРОФИЛЬ (ПАРОЛЬ) -->
     <section id="student-login" hidden>
         <h1>Вход в профиль</h1>
         <p class="hint">Введите ваше кодовое слово-пароль, чтобы открыть досье.</p>
@@ -114,6 +117,11 @@
         
         <button type="button" id="btn-login-student">Войти</button>
         <p id="login-error" style="color: #ff5555; font-size: 13px; margin-top: 10px; display: none;">Неверный пароль!</p>
+
+        <div class="role-switch">
+            <a onclick="toggleLogin('student')">← Вернуться на главную</a>
+            <a id="login-director-link" onclick="toggleLogin('director')" style="display:none;">Войти как Директор</a>
+        </div>
     </section>
 
     <!-- ФОРМА РЕДАКТИРОВАНИЯ ПРОФИЛЯ -->
@@ -149,20 +157,20 @@
         <button type="button" class="text-button" style="margin-top:10px;" onclick="renderCabinet()">Отмена</button>
     </section>
 
-    <!-- ФОРМА ВХОДА (ДИРЕКТОР) -->
+    <!-- ВХОД ДЛЯ ПЕРСОНАЛА -->
     <section id="director-login" hidden>
         <h1>Вход для персонала</h1>
         <p class="hint">Только для администрации Хогвартса.</p>
         <label>Вставьте ссылку на ваш профиль ВК:</label>
         <input type="text" id="dir-link" placeholder="Вставьте ссылку сюда">
         
-        <!-- ИСПРАВЛЕННЫЙ ТЕКСТ ДЛЯ ДИРЕКТОРА -->
         <label>Придумайте кодовое слово-пароль:</label>
         <input type="password" id="dir-secret" placeholder="Введите кодовое слово-пароль">
         
         <button type="button" id="btn-login-director">Войти в кабинет</button>
+        
         <div class="role-switch">
-            <a onclick="toggleLogin('student')">← Вернуться к форме студента</a>
+            <a onclick="toggleLogin('student')">← Вернуться на главную</a>
         </div>
     </section>
 
@@ -226,11 +234,13 @@
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
             
+            // Показываем кнопки Директора только владельцу
             if (info.id === DIRECTOR_ID) {
                 $('role-switch-block').style.display = 'block';
-                toggleLogin('director');
+                $('login-director-link').style.display = 'block';
             } else {
                 $('role-switch-block').style.display = 'none';
+                $('login-director-link').style.display = 'none';
             }
             
             checkExistingProfile();
@@ -244,6 +254,13 @@
         $('director-login').hidden = role !== 'director';
         $('edit-profile').hidden = true;
         $('cabinet').hidden = true;
+        
+        // Если есть профиль в базе, показываем ссылку "Войти" на главной
+        if (role === 'student' && studentProfile) {
+            $('role-switch-login').style.display = 'block';
+        } else if (role === 'student') {
+            $('role-switch-login').style.display = 'none';
+        }
     }
 
     async function checkExistingProfile() {
@@ -254,9 +271,11 @@
             if (data) {
                 studentProfile = data;
                 
+                // Если это директор и мы не авторизованы, просим код
                 if (studentProfile.role === 'director' && !isDirectorSession) {
                     toggleLogin('director'); 
                 } 
+                // Если это студент, просим его личный пароль
                 else if (studentProfile.role === 'student') {
                     toggleLogin('login');
                 } 
@@ -264,6 +283,7 @@
                     renderCabinet();
                 }
             } else {
+                // Если профиля нет, показываем регистрацию
                 if (vkUser.id !== DIRECTOR_ID) toggleLogin('student');
             }
         } catch(e) { console.log(e); }
@@ -322,6 +342,7 @@
 
         isDirectorSession = true;
         
+        // Если у директора нет профиля, создаем
         if (!studentProfile || studentProfile.role !== 'director') {
             const profile = {
                 id: vkUser.id, name: vkUser.first_name, faculty: "Гриффиндор", 
@@ -361,12 +382,13 @@
         alert("Данные сохранены!");
     };
 
+    // ВЫХОД (Теперь возвращает в главное меню)
     $('logout-btn').onclick = () => {
         isDirectorSession = false;
         $('dir-secret').value = '';
         $('login-secret').value = '';
         $('login-error').style.display = 'none';
-        checkExistingProfile(); 
+        toggleLogin('student'); 
     };
 
     function renderCabinet() {
