@@ -116,10 +116,10 @@
     <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Назад</a>
 </div>
 
-<!-- ВХОД ДИРЕКТОРА (ОДНО ПОЛЕ, БЕЗ ПОДСКАЗОК) -->
+<!-- ВХОД ДИРЕКТОРА -->
 <div id="director-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
     <h1>Вход для Директора</h1>
-    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Только для администрации Хогвартса.</p>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Если вы заходите впервые, введите желаемый пароль. Если забыли старый, введите новый, и система предложит его сбросить.</p>
     <label>Ваш пароль:</label>
     <input type="password" id="dir-pass" placeholder="Введите пароль">
     <button onclick="doDirectorLogin()" style="margin-top:20px;">Войти</button>
@@ -297,24 +297,30 @@
         openCabinet(profile, false, false);
     }
 
-    // ИСПРАВЛЕНО: Директор вводит только свой пароль
+    // БЕСПРОИГРЫШНЫЙ ВХОД ДИРЕКТОРА
     async function doDirectorLogin() {
         if (vkUser.id !== DIRECTOR_ID) return alert("Вы не Директор!");
         
         const pass = document.getElementById('dir-pass').value.trim();
-        if (!pass) return alert("Введите ваш пароль!");
+        if (!pass) return alert("Введите пароль!");
 
-        // Проверяем, есть ли уже профиль директора
         const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
         const existing = await res.json();
 
-        // Если профиль уже есть и пароль не совпадает - ошибка
-        if (existing && existing.secretCode !== pass) {
-            return alert("Неверный пароль!");
-        }
-
-        // Если профиля нет (первый вход), создаем его с придуманным паролем
-        if (!existing) {
+        if (existing) {
+            // Если профиль есть, но пароль не совпадает
+            if (existing.secretCode !== pass) {
+                const confirmReset = confirm("Пароль не совпадает. Хотите сбросить его на новый?");
+                if (confirmReset) {
+                    existing.secretCode = pass;
+                    await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ secretCode: pass }) });
+                } else {
+                    return; // Пользователь нажал Отмена
+                }
+            }
+            myProfile = existing;
+        } else {
+            // Первая регистрация Директора
             const profile = {
                 id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
                 role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "",
@@ -332,8 +338,7 @@
             };
             await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
             myProfile = profile;
-        } else {
-            myProfile = existing;
+            alert("Профиль Директора успешно создан!");
         }
         
         openCabinet(myProfile, false, false);
@@ -429,6 +434,7 @@
         if(!isAdminView && viewProfile.id === vkUser.id) myProfile = viewProfile;
         
         openCabinet(viewProfile, isAdminView, isGuestView);
+        alert("Данные сохранены!");
     }
 
     function cancelEdit() { openCabinet(viewProfile, isAdminView, isGuestView); }
@@ -614,7 +620,6 @@
         switchTab(field);
     }
 
-    // Скрываем свой профиль из списка
     async function renderStudentsList(container) {
         container.innerHTML = `<div class="center-menu">Загрузка...</div>`;
         try {
@@ -628,7 +633,6 @@
                 const student = allStudents[vkId];
                 const isMe = String(vkId) === String(vkUser.id); 
                 
-                // Если это мой профиль, не показываем его
                 if (isMe) return;
                 
                 usersCount++;
