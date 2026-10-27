@@ -48,7 +48,7 @@
         .admin-actions button { margin: 0; padding: 8px; font-size: 12px; }
         
         .role-switch { text-align: center; margin-top: 20px; border-top: 1px dashed var(--dark-accent); padding-top: 15px; }
-        .role-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 13px; display: block; margin-top: 5px;}
+        .role-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 13px; display: block; margin-top: 8px; font-size: 15px;}
     </style>
 </head>
 <body>
@@ -56,46 +56,60 @@
 <main class="container">
     <div id="loading" style="text-align:center; padding: 50px 0; color: var(--primary); font-size: 18px;">
         🔮 Загрузка...
-        <div id="error-box" style="color: #ff5555; font-size: 12px; margin-top: 20px; font-family: monospace;"></div>
     </div>
 
-    <!-- ГЛАВНОЕ МЕНЮ -->
+    <!-- ГЛАВНОЕ МЕНЮ (3 КНОПКИ) -->
     <section id="main-menu" hidden>
-        <h1 style="text-align: center;">Добро пожаловать</h1>
-        <p class="hint" style="text-align: center;">Выберите, как вы хотите войти в Хогвартс.</p>
+        <h1 style="text-align: center;">Вход в Хогвартс</h1>
+        <p class="hint" style="text-align: center;">Выберите свою роль для входа или регистрации.</p>
         
-        <button type="button" onclick="openLogin('student')" style="margin-top: 30px;">🎓 Я Студент / Профессор</button>
-        <button type="button" onclick="openLogin('director')" style="margin-top: 10px;">👑 Я Директор</button>
+        <button type="button" onclick="openAuth('student')" style="margin-top: 30px;">🎓 Я Студент</button>
+        <button type="button" onclick="openAuth('professor')" style="margin-top: 10px;">📖 Я Профессор</button>
+        <button type="button" onclick="openAuth('director')" style="margin-top: 10px; background: #99564b; color: white;">👑 Я Директор</button>
     </section>
 
-    <!-- ВХОД ДЛЯ СТУДЕНТА / ПРОФЕССОРА -->
-    <section id="login-user" hidden>
-        <h1>Вход в профиль</h1>
-        <p class="hint">Введите пароль, который вам выдал Директор.</p>
+    <!-- ФОРМА АВТОРИЗАЦИИ (СТУДЕНТ/ПРОФЕССОР) -->
+    <section id="auth-user" hidden>
+        <h1 id="auth-title">Вход</h1>
         
-        <label>Ваш пароль:</label>
-        <input type="password" id="user-password" placeholder="Введите пароль">
-        
-        <button type="button" id="btn-login-user">Войти</button>
-        <p id="user-error" style="color: #ff5555; font-size: 13px; margin-top: 10px; display: none;">Неверный пароль или вас нет в базе!</p>
+        <!-- Блок регистрации (скрыт, если профиль уже есть) -->
+        <div id="register-block" hidden>
+            <p class="hint">Вы здесь впервые. Заполните анкету и придумайте пароль.</p>
+            <label>Имя персонажа:</label>
+            <input type="text" id="reg-name" placeholder="Имя Фамилия">
+            
+            <label>Ссылка на вашу страницу ВК:</label>
+            <input type="text" id="reg-link" placeholder="https://vk.com/ваша_страница">
+            
+            <label>Придумайте пароль для входа:</label>
+            <input type="password" id="reg-pass" placeholder="Ваш пароль">
+            
+            <button type="button" onclick="registerUser()">Зарегистрироваться</button>
+        </div>
+
+        <!-- Блок входа (если профиль уже есть) -->
+        <div id="login-block" hidden>
+            <p class="hint">Вы уже зарегистрированы. Введите свой пароль для входа.</p>
+            <label>Ваш пароль:</label>
+            <input type="password" id="login-pass" placeholder="Введите пароль">
+            <button type="button" onclick="loginUser()">Войти в профиль</button>
+            <p id="login-error" style="color: #ff5555; font-size: 13px; margin-top: 10px; display: none;">Неверный пароль!</p>
+        </div>
 
         <div class="role-switch">
-            <a onclick="toggleLogin('main')">← Вернуться на главную</a>
+            <a onclick="toggleLogin('main')">← Вернуться в главное меню</a>
         </div>
     </section>
 
-    <!-- ВХОД ДЛЯ ДИРЕКТОРА -->
-    <section id="login-director" hidden>
+    <!-- ФОРМА ВХОДА ДИРЕКТОРА -->
+    <section id="auth-director" hidden>
         <h1>Вход для Директора</h1>
-        <p class="hint">Только для администрации Хогвартса.</p>
-        
         <label>Кодовое слово:</label>
         <input type="password" id="dir-secret" placeholder="Введите кодовое слово">
-        
         <button type="button" id="btn-login-director">Войти в кабинет</button>
         
         <div class="role-switch">
-            <a onclick="toggleLogin('main')">← Вернуться на главную</a>
+            <a onclick="toggleLogin('main')">← Вернуться в главное меню</a>
         </div>
     </section>
 
@@ -115,7 +129,7 @@
                 <h1 id="cabinet-title"></h1>
                 <p id="cabinet-role" class="character-subtitle"></p>
                 <div class="character-details">
-                    <span>Курс <strong id="saved-course"></strong></span>
+                    <span>Ссылка <strong id="saved-link"></strong></span>
                 </div>
             </div>
         </div>
@@ -141,56 +155,90 @@
 
 <script>
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
-    const DIRECTOR_ID = 836264843; // Ваш VK ID
-    const DIRECTOR_SECRET = "коньяк"; // Кодовое слово Директора
+    const DIRECTOR_ID = 836264843; 
+    const DIRECTOR_SECRET = "коньяк"; 
     
     let vkUser = null;
     let studentProfile = null;
     let allStudents = {};
-    let isDirectorSession = false; 
+    let currentRole = 'student'; // 'student' или 'professor'
     const $ = id => document.getElementById(id);
 
-    // При запуске получаем данные пользователя из ВК
     if (window.vkBridge) {
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
             $('loading').hidden = true;
-            toggleLogin('main'); // Всегда показываем главное меню
+            toggleLogin('main'); 
         });
     }
 
-    function toggleLogin(role) {
+    function toggleLogin(screen) {
         $('loading').hidden = true;
-        $('main-menu').hidden = role !== 'main';
-        $('login-user').hidden = role !== 'user';
-        $('login-director').hidden = role !== 'director';
-        $('cabinet').hidden = role !== 'cabinet';
-        document.body.classList.toggle('in-cabinet', role === 'cabinet');
+        $('main-menu').hidden = screen !== 'main';
+        $('auth-user').hidden = screen !== 'user';
+        $('auth-director').hidden = screen !== 'director';
+        $('cabinet').hidden = screen !== 'cabinet';
+        document.body.classList.toggle('in-cabinet', screen === 'cabinet');
     }
 
-    function openLogin(role) {
-        if (role === 'student') toggleLogin('user');
-        if (role === 'director') toggleLogin('director');
-    }
+    async function openAuth(role) {
+        currentRole = role;
+        
+        if (role === 'director') {
+            toggleLogin('director');
+            return;
+        }
 
-    // ВХОД СТУДЕНТА / ПРОФЕССОРА
-    $('btn-login-user').onclick = async () => {
-        const pass = $('user-password').value.trim();
-        if (!pass) return;
+        // Если студент/профессор, проверяем есть ли он в базе
+        $('auth-title').textContent = role === 'student' ? 'Вход для Студента' : 'Вход для Профессора';
+        toggleLogin('user');
 
         try {
-            // Ищем профиль по VK ID
             const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
             const data = await res.json();
 
-            if (data && data.secretCode === pass) {
+            if (data) {
                 studentProfile = data;
-                renderCabinet();
+                $('register-block').hidden = true;
+                $('login-block').hidden = false;
             } else {
-                $('user-error').style.display = 'block';
+                $('register-block').hidden = false;
+                $('login-block').hidden = true;
             }
-        } catch(e) {
-            $('user-error').style.display = 'block';
+        } catch(e) { console.error(e); }
+    }
+
+    // РЕГИСТРАЦИЯ СТУДЕНТА/ПРОФЕССОРА
+    window.registerUser = async () => {
+        const name = $('reg-name').value.trim();
+        const link = $('reg-link').value.trim();
+        const pass = $('reg-pass').value.trim();
+
+        if (!name || !link || !pass) return alert("Заполните все поля!");
+
+        const profile = {
+            id: vkUser.id, 
+            name: name, 
+            vkLink: link,
+            role: currentRole,
+            secretCode: pass, 
+            xp: 0, 
+            mana: 0, 
+            faculty: "Не распределен"
+        };
+
+        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
+        studentProfile = profile;
+        renderCabinet();
+    };
+
+    // ВХОД СТУДЕНТА/ПРОФЕССОРА
+    window.loginUser = () => {
+        const pass = $('login-pass').value.trim();
+        if (pass === studentProfile.secretCode) {
+            renderCabinet();
+        } else {
+            $('login-error').style.display = 'block';
         }
     };
 
@@ -198,33 +246,30 @@
     $('btn-login-director').onclick = async () => {
         const secret = $('dir-secret').value.toLowerCase().trim();
         
-        if (vkUser.id !== DIRECTOR_ID) return alert("У вас нет прав!");
+        if (vkUser.id !== DIRECTOR_ID) return alert("У вас нет прав Директора!");
         if (secret !== DIRECTOR_SECRET) return alert("Неверное кодовое слово!");
 
-        isDirectorSession = true;
+        // Создаем или перезаписываем профиль директора
+        const directorProfile = {
+            id: vkUser.id, 
+            name: "Теодор Нотт", 
+            vkLink: "https://vk.com/nott_cr",
+            role: 'director', 
+            secretCode: "admin", 
+            xp: 9999, 
+            mana: 9999
+        };
         
-        // Загружаем профиль директора (создаем, если нет)
-        const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
-        const data = await res.json();
-        
-        if (data) {
-            studentProfile = data;
-        } else {
-            studentProfile = {
-                id: vkUser.id, name: "Теодор Нотт", faculty: "Слизерин", 
-                course: "—", role: 'director', secretCode: "admin", xp: 9999, mana: 9999
-            };
-            await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(studentProfile) });
-        }
+        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(directorProfile) });
+        studentProfile = directorProfile;
         renderCabinet();
     };
 
     $('logout-btn').onclick = () => {
-        isDirectorSession = false;
         studentProfile = null;
         $('dir-secret').value = '';
-        $('user-password').value = '';
-        $('user-error').style.display = 'none';
+        $('login-pass').value = '';
+        $('login-error').style.display = 'none';
         toggleLogin('main'); 
     };
 
@@ -233,10 +278,10 @@
         
         $('cabinet-title').textContent = studentProfile.name;
         $('cabinet-role').textContent = studentProfile.role === 'director' ? '👑 Директор Хогвартса' : (studentProfile.role === 'professor' ? '📖 Профессор' : 'Студент');
-        $('saved-course').textContent = studentProfile.course || '—';
+        $('saved-link').textContent = studentProfile.vkLink || 'Не указана';
         $('xp').textContent = studentProfile.xp || 0;
         $('mana').textContent = studentProfile.mana || 0;
-        $('room-name').textContent = 'Гостиная · ' + (studentProfile.faculty || 'Хогвартс');
+        $('room-name').textContent = 'Профиль персонажа';
         
         if (studentProfile.role === 'director') $('director-tab').hidden = false;
         
@@ -259,45 +304,20 @@
         else if (page === 'director') {
             if (studentProfile.role !== 'director') return; 
             
-            // Загружаем всех студентов
             fetch(DB_URL + "/students.json").then(r => r.json()).then(data => {
                 allStudents = data || {};
                 
-                root.innerHTML = `<h2>Панель управления</h2>
-                
-                <div class="admin-card" style="border-color: var(--primary);">
-                    <h3>Создать нового пользователя</h3>
-                    <label>Имя персонажа:</label>
-                    <input type="text" id="new-name" placeholder="Гарри Поттер">
-                    <label>Факультет:</label>
-                    <select id="new-faculty">
-                        <option value="Гриффиндор">🦁 Гриффиндор</option>
-                        <option value="Слизерин">🐍 Слизерин</option>
-                        <option value="Когтевран">🦅 Когтевран</option>
-                        <option value="Пуффендуй">🦡 Пуффендуй</option>
-                    </select>
-                    <label>Роль:</label>
-                    <select id="new-role">
-                        <option value="student">Студент</option>
-                        <option value="professor">Профессор</option>
-                    </select>
-                    <label>VK ID (цифры):</label>
-                    <input type="number" id="new-vkid" placeholder="Например: 123456789">
-                    <label>Пароль для входа:</label>
-                    <input type="text" id="new-pass" placeholder="Например: жаба прыг скок">
-                    <button onclick="createUser()">Создать профиль</button>
-                </div>
-
-                <h3>Список пользователей</h3>
+                root.innerHTML = `<h2>База данных студентов</h2>
                 <div class="admin-panel">
                     ${Object.values(allStudents).map(student => `
                         <div class="admin-card">
-                            <h3>${student.name} <span style="font-size:12px; color:var(--accent);">(${student.role})</span></h3>
+                            <h3>${student.name}</h3>
+                            <p style="font-size:13px; margin:5px 0;">Роль: <span style="color:var(--primary);">${student.role}</span></p>
+                            <p style="font-size:13px; margin:5px 0;">Ссылка: <a href="${student.vkLink}" target="_blank" style="color:var(--accent);">${student.vkLink}</a></p>
                             <span style="font-size:12px;">XP: ${student.xp || 0} | MP: ${student.mana || 0}</span>
                             <div class="admin-actions">
                                 <button onclick="giveReward('${student.id}', 'xp', 10)">+10 XP</button>
                                 <button onclick="giveReward('${student.id}', 'mana', 10)">+10 MP</button>
-                                <button onclick="resetPassword('${student.id}')" style="background:#ff5555; color:white;">Сбросить пароль</button>
                             </div>
                         </div>
                     `).join('')}
@@ -305,28 +325,6 @@
             });
         }
     }
-
-    // СОЗДАНИЕ ПРОФИЛЯ ДИРЕКТОРОМ
-    window.createUser = async () => {
-        if (studentProfile.role !== 'director') return;
-        
-        const vkid = $('new-vkid').value.trim();
-        if (!vkid) return alert("Введите VK ID!");
-
-        const newProfile = {
-            id: Number(vkid), // Превращаем в число
-            name: $('new-name').value,
-            faculty: $('new-faculty').value,
-            role: $('new-role').value,
-            secretCode: $('new-pass').value.trim(),
-            course: "1",
-            xp: 0, mana: 0, inventory: []
-        };
-
-        await fetch(DB_URL + "/students/" + vkid + ".json", { method: 'PUT', body: JSON.stringify(newProfile) });
-        alert("Пользователь успешно создан!");
-        renderPage('director');
-    };
 
     window.giveReward = async (studentId, type, amount) => {
         if (studentProfile.role !== 'director') return alert("Нет прав!");
@@ -336,18 +334,6 @@
         target[type] = (target[type] || 0) + amount;
         await fetch(DB_URL + "/students/" + studentId + ".json", { method: 'PUT', body: JSON.stringify(target) });
         renderPage('director');
-    };
-
-    window.resetPassword = async (studentId) => {
-        if (studentProfile.role !== 'director') return;
-        const newPass = prompt("Введите новый пароль для пользователя:");
-        if (!newPass) return;
-        
-        await fetch(DB_URL + "/students/" + studentId + "/secretCode.json", { 
-            method: 'PUT', 
-            body: JSON.stringify(newPass) 
-        });
-        alert("Пароль изменен!");
     };
 </script>
 </body>
