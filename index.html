@@ -101,7 +101,6 @@
         
         <button type="button" id="btn-register-student">Подать документы</button>
 
-        <!-- Кнопка директора скрыта по умолчанию, показывается только для вашего ID -->
         <div class="role-switch" id="role-switch-block" style="display:none;">
             Вы преподаватель? <a onclick="toggleLogin('director')">Войти как Директор</a>
         </div>
@@ -112,13 +111,17 @@
         <h1>Вход для персонала</h1>
         <p class="hint">Только для администрации Хогвартса.</p>
         
-        <label>Ваш VK ID:</label>
-        <input type="text" id="dir-vkid" disabled>
+        <label>Ссылка на страницу ВК или короткое имя:</label>
+        <input type="text" id="dir-link" placeholder="Например: https://vk.ru/nott_cr или nott_cr">
         
         <label>Кодовое слово:</label>
         <input type="password" id="dir-secret" placeholder="Введите кодовое слово">
         
         <button type="button" id="btn-login-director">Войти в кабинет</button>
+
+        <div class="role-switch">
+            <a onclick="toggleLogin('student')">← Вернуться к форме студента</a>
+        </div>
     </section>
 
     <!-- ЛИЧНЫЙ КАБИНЕТ -->
@@ -165,7 +168,6 @@
 
 <script>
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
-    // ЖЕСТКАЯ ПРИВЯЗКА К ВАШЕМУ ID
     const DIRECTOR_ID = 836264843; 
     const DIRECTOR_SECRET = "коньяк"; 
     
@@ -178,14 +180,12 @@
     if (window.vkBridge) {
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
-            $('dir-vkid').value = info.id;
             
-            // Если зашел ВЛАДЕЛЕЦ (Директор)
             if (info.id === DIRECTOR_ID) {
-                $('role-switch-block').style.display = 'block'; // Показываем ему кнопку входа
+                $('role-switch-block').style.display = 'block';
                 toggleLogin('director');
             } else {
-                $('role-switch-block').style.display = 'none'; // Студентам кнопку НЕ показываем
+                $('role-switch-block').style.display = 'none';
                 toggleLogin('student');
             }
             
@@ -202,13 +202,11 @@
 
     async function checkExistingProfile() {
         try {
-            // Ищем профиль ТОЛЬКО по VK ID текущего пользователя
             const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
             const data = await res.json();
             
             if (data) {
                 studentProfile = data;
-                // Если роль директор, просим код. Если студент — пускаем сразу.
                 if (studentProfile.role === 'director' && !isDirectorSession) {
                     toggleLogin('director'); 
                 } else {
@@ -216,6 +214,33 @@
                 }
             }
         } catch(e) { console.log(e); }
+    }
+
+    // Функция для получения ID по короткому имени (использует VK Bridge)
+    async function resolveScreenName(input) {
+        // Очищаем ввод от лишних символов, оставляя только короткое имя
+        let screenName = input.trim();
+        if (screenName.includes('/')) {
+            screenName = screenName.split('/').pop(); // Берем последнюю часть после /
+        }
+        screenName = screenName.split('?')[0]; // Убираем параметры, если есть
+
+        try {
+            // Используем метод users.get для получения ID по screen_name
+            const response = await vkBridge.send('VKWebAppCallAPIMethod', {
+                method: 'users.get',
+                params: {
+                    user_ids: screenName,
+                    v: '5.131' // Версия API
+                }
+            });
+            if (response.response && response.response.length > 0) {
+                return response.response[0].id;
+            }
+        } catch (error) {
+            console.error('Ошибка при получении ID:', error);
+        }
+        return null;
     }
 
     // РЕГИСТРАЦИЯ СТУДЕНТА
@@ -226,7 +251,6 @@
         if (!name) return alert("Введите имя персонажа!");
         if (secret !== "жаба прыг скок") return alert("Неверный код-пароль!");
 
-        // Профиль жестко привязывается к vkUser.id
         const profile = {
             id: vkUser.id,
             name: name,
@@ -241,22 +265,29 @@
             inventory: []
         };
         
-        // Записываем по пути students/ID_пользователя
         await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
         studentProfile = profile;
         renderCabinet();
     };
 
-    // ВХОД ДИРЕКТОРА
+    // ВХОД ДИРЕКТОРА (с использованием ссылки/короткого имени)
     $('btn-login-director').onclick = async () => {
+        const link = $('dir-link').value.trim();
         const secret = $('dir-secret').value.toLowerCase().trim();
         
-        // СТРОГАЯ ПРОВЕРКА: Совпадает ли VK ID с ID Директора?
-        if (vkUser.id !== DIRECTOR_ID) {
-            return alert("ДОСТУП ЗАПРЕЩЕН. Ваш VK ID не совпадает с профилем Директора.");
+        if (!link) return alert("Введите ссылку на вашу страницу ВК или короткое имя!");
+        if (secret !== DIRECTOR_SECRET) return alert("Неверное кодовое слово!");
+
+        // Получаем ID из введенной ссылки/имени
+        const resolvedId = await resolveScreenName(link);
+        
+        if (!resolvedId) {
+            return alert("Не удалось определить ID по этой ссылке. Проверьте правильность ввода.");
         }
-        if (secret !== DIRECTOR_SECRET) {
-            return alert("Неверное кодовое слово!");
+
+        // СТРОГАЯ ПРОВЕРКА: Совпадает ли полученный ID с ID Директора?
+        if (resolvedId !== DIRECTOR_ID) {
+            return alert("ДОСТУП ЗАПРЕЩЕН. Эта страница ВК не принадлежит Директору.");
         }
 
         isDirectorSession = true;
@@ -348,7 +379,6 @@
     }
 
     window.giveReward = async (studentId, type, amount) => {
-        // Еще одна проверка безопасности перед выдачей
         if (studentProfile.role !== 'director') return alert("Нет прав!");
         
         const res = await fetch(DB_URL + "/students/" + studentId + ".json");
