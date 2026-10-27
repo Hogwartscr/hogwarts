@@ -26,6 +26,7 @@
         .portrait-wrap{height:180px;width:150px;position:relative;border:1px solid var(--accent);padding:6px;background:var(--bg);box-shadow:0 0 15px rgba(151,95,143,0.3); border-radius: 4px;}
         .portrait-wrap img{width:100%; height:100%; object-fit:cover; border-radius: 2px;}
         #portrait-empty{height:100%;display:grid;place-items:center;font-size:60px;color:var(--accent);background:radial-gradient(ellipse at 50% 40%,#48294E55,#161228)}
+        .upload-btn { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 10px; padding: 5px 10px; border-radius: 10px; cursor: pointer; white-space: nowrap; border: 1px solid var(--primary); }
         
         .cabinet h1{font-size:38px;line-height:1.15;margin:0;color:var(--primary);}
         .character-details{display:flex;gap:26px;flex-wrap:wrap;margin:15px 0 10px}
@@ -41,18 +42,24 @@
         .tabs button{border-radius:0;width:auto;background:none;color:var(--accent);font-size:16px;padding:10px 0;margin:0;border-bottom:2px solid transparent}
         .tabs button.active{color:var(--primary);border-color:var(--primary); font-weight:bold;}
         
-        /* Дизайн карточек как на скриншоте */
+        /* Дизайн карточек навыков (список) */
         .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
         .skill-card { border: 1px solid var(--accent); background: rgba(31,27,61,0.6); padding: 20px; border-radius: 4px; display: flex; flex-direction: column; }
         .skill-card h3 { color: var(--primary); font-size: 20px; margin: 0 0 10px 0; }
         .skill-card p { font-size: 14px; color: var(--text); line-height: 1.5; margin-bottom: 20px; flex-grow: 1; white-space: pre-wrap;}
-        .skill-card .status { font-size: 12px; color: var(--accent); margin-bottom: 10px; }
-        .skill-card button { margin-top: auto; background: transparent; border: 1px solid var(--dark-accent); color: var(--accent); cursor: not-allowed; }
+        
+        /* Дизайн ИКОНОК для заклинаний */
+        .spells-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; margin-top: 20px; }
+        .spell-icon { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .spell-icon-box { width: 80px; height: 80px; border: 1px solid var(--accent); border-radius: 8px; background: rgba(31,27,61,0.6); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 5px; transition: 0.2s; }
+        .spell-icon-box.locked { filter: grayscale(100%); opacity: 0.3; border-color: var(--dark-accent); }
+        .spell-icon-box.unlocked { box-shadow: 0 0 15px var(--accent); border-color: var(--primary); }
+        .spell-name { font-size: 12px; color: var(--text); }
+        .spell-req { font-size: 10px; color: var(--accent); margin-top: 2px; }
         
         .admin-panel { display: grid; gap: 15px; margin-top: 20px;}
         .admin-card { padding: 15px; border: 1px solid var(--accent); border-radius: 6px; background: rgba(72,41,78,0.2); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;}
         
-        /* Блок конструктора для Директора */
         .builder-box { border: 1px dashed var(--primary); padding: 20px; margin-top: 20px; border-radius: 6px; background: rgba(0,0,0,0.2); }
         
         .center-menu { text-align: center; padding: 50px 20px; }
@@ -107,7 +114,13 @@
     <label>Имя:</label><input type="text" id="edit-name">
     <label>Ссылка ВК:</label><input type="text" id="edit-link">
     <label>Пароль:</label><input type="text" id="edit-pass">
-    <label>Фото (ссылка):</label><input type="text" id="edit-photo" placeholder="https://...">
+    
+    <!-- Поля для XP и MP, доступные Директору или самому студенту -->
+    <div id="edit-stats" class="hidden">
+        <label>Опыт (XP):</label><input type="number" id="edit-xp">
+        <label>Мана (MP):</label><input type="number" id="edit-mp">
+    </div>
+
     <button onclick="saveEdit()" style="margin-top:20px; background:#4CAF50; color:white;">Сохранить</button>
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
@@ -116,21 +129,21 @@
 <div id="cabinet" class="container cabinet hidden">
     <header class="cabinet-top">
         <span class="eyebrow" id="header-title">Хогвартс / Досье</span>
-        <div id="header-buttons">
-            <button class="text-button" style="color:#ff5555;" onclick="location.reload()">Выйти</button>
-        </div>
+        <div id="header-buttons"></div>
     </header>
     
-    <!-- ВЕРХНЯЯ ЧАСТЬ (КАК НА СКРИНШОТЕ) -->
     <div class="character">
         <div class="portrait-wrap">
             <div id="portrait-empty">✦</div>
             <img id="avatar-img" class="hidden" src="" alt="Avatar">
+            <!-- Кнопка загрузки фото -->
+            <label class="upload-btn" for="photo-file" id="upload-label" style="display:none;">📷 Загрузить фото</label>
+            <input id="photo-file" type="file" accept="image/*" style="display:none;" onchange="uploadPhoto(event)">
         </div>
         <div class="character-info">
             <p id="room-name" class="eyebrow"></p>
             <h1 id="cabinet-title"></h1>
-            <p id="cabinet-role" class="character-subtitle">Студент школы чародейства и волшебства</p>
+            <p id="cabinet-role" class="character-subtitle"></p>
             <div class="character-details">
                 <span>Ссылка ВК <strong id="saved-link"></strong></span>
                 <span>Пароль <strong id="saved-pass"></strong></span>
@@ -146,10 +159,7 @@
         <div><label><span>Мана · MP</span></label><strong id="mana">0</strong></div>
     </div>
 
-    <div class="book-header">
-        <span class="eyebrow">Знания, Сила и Инвентарь</span>
-        <h2>Книга персонажа</h2>
-    </div>
+    <div class="book-header"><h2>Книга персонажа</h2></div>
 
     <nav class="tabs">
         <button data-tab="skills" class="active" onclick="switchTab('skills')">Навыки</button>
@@ -209,8 +219,8 @@
             vkLink: document.getElementById('reg-link').value.trim(), 
             role: document.getElementById('reg-role').value, 
             secretCode: document.getElementById('reg-pass').value.trim(), 
-            xp: 0, mana: 0, photo: "",
-            skills: [{title: "Основы чар", desc: "Точность движения палочкой и концентрация. Базовый навык волшебника.", req: 0}], 
+            xp: 0, mana: 100, photo: "",
+            skills: [{title: "Основы чар", desc: "Точность движения палочкой.", req: 0}], 
             spells: [], potions: [], notes: ""
         };
         if(!profile.name || !profile.secretCode) return alert("Заполните поля!");
@@ -226,12 +236,9 @@
         const profile = {
             id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
             role: 'director', secretCode: "admin", xp: 9999, mana: 9999, photo: "",
-            skills: [
-                {title: "Травология", desc: "Профессор Травологии", req: 0},
-                {title: "Зельеварение", desc: "Подготовка ингредиентов и приготовление простых составов.", req: 80},
-                {title: "Невербальная магия", desc: "Произнесение заклинаний без слов. Требует глубокой концентрации.", req: 350}
-            ], 
-            spells: [], potions: [], notes: ""
+            skills: [{title: "Травология", desc: "Профессор Травологии", req: 0}], 
+            spells: [{title: "Люмос", desc: "Свет", icon: "✨", req: 0}], 
+            potions: [], notes: ""
         };
         await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
         myProfile = profile;
@@ -257,15 +264,26 @@
         document.getElementById('saved-pass').textContent = showPass ? (profile.secretCode || 'admin') : '******'; 
         document.getElementById('xp').textContent = profile.xp || 0;
         document.getElementById('mana').textContent = profile.mana || 0;
-        document.getElementById('room-name').textContent = 'Гостиная · ' + (profile.faculty || 'Хогвартс');
+        
+        // Загрузка фото
+        const avatarImg = document.getElementById('avatar-img');
+        const emptyAvatar = document.getElementById('portrait-empty');
+        const uploadLabel = document.getElementById('upload-label');
         
         if (profile.photo) {
-            document.getElementById('portrait-empty').classList.add('hidden');
-            document.getElementById('avatar-img').src = profile.photo;
-            document.getElementById('avatar-img').classList.remove('hidden');
+            emptyAvatar.classList.add('hidden');
+            avatarImg.src = profile.photo;
+            avatarImg.classList.remove('hidden');
         } else {
-            document.getElementById('portrait-empty').classList.remove('hidden');
-            document.getElementById('avatar-img').classList.add('hidden');
+            emptyAvatar.classList.remove('hidden');
+            avatarImg.classList.add('hidden');
+        }
+
+        // Показываем кнопку загрузки только владельцу
+        if (!guestMode && !adminMode && profile.id === vkUser.id) {
+            uploadLabel.style.display = 'block';
+        } else {
+            uploadLabel.style.display = 'none';
         }
 
         let btnHtml = '';
@@ -294,11 +312,60 @@
         switchTab('skills');
     }
 
+    // ЗАГРУЗКА ФОТО (Сохранение в VK Storage)
+    async function uploadPhoto(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            // Сжимаем картинку до 150x150 чтобы влезла в VK Storage
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 150;
+                    canvas.height = 150;
+                    ctx.drawImage(img, 0, 0, 150, 150);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.6); // Сжимаем
+                    
+                    viewProfile.photo = base64; // Устанавливаем в текущий профиль
+                    
+                    // Сохраняем в Firebase
+                    await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ photo: base64 }) });
+                    
+                    if(!isAdminView && viewProfile.id === vkUser.id) myProfile.photo = base64;
+                    
+                    // Обновляем вид
+                    document.getElementById('avatar-img').src = base64;
+                    document.getElementById('avatar-img').classList.remove('hidden');
+                    document.getElementById('portrait-empty').classList.add('hidden');
+                    alert("Фото успешно обновлено!");
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        } catch (e) {
+            alert("Ошибка загрузки фото: " + e.message);
+        }
+    }
+
+    // РЕДАКТИРОВАНИЕ
     function openEdit() {
         document.getElementById('edit-name').value = viewProfile.name || '';
         document.getElementById('edit-link').value = viewProfile.vkLink || '';
         document.getElementById('edit-pass').value = viewProfile.secretCode || '';
-        document.getElementById('edit-photo').value = viewProfile.photo || '';
+        
+        // Показываем XP/MP поля только Директору или себе
+        if (isAdminView || (!isGuestView && viewProfile.id === vkUser.id)) {
+            document.getElementById('edit-stats').classList.remove('hidden');
+            document.getElementById('edit-xp').value = viewProfile.xp || 0;
+            document.getElementById('edit-mp').value = viewProfile.mana || 0;
+        } else {
+            document.getElementById('edit-stats').classList.add('hidden');
+        }
+
         hideAll(); 
         document.getElementById('edit-screen').classList.remove('hidden');
     }
@@ -307,7 +374,11 @@
         viewProfile.name = document.getElementById('edit-name').value;
         viewProfile.vkLink = document.getElementById('edit-link').value;
         viewProfile.secretCode = document.getElementById('edit-pass').value;
-        viewProfile.photo = document.getElementById('edit-photo').value;
+        
+        if (!document.getElementById('edit-stats').classList.contains('hidden')) {
+            viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
+            viewProfile.mana = Number(document.getElementById('edit-mp').value) || 0;
+        }
 
         await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify(viewProfile) });
         if(!isAdminView && viewProfile.id === vkUser.id) myProfile = viewProfile;
@@ -324,48 +395,37 @@
         if (btn) btn.classList.add('active');
         
         const root = document.getElementById('book-content');
-        
-        // Определяем, может ли пользователь редактировать (Директор в чужом профиле ИЛИ владелец профиля)
         let canEdit = isAdminView || (!isGuestView && viewProfile.id === vkUser.id);
 
         if (tab === 'skills') renderList('skills', 'Навыки', '✦', root, canEdit);
-        else if (tab === 'spells') renderList('spells', 'Заклинания', '⚡', root, canEdit);
-        else if (tab === 'potions') renderList('potions', 'Зелья', '🧪', root, canEdit);
+        else if (tab === 'spells') renderSpells('spells', 'Заклинания', root, canEdit);
+        else if (tab === 'potions') renderSpells('potions', 'Зелья', root, canEdit);
         else if (tab === 'notes') {
-            root.innerHTML = `<div class="skill-card"><h3>📝 Личный дневник</h3><p>${viewProfile.notes || 'Заметок пока нет.'}</p></div>`;
+            root.innerHTML = `<div class="skill-card"><h3>📖 Личный дневник</h3><p>${viewProfile.notes || 'Дневник пуст.'}</p></div>`;
             if (canEdit) {
-                root.innerHTML += `<div class="builder-box"><textarea id="edit-notes" rows="5">${viewProfile.notes||''}</textarea><button onclick="saveText('notes')" style="margin-top:10px; background:#4CAF50; color:white;">Сохранить заметки</button></div>`;
+                root.innerHTML += `<div class="builder-box"><textarea id="edit-notes" rows="5">${viewProfile.notes||''}</textarea><button onclick="saveText('notes')" style="margin-top:10px; background:#4CAF50; color:white;">Сохранить</button></div>`;
             }
         }
         else if (tab === 'students') renderStudentsList(root);
         else if (tab === 'messages') renderMessagesList(root);
     }
 
-    // ОТРИСОВКА КАРТОЧЕК (КАК НА СКРИНШОТЕ)
+    // ОТРИСОВКА СПИСКА (Для Навыков)
     function renderList(type, title, icon, container, canEdit) {
         let html = `<div class="skills-grid">`;
         const items = viewProfile[type] || [];
         
         if (items.length > 0) {
             items.forEach((item, index) => {
-                // Проверяем хватает ли XP
                 let isLocked = false;
                 let statusText = 'Изучено';
-                
                 if (item.req > 0 && viewProfile.xp < item.req) {
                     isLocked = true;
                     statusText = `Не хватает ${item.req} XP`;
                 }
-
-                // Если это режим редактирования, кнопка "Удалить". Иначе - статус.
-                let btnHtml = '';
-                if (canEdit) {
-                    btnHtml = `<button onclick="deleteItem('${type}', ${index})" style="border:1px solid #ff5555; color:#ff5555; padding:10px; background:transparent; border-radius:4px; cursor:pointer;">Удалить</button>`;
-                } else {
-                    btnHtml = isLocked 
-                        ? `<button disabled>Недостаточно опыта</button>`
-                        : `<button disabled>Изучено</button>`;
-                }
+                let btnHtml = canEdit 
+                    ? `<button onclick="deleteItem('${type}', ${index})" style="border:1px solid #ff5555; color:#ff5555; padding:10px; background:transparent; border-radius:4px; cursor:pointer;">Удалить</button>` 
+                    : (isLocked ? `<button disabled>Недостаточно опыта</button>` : `<button disabled>Изучено</button>`);
 
                 html += `
                 <div class="skill-card">
@@ -375,34 +435,70 @@
                     ${btnHtml}
                 </div>`;
             });
-        } else {
-            html += `<p style="color:var(--accent)">Здесь пока пусто.</p>`;
-        }
+        } else html += `<p style="color:var(--accent)">Пусто.</p>`;
         html += `</div>`;
 
-        // Конструктор (добавляем форму, если есть права)
         if (canEdit) {
             html += `
             <div class="builder-box">
-                <h3 style="color:var(--primary);">Добавить ${title}</h3>
-                <label>Название:</label><input type="text" id="add-title" placeholder="Например: Основы чар">
-                <label>Описание:</label><textarea id="add-desc" rows="2" placeholder="Что это дает..."></textarea>
-                <label>Требуемый опыт (XP, оставьте 0 для свободного доступа):</label><input type="number" id="add-req" value="0">
-                <button onclick="addItem('${type}')" style="background: #4CAF50; color: white; margin-top: 10px;">Добавить в профиль</button>
+                <h3>Добавить ${title}</h3>
+                <label>Название:</label><input type="text" id="add-title">
+                <label>Описание:</label><textarea id="add-desc" rows="2"></textarea>
+                <label>Требуемый опыт (XP):</label><input type="number" id="add-req" value="0">
+                <button onclick="addItem('${type}')" style="background: #4CAF50; color: white; margin-top: 10px;">Добавить</button>
             </div>`;
         }
         container.innerHTML = html;
     }
 
-    async function addItem(type) {
+    // ОТРИСОВКА ИКОНОК (Для Заклинаний и Зелий)
+    function renderSpells(type, title, container, canEdit) {
+        let html = `<h3 style="color:var(--primary); margin-top:10px;">${title}</h3><div class="spells-grid">`;
+        const items = viewProfile[type] || [];
+        
+        if (items.length > 0) {
+            items.forEach((item, index) => {
+                const isUnlocked = viewProfile.xp >= (item.req || 0);
+                const icon = item.icon || '✨';
+                
+                html += `
+                <div class="spell-icon">
+                    <div class="spell-icon-box ${isUnlocked ? 'unlocked' : 'locked'}" title="${item.desc}">
+                        ${icon}
+                    </div>
+                    <div class="spell-name">${item.title}</div>
+                    ${item.req > 0 ? `<div class="spell-req">${item.req} XP</div>` : ''}
+                </div>`;
+            });
+        } else {
+            html += `<p style="color:var(--accent)">Здесь пока пусто.</p>`;
+        }
+        html += `</div>`;
+
+        if (canEdit) {
+            html += `
+            <div class="builder-box">
+                <h3>Добавить ${title.slice(0, -1)}</h3>
+                <label>Название:</label><input type="text" id="add-title">
+                <label>Описание:</label><textarea id="add-desc" rows="2"></textarea>
+                <label>Иконка (эмодзи):</label><input type="text" id="add-icon" value="✨">
+                <label>Требуемый опыт (XP):</label><input type="number" id="add-req" value="0">
+                <button onclick="addItem('${type}', true)" style="background: #4CAF50; color: white; margin-top: 10px;">Добавить</button>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    async function addItem(type, isSpell = false) {
         const title = document.getElementById('add-title').value.trim();
         const desc = document.getElementById('add-desc').value.trim();
         const req = Number(document.getElementById('add-req').value) || 0;
+        const icon = isSpell ? document.getElementById('add-icon').value.trim() : '✦';
         
         if (!title) return alert("Введите название!");
         if (!viewProfile[type]) viewProfile[type] = [];
         
-        viewProfile[type].push({ title: title, desc: desc, req: req });
+        viewProfile[type].push({ title: title, desc: desc, req: req, icon: icon });
         
         await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
         switchTab(type);
@@ -423,7 +519,6 @@
         switchTab(field);
     }
 
-    // СПИСОК ВСЕХ
     async function renderStudentsList(container) {
         container.innerHTML = `<div class="center-menu">Загрузка...</div>`;
         const res = await fetch(`${DB_URL}/students.json`);
@@ -498,9 +593,9 @@
         
         root.innerHTML = `
             <h2>Переписка с ${targetName}</h2>
-            <div class="chat-container" style="border: 1px solid var(--accent); border-radius: 6px; padding: 15px; margin-top: 15px; background: rgba(0,0,0,0.3);">
-                <div class="chat-messages" id="chat-box" style="height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding-right: 10px;"><div style="text-align:center; color:var(--accent);">Загрузка...</div></div>
-                <div class="chat-input-area" style="display: flex; gap: 10px;">
+            <div style="border: 1px solid var(--accent); border-radius: 6px; padding: 15px; margin-top: 15px; background: rgba(0,0,0,0.3);">
+                <div id="chat-box" style="height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding-right: 10px;"><div style="text-align:center; color:var(--accent);">Загрузка...</div></div>
+                <div style="display: flex; gap: 10px;">
                     <input type="text" id="chat-input" placeholder="Сообщение или ссылка..." style="margin: 0;">
                     <button onclick="sendMsg('${targetId}')" style="margin: 0;">Отправить</button>
                 </div>
@@ -518,11 +613,10 @@
             Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
                 const isMe = m.senderId === vkUser.id;
                 let content = m.text;
-                // Если текст похож на ссылку на картинку, отображаем как картинку
                 if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
                     content = `<img src="${m.text}" style="max-width: 100%; border-radius: 4px; margin-top: 5px;">`;
                 }
-                html += `<div class="msg ${isMe ? 'my' : 'their'}" style="padding: 10px; border-radius: 8px; max-width: 80%; font-size: 14px; word-wrap: break-word; ${isMe ? 'background: var(--accent); color: white; align-self: flex-end;' : 'background: var(--dark-accent); color: var(--text); align-self: flex-start;'}"><small>${m.senderName}</small><br>${content}</div>`;
+                html += `<div style="padding: 10px; border-radius: 8px; max-width: 80%; font-size: 14px; word-wrap: break-word; ${isMe ? 'background: var(--accent); color: white; align-self: flex-end;' : 'background: var(--dark-accent); color: var(--text); align-self: flex-start;'}"><small>${m.senderName}</small><br>${content}</div>`;
             });
             chatBox.innerHTML = html;
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -548,22 +642,7 @@
 
         input.value = '';
         await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
-        
-        // Мгновенно обновляем чат
-        const chatBox = document.getElementById('chat-box');
-        if(chatBox) {
-            const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
-            const msgs = await res.json() || {};
-            let html = '';
-            Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
-                const isMe = m.senderId === vkUser.id;
-                let content = m.text;
-                if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) content = `<img src="${m.text}" style="max-width: 100%; border-radius: 4px; margin-top: 5px;">`;
-                html += `<div class="msg ${isMe ? 'my' : 'their'}" style="padding: 10px; border-radius: 8px; max-width: 80%; font-size: 14px; word-wrap: break-word; ${isMe ? 'background: var(--accent); color: white; align-self: flex-end;' : 'background: var(--dark-accent); color: var(--text); align-self: flex-start;'}"><small>${m.senderName}</small><br>${content}</div>`;
-            });
-            chatBox.innerHTML = html;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+        openChat(targetId, viewProfile.name);
     }
 </script>
 </body>
