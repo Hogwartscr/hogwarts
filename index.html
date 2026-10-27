@@ -40,7 +40,6 @@
         .tabs button{border-radius:0;width:auto;background:none;color:var(--accent);font-size:16px;padding:12px 0;margin:0;border-bottom:2px solid transparent}
         .tabs button[aria-pressed=true]{color:var(--primary);border-color:var(--primary)}
         
-        /* Стили для карточек навыков */
         .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
         .skill-card { border: 1px solid var(--accent); background: rgba(31,27,61,0.6); padding: 20px; border-radius: 4px; display: flex; flex-direction: column; }
         .skill-card h3 { color: var(--primary); font-size: 22px; margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px; }
@@ -78,7 +77,7 @@
         <input type="password" id="login-pass" placeholder="Пароль">
         <button type="button" onclick="loginUser()" style="margin-top:20px;">Войти</button>
         <p id="login-error" style="color: #ff5555; font-size: 13px; margin-top: 10px; display: none;">Неверный пароль!</p>
-        <div class="role-switch"><a onclick="toggleScreen('main')">← Назад</a></div>
+        <div class="role-switch"><a onclick="toggleScreen('main-menu')">← Назад</a></div>
     </section>
 
     <!-- ЭКРАН РЕГИСТРАЦИИ -->
@@ -96,7 +95,7 @@
         <label>Придумайте пароль:</label>
         <input type="password" id="reg-pass" placeholder="Ваш пароль">
         <button type="button" onclick="registerUser()" style="margin-top: 20px;">Зарегистрироваться</button>
-        <div class="role-switch"><a onclick="toggleScreen('main')">← Назад</a></div>
+        <div class="role-switch"><a onclick="toggleScreen('main-menu')">← Назад</a></div>
     </section>
 
     <!-- ЭКРАН ВХОДА ДИРЕКТОРА -->
@@ -105,7 +104,7 @@
         <label>Кодовое слово:</label>
         <input type="password" id="dir-pass" placeholder="Кодовое слово">
         <button type="button" onclick="loginDirector()" style="margin-top:20px;">Войти</button>
-        <div class="role-switch"><a onclick="toggleScreen('main')">← Назад</a></div>
+        <div class="role-switch"><a onclick="toggleScreen('main-menu')">← Назад</a></div>
     </section>
 
     <!-- ЛИЧНЫЙ КАБИНЕТ (СВОЙ И СТУДЕНТОВ) -->
@@ -167,13 +166,21 @@
 </main>
 
 <script>
+    // Ловим ошибки, чтобы экран не был пустым
+    window.onerror = function(msg) {
+        const loading = document.getElementById('loading');
+        loading.classList.remove('hidden');
+        loading.innerHTML = `<span style="color:red">ОШИБКА: ${msg}<br>Попробуйте обновить приложение.</span>`;
+        return false;
+    };
+
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
     const DIRECTOR_ID = 836264843; 
     const DIRECTOR_SECRET = "коньяк"; 
     
     let vkUser = null;
-    let studentProfile = null; // Текущий профиль (свой)
-    let viewingProfile = null; // Профиль, который открыт для просмотра (если Директор)
+    let studentProfile = null; 
+    let viewingProfile = null; 
     let viewingId = null;
     let allStudents = {};
     let isDirectorViewing = false;
@@ -185,13 +192,17 @@
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
             $('loading').classList.add('hidden');
-            toggleScreen('main');
+            toggleScreen('main-menu'); // Исправлено!
         });
     }
 
     function toggleScreen(screen) {
-        ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'settings-screen'].forEach(s => $(s).classList.add('hidden'));
-        $(screen).classList.remove('hidden');
+        ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'settings-screen'].forEach(s => {
+            const el = $(s);
+            if (el) el.classList.add('hidden');
+        });
+        const target = $(screen);
+        if (target) target.classList.remove('hidden');
         if(screen === 'main-menu') $('loading').classList.add('hidden');
     }
 
@@ -199,9 +210,9 @@
     window.openRegister = () => toggleScreen('register-screen');
     window.openDirectorLogin = () => toggleScreen('director-screen');
 
-    // ВХОД / РЕГИСТРАЦИЯ
     window.loginUser = async () => {
         const pass = $('login-pass').value.trim();
+        if (!pass) return;
         try {
             const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
             const data = await res.json();
@@ -240,9 +251,8 @@
         renderProfile(profile, false);
     };
 
-    $('logout-btn').onclick = () => { location.reload(); }; // Простой выход
+    $('logout-btn').onclick = () => { location.reload(); }; 
 
-    // ОТОБРАЖЕНИЕ ПРОФИЛЯ
     function renderProfile(data, isAdminView) {
         viewingProfile = data;
         toggleScreen('cabinet');
@@ -331,7 +341,6 @@
         }
     }
 
-    // ФОРМА-КОНСТРУКТОР ДЛЯ ДИРЕКТОРА
     function getBuilderHTML(type, name) {
         return `
         <div class="builder-box">
@@ -370,7 +379,6 @@
         alert("Заметки обновлены!");
     };
 
-    // БАЗА ДАННЫХ (ДЛЯ ДИРЕКТОРА)
     function loadDirectorBase() {
         fetch(DB_URL + "/students.json").then(r => r.json()).then(data => {
             allStudents = data || {};
@@ -393,15 +401,14 @@
 
     window.adminViewStudent = async (id) => {
         viewingId = id;
-        renderProfile(allStudents[id], true); // true = isAdminView
+        renderProfile(allStudents[id], true); 
     };
 
     window.backToAdminBase = () => {
-        renderProfile(studentProfile, false); // Возвращаемся в свой профиль Директора
-        document.querySelector('[data-page="director"]').click(); // И переключаем на вкладку базы
+        renderProfile(studentProfile, false); 
+        document.querySelector('[data-page="director"]').click(); 
     };
 
-    // НАСТРОЙКИ СВОЕГО ПРОФИЛЯ
     window.openSettings = () => {
         $('set-name').value = studentProfile.name;
         $('set-link').value = studentProfile.vkLink || '';
