@@ -12,11 +12,11 @@
         .container{max-width:600px;padding:30px;background:var(--panel);border:1px solid var(--dark-accent);border-radius:8px;box-shadow:0 24px 100px rgba(0,0,0,0.8);margin: 0 auto;}
         .in-cabinet .container{max-width:1100px;padding:32px 40px;background:linear-gradient(120deg, rgba(31,27,61,0.95), rgba(22,18,40,0.98));border: 1px solid var(--accent);}
         h1,h2,h3{font-weight:normal;color:var(--primary);margin-top:0; text-align: center;}
-        button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:14px;border:none;cursor:pointer;width:100%;margin-top:10px;font-size: 16px;}
+        button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:14px;border:none;cursor:pointer;width:100%;margin-top:10px;font-size: 15px;}
         button:hover{background:var(--accent); color:white;}
         input,select,textarea{font-family:inherit;background:rgba(0,0,0,0.2);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:10px;font-size:14px;width:100%;margin-top:5px}
         select option{background:var(--panel)}
-        label{color:var(--primary);font-weight:normal;display:block;margin-top:12px; font-size:14px;}
+        label{color:var(--primary);font-weight:normal;display:block;margin-top:12px; font-size:14px; text-align: left;}
         
         .cabinet-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--dark-accent);padding-bottom:18px;gap:10px}
         .eyebrow{font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
@@ -44,8 +44,8 @@
         .hint{font-size:14px;color:var(--accent);line-height:1.7; text-align: center;}
         .admin-panel { display: grid; gap: 15px; margin-top: 20px;}
         .admin-card { padding: 15px; border: 1px solid var(--accent); border-radius: 6px; background: rgba(72,41,78,0.2); text-align: left;}
-        .admin-actions { display: flex; gap: 10px; margin-top: 10px;}
-        .admin-actions button { margin: 0; padding: 8px; font-size: 12px; }
+        .admin-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;}
+        .admin-actions button { margin: 0; padding: 8px; font-size: 12px; flex: 1;}
         
         .role-switch { text-align: center; margin-top: 20px; border-top: 1px dashed var(--dark-accent); padding-top: 15px; }
         .role-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 14px;}
@@ -58,42 +58,64 @@
         🔮 Загрузка...
     </div>
 
-    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ (3 КНОПКИ) -->
+    <!-- ГЛАВНОЕ МЕНЮ -->
     <section id="main-menu" hidden>
-        <h1>Добро пожаловать в Хогвартс</h1>
-        <p class="hint">Выберите, кем вы хотите зарегистрироваться.</p>
+        <h1>Хогвартс ВГП</h1>
+        <p class="hint">Выберите действие для входа в систему.</p>
         
-        <button type="button" onclick="openRegister('student')" style="margin-top: 30px;">🎓 Зарегистрироваться как Студент</button>
-        <button type="button" onclick="openRegister('professor')" style="margin-top: 15px;">📖 Зарегистрироваться как Профессор</button>
-        <button type="button" onclick="openRegister('director')" style="margin-top: 15px; background: #99564b; color: white;">👑 Войти как Директор</button>
+        <button type="button" onclick="openLogin()" style="margin-top: 30px;">🔑 Войти в профиль</button>
+        <button type="button" onclick="openRegister()" style="margin-top: 15px; background: transparent; border: 1px solid var(--primary); color: var(--primary);">📝 Зарегистрироваться</button>
+        <button type="button" onclick="openDirectorLogin()" style="margin-top: 15px; background: #99564b; color: white;">👑 Вход для Директора</button>
     </section>
 
-    <!-- ЭКРАН 2: ФОРМА РЕГИСТРАЦИИ -->
+    <!-- ЭКРАН ВХОДА -->
+    <section id="login-screen" hidden>
+        <h1>Вход в профиль</h1>
+        <label>Ваш пароль:</label>
+        <input type="password" id="login-pass" placeholder="Пароль">
+        <button type="button" onclick="loginUser()" style="margin-top:20px;">Войти</button>
+        <p id="login-error" style="color: #ff5555; font-size: 13px; margin-top: 10px; display: none;">Неверный пароль!</p>
+        <div class="role-switch"><a onclick="toggleLogin('main')">← Назад</a></div>
+    </section>
+
+    <!-- ЭКРАН РЕГИСТРАЦИИ -->
     <section id="register-screen" hidden>
-        <h1 id="reg-title">Регистрация</h1>
-        <p class="hint" id="reg-desc">Заполните данные и придумайте пароль.</p>
+        <h1>Регистрация</h1>
         
+        <label>Ваша роль:</label>
+        <select id="reg-role">
+            <option value="student">Студент</option>
+            <option value="professor">Профессор</option>
+        </select>
+
         <label>Имя персонажа:</label>
         <input type="text" id="reg-name" placeholder="Имя Фамилия">
         
         <label>Ссылка на вашу страницу ВК:</label>
         <input type="text" id="reg-link" placeholder="https://vk.com/ваш_ник">
         
-        <label>Придумайте пароль для входа:</label>
+        <label>Придумайте пароль:</label>
         <input type="password" id="reg-pass" placeholder="Ваш пароль">
         
-        <button type="button" id="btn-submit-reg" style="margin-top: 20px;">Сохранить и войти</button>
-
-        <div class="role-switch">
-            <a onclick="toggleLogin('main')">← Вернуться в главное меню</a>
-        </div>
+        <button type="button" onclick="registerUser()" style="margin-top: 20px;">Зарегистрироваться</button>
+        <div class="role-switch"><a onclick="toggleLogin('main')">← Назад</a></div>
     </section>
 
-    <!-- ЭКРАН 3: ЛИЧНЫЙ КАБИНЕТ -->
+    <!-- ЭКРАН ВХОДА ДИРЕКТОРА -->
+    <section id="director-screen" hidden>
+        <h1>Вход для Директора</h1>
+        <label>Кодовое слово:</label>
+        <input type="password" id="dir-pass" placeholder="Кодовое слово">
+        <button type="button" onclick="loginDirector()" style="margin-top:20px;">Войти</button>
+        <div class="role-switch"><a onclick="toggleLogin('main')">← Назад</a></div>
+    </section>
+
+    <!-- ЛИЧНЫЙ КАБИНЕТ (СВОЙ) -->
     <section id="cabinet" class="cabinet" hidden>
         <header class="cabinet-top">
             <span class="eyebrow">Хогвартс / Досье</span>
             <div>
+                <button id="btn-edit" class="text-button" style="color:var(--primary); margin-right:15px;">✏️ Настройки</button>
                 <button id="logout-btn" class="text-button" style="color:#ff5555;">Выйти</button>
             </div>
         </header>
@@ -127,106 +149,165 @@
         
         <section id="book-content"></section>
     </section>
+
+    <!-- НАСТРОЙКИ ПРОФИЛЯ (СВОИ) -->
+    <section id="settings-screen" hidden>
+        <h1>Настройки профиля</h1>
+        <label>Новое имя:</label>
+        <input type="text" id="set-name">
+        <label>Новая ссылка на ВК:</label>
+        <input type="text" id="set-link">
+        <label>Новый пароль:</label>
+        <input type="password" id="set-pass" placeholder="Оставьте пустым, если не меняете">
+        <button type="button" onclick="saveSettings()" style="margin-top:20px;">Сохранить</button>
+        <div class="role-switch"><a onclick="renderCabinet()">← Отмена</a></div>
+    </section>
+
+    <!-- КОМНАТА СТУДЕНТА (ГЛАЗАМИ ДИРЕКТОРА) -->
+    <section id="director-student-view" hidden>
+        <header class="cabinet-top">
+            <span class="eyebrow">Режим Директора / Управление</span>
+            <button onclick="renderPage('director')" class="text-button" style="color:var(--accent);">← Назад в базу</button>
+        </header>
+
+        <h2 style="text-align: left; margin-top: 20px;">Редактирование: <span id="ds-name-title"></span></h2>
+        
+        <div class="admin-card" style="margin-top:20px;">
+            <label>Имя персонажа:</label>
+            <input type="text" id="ds-edit-name">
+            
+            <label>Ссылка на ВК:</label>
+            <input type="text" id="ds-edit-link">
+            
+            <label>Пароль:</label>
+            <input type="text" id="ds-edit-pass">
+            
+            <label>Опыт (XP):</label>
+            <input type="number" id="ds-edit-xp">
+            
+            <label>Мана (MP):</label>
+            <input type="number" id="ds-edit-mp">
+            
+            <button type="button" onclick="saveDirectorEdits()" style="margin-top:20px; background: #4CAF50; color: white;">Сохранить изменения</button>
+        </div>
+    </section>
+
 </main>
 
 <script>
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
-    const DIRECTOR_ID = 836264843; // Ваш VK ID
-    const DIRECTOR_SECRET = "коньяк"; // Пароль Директора
+    const DIRECTOR_ID = 836264843; 
+    const DIRECTOR_SECRET = "коньяк"; 
     
     let vkUser = null;
     let studentProfile = null;
     let allStudents = {};
-    let regRole = 'student'; 
+    let currentlyEditingId = null;
     const $ = id => document.getElementById(id);
 
-    // Запуск
     if (window.vkBridge) {
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
             vkUser = info;
             $('loading').hidden = true;
-            toggleLogin('main'); 
+            toggleLogin('main');
         });
     }
 
     function toggleLogin(screen) {
         $('loading').hidden = true;
         $('main-menu').hidden = screen !== 'main';
+        $('login-screen').hidden = screen !== 'login';
         $('register-screen').hidden = screen !== 'register';
+        $('director-screen').hidden = screen !== 'director';
         $('cabinet').hidden = screen !== 'cabinet';
-        document.body.classList.toggle('in-cabinet', screen === 'cabinet');
+        $('settings-screen').hidden = screen !== 'settings';
+        $('director-student-view').hidden = screen !== 'director-student';
+        document.body.classList.toggle('in-cabinet', screen === 'cabinet' || screen === 'settings' || screen === 'director-student');
     }
 
-    // Открытие формы регистрации
-    window.openRegister = (role) => {
-        regRole = role;
-        toggleLogin('register');
-        
-        if (role === 'student') {
-            $('reg-title').textContent = 'Регистрация Студента';
-            $('reg-desc').textContent = 'Заполните данные. Пароль понадобится для входа.';
-        } else if (role === 'professor') {
-            $('reg-title').textContent = 'Регистрация Профессора';
-            $('reg-desc').textContent = 'Заполните данные. Пароль понадобится для входа.';
-        } else if (role === 'director') {
-            $('reg-title').textContent = 'Вход для Директора';
-            $('reg-desc').textContent = 'Введите вашу ссылку и кодовое слово (коньяк).';
-        }
+    window.openLogin = () => toggleLogin('login');
+    window.openRegister = () => toggleLogin('register');
+    window.openDirectorLogin = () => toggleLogin('director');
+
+    // ВХОД
+    window.loginUser = async () => {
+        const pass = $('login-pass').value.trim();
+        if (!pass) return;
+
+        try {
+            const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
+            const data = await res.json();
+
+            if (data && data.secretCode === pass) {
+                studentProfile = data;
+                renderCabinet();
+            } else {
+                $('login-error').style.display = 'block';
+            }
+        } catch(e) { $('login-error').style.display = 'block'; }
     };
 
-    // Обработка кнопки "Сохранить и войти"
-    $('btn-submit-reg').onclick = async () => {
+    // РЕГИСТРАЦИЯ
+    window.registerUser = async () => {
         const name = $('reg-name').value.trim();
         const link = $('reg-link').value.trim();
         const pass = $('reg-pass').value.trim();
+        const role = $('reg-role').value;
 
-        if (!name || !link || !pass) return alert("Пожалуйста, заполните все поля!");
+        if (!name || !link || !pass) return alert("Заполните все поля!");
 
-        // Проверка для Директора
-        if (regRole === 'director') {
-            if (vkUser.id !== DIRECTOR_ID) return alert("Доступ запрещен. Вы не Директор.");
-            if (pass.toLowerCase() !== DIRECTOR_SECRET) return alert("Неверное кодовое слово!");
+        const profile = {
+            id: vkUser.id, name: name, vkLink: link, role: role,
+            secretCode: pass, xp: 0, mana: 0
+        };
+        
+        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
+        studentProfile = profile;
+        renderCabinet();
+    };
 
-            // Создаем профиль директора
-            const directorProfile = {
-                id: vkUser.id, name: name, vkLink: link, role: 'director', 
-                secretCode: pass, xp: 9999, mana: 9999
-            };
-            await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(directorProfile) });
-            studentProfile = directorProfile;
-            renderCabinet();
-            return;
-        }
+    // ВХОД ДИРЕКТОРА
+    window.loginDirector = async () => {
+        const secret = $('dir-pass').value.toLowerCase().trim();
+        
+        if (vkUser.id !== DIRECTOR_ID) return alert("У вас нет прав Директора!");
+        if (secret !== DIRECTOR_SECRET) return alert("Неверное кодовое слово!");
 
-        // Если это студент или профессор
-        try {
-            const res = await fetch(DB_URL + "/students/" + vkUser.id + ".json");
-            const existingData = await res.json();
-            
-            // Если профиль уже есть и пароль не совпадает - не даем перезаписать
-            if (existingData && existingData.secretCode !== pass) {
-                return alert("Вы уже зарегистрированы! Введите свой старый пароль, чтобы обновить данные, или выберите другую роль.");
-            }
-
-            const profile = {
-                id: vkUser.id, name: name, vkLink: link, role: regRole,
-                secretCode: pass, xp: existingData?.xp || 0, mana: existingData?.mana || 0
-            };
-            
-            await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(profile) });
-            studentProfile = profile;
-            renderCabinet();
-        } catch(e) {
-            alert("Ошибка базы данных!");
-        }
+        const directorProfile = {
+            id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
+            role: 'director', secretCode: "admin", xp: 9999, mana: 9999
+        };
+        
+        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(directorProfile) });
+        studentProfile = directorProfile;
+        renderCabinet();
     };
 
     $('logout-btn').onclick = () => {
         studentProfile = null;
-        $('reg-name').value = '';
-        $('reg-link').value = '';
-        $('reg-pass').value = '';
+        $('login-pass').value = '';
+        $('login-error').style.display = 'none';
+        $('dir-pass').value = '';
         toggleLogin('main'); 
+    };
+
+    // НАСТРОЙКИ СВОЕГО ПРОФИЛЯ
+    $('btn-edit').onclick = () => {
+        $('set-name').value = studentProfile.name;
+        $('set-link').value = studentProfile.vkLink || '';
+        $('set-pass').value = ''; 
+        toggleLogin('settings');
+    };
+
+    window.saveSettings = async () => {
+        const newPass = $('set-pass').value.trim();
+        studentProfile.name = $('set-name').value.trim();
+        studentProfile.vkLink = $('set-link').value.trim();
+        if (newPass) studentProfile.secretCode = newPass;
+        
+        await fetch(DB_URL + "/students/" + vkUser.id + ".json", { method: 'PUT', body: JSON.stringify(studentProfile) });
+        alert("Настройки сохранены!");
+        renderCabinet();
     };
 
     function renderCabinet() {
@@ -270,9 +351,9 @@
                             <h3 style="text-align:left;">${student.name} <span style="font-size:12px; color:var(--primary);">(${student.role})</span></h3>
                             <p style="font-size:13px; margin:5px 0;">Профиль ВК: <a href="${student.vkLink}" target="_blank" style="color:var(--accent);">${student.vkLink}</a></p>
                             <span style="font-size:12px;">XP: ${student.xp || 0} | MP: ${student.mana || 0}</span>
-                            <div class="admin-actions">
-                                <button onclick="giveReward('${student.id}', 'xp', 10)">+10 XP</button>
-                                <button onclick="giveReward('${student.id}', 'mana', 10)">+10 MP</button>
+                            
+                            <div class="admin-actions" style="margin-top: 15px;">
+                                <button onclick="viewStudent('${student.id}')" style="background:var(--primary); color:var(--bg); font-weight:bold;">🚪 Зайти в комнату</button>
                             </div>
                         </div>
                     `).join('')}
@@ -281,14 +362,46 @@
         }
     }
 
-    window.giveReward = async (studentId, type, amount) => {
-        if (studentProfile.role !== 'director') return alert("Нет прав!");
-        const res = await fetch(DB_URL + "/students/" + studentId + ".json");
-        let target = await res.json();
-        if (!target) return;
-        target[type] = (target[type] || 0) + amount;
-        await fetch(DB_URL + "/students/" + studentId + ".json", { method: 'PUT', body: JSON.stringify(target) });
-        renderPage('director');
+    // ОТКРЫТИЕ КОМНАТЫ СТУДЕНТА ДИРЕКТОРОМ
+    window.viewStudent = async (id) => {
+        if (studentProfile.role !== 'director') return alert("Только Директор может входить в комнаты!");
+        
+        currentlyEditingId = id;
+        const res = await fetch(DB_URL + "/students/" + id + ".json");
+        const data = await res.json();
+        
+        if (!data) return alert("Профиль не найден.");
+
+        $('ds-name-title').textContent = data.name;
+        $('ds-edit-name').value = data.name;
+        $('ds-edit-link').value = data.vkLink || '';
+        $('ds-edit-pass').value = data.secretCode || '';
+        $('ds-edit-xp').value = data.xp || 0;
+        $('ds-edit-mp').value = data.mana || 0;
+        
+        toggleLogin('director-student');
+    };
+
+    // СОХРАНЕНИЕ ИЗМЕНЕНИЙ ДИРЕКТОРОМ
+    window.saveDirectorEdits = async () => {
+        if (studentProfile.role !== 'director' || !currentlyEditingId) return;
+
+        const updatedData = {
+            id: Number(currentlyEditingId),
+            name: $('ds-edit-name').value.trim(),
+            vkLink: $('ds-edit-link').value.trim(),
+            secretCode: $('ds-edit-pass').value.trim(),
+            xp: Number($('ds-edit-xp').value) || 0,
+            mana: Number($('ds-edit-mp').value) || 0,
+            role: allStudents[currentlyEditingId]?.role || 'student' // Сохраняем старую роль
+        };
+
+        await fetch(DB_URL + "/students/" + currentlyEditingId + ".json", { method: 'PUT', body: JSON.stringify(updatedData) });
+        alert("Данные пользователя обновлены!");
+        
+        // Возвращаемся в базу и обновляем список
+        toggleLogin('cabinet');
+        document.querySelector('[data-page="director"]').click(); 
     };
 </script>
 </body>
