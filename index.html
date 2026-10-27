@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хогвартс ВГП</title>
-<script src="https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge@2.14.0/dist/browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge@2.14.0/dist/browser.min.js"></script>
     <style>
         :root { --primary: #BEA7B9; --accent: #975F8F; --dark-accent: #48294E; --panel: #1F1B3D; --bg: #161228; --text: #EADCE6; }
         *{box-sizing:border-box}
@@ -43,7 +43,6 @@
         .tabs button{border-radius:0;width:auto;background:none;color:var(--accent);font-size:16px;padding:10px 0;margin:0;border-bottom:2px solid transparent}
         .tabs button.active{color:var(--primary);border-color:var(--primary); font-weight:bold;}
         
-        /* КАРТОЧКИ */
         .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
         .product-card { border: 1px solid var(--accent); background: rgba(31,27,61,0.6); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
@@ -64,7 +63,6 @@
         .center-menu button { max-width: 400px; margin: 10px auto; display: block; }
         .hidden { display: none !important; }
 
-        /* КОТ */
         .cat-helper { position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end;}
         .cat-icon { width: 60px; height: 60px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid var(--accent); transition: transform 0.2s;}
         .cat-icon:hover { transform: scale(1.1); }
@@ -261,14 +259,33 @@
     let chatTimer = null;
     let editItemIndex = -1; 
 
+    // ЗАЩИТА ОТ ВЕЧНОЙ ЗАГРУЗКИ (3 СЕКУНДЫ)
+    const timeoutId = setTimeout(() => {
+        const loadingEl = document.getElementById('loading');
+        if (loadingEl && loadingEl.style.display !== 'none') {
+            loadingEl.style.display = 'none';
+            showMenu();
+            if(errorBox) errorBox.innerText = "ВК не ответил вовремя. Если вы в ВК, попробуйте перезагрузить приложение.";
+        }
+    }, 3000);
+
     if (window.vkBridge) {
         vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
+            clearTimeout(timeoutId);
             vkUser = info;
             document.getElementById('loading').style.display = 'none';
             showMenu();
-        }).catch(e => { if(errorBox) errorBox.innerText = "Ошибка ВК: " + e.message; });
+        }).catch(e => { 
+            clearTimeout(timeoutId);
+            if(errorBox) errorBox.innerText = "Ошибка ВК: " + e.message; 
+            document.getElementById('loading').style.display = 'none';
+            showMenu();
+        });
     } else {
+        clearTimeout(timeoutId);
         if(errorBox) errorBox.innerText = "Библиотека VK Bridge не загрузилась!";
+        document.getElementById('loading').style.display = 'none';
+        showMenu();
     }
 
     function hideAll() {
@@ -281,6 +298,7 @@
     function showDirectorLogin() { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
 
     async function doLogin() {
+        if (!vkUser) return alert("Ошибка авторизации. Обновите страницу.");
         const pass = document.getElementById('login-pass').value.trim();
         const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
         const data = await res.json();
@@ -291,6 +309,7 @@
     }
 
     async function doRegister() {
+        if (!vkUser) return alert("Ошибка авторизации. Обновите страницу.");
         const profile = {
             id: vkUser.id, 
             name: document.getElementById('reg-name').value.trim(), 
@@ -308,6 +327,7 @@
     }
 
     async function doDirectorLogin() {
+        if (!vkUser) return alert("Ошибка авторизации. Обновите страницу.");
         if (vkUser.id !== DIRECTOR_ID) return alert("Вы не Директор!");
         
         const pass = document.getElementById('dir-pass').value.trim();
@@ -415,7 +435,6 @@
         document.getElementById('edit-xp').value = viewProfile.xp || 0;
         document.getElementById('edit-mp').value = viewProfile.mana || 0;
         
-        // БЛОКИРОВКА ПОЛЕЙ XP/MP ДЛЯ СТУДЕНТОВ
         const isDirector = myProfile.role === 'director';
         if (!isAdminView && !isDirector) {
             document.getElementById('edit-xp').setAttribute('disabled', 'true');
@@ -441,7 +460,6 @@
         viewProfile.vkLink = document.getElementById('edit-link').value;
         viewProfile.secretCode = document.getElementById('edit-pass').value;
         
-        // СОХРАНЕНИЕ XP/MP ТОЛЬКО ДЛЯ ДИРЕКТОРА
         const isDirector = myProfile.role === 'director';
         if (isAdminView || isDirector) {
             viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
@@ -468,7 +486,6 @@
         
         const root = document.getElementById('book-content');
         
-        // ПРАВА НА РЕДАКТИРОВАНИЕ КАРТОЧЕК (ТОЛЬКО ДИРЕКТОР)
         const isDirector = myProfile.role === 'director';
         let canEditStats = isAdminView || isDirector;
 
