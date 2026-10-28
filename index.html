@@ -107,7 +107,26 @@
     <label>Ваша роль:</label>
     <select id="reg-role"><option value="student">Студент</option><option value="professor">Профессор</option></select>
     <label>Имя персонажа:</label><input type="text" id="reg-name" placeholder="Имя">
-    <label>Ссылка на ВК:</label><input type="text" id="reg-link" placeholder="https://vk.com/...">
+    <label>Ссылка на ВК:</label><input type="text" id="reg-link" placeholder="https://vk.com/... или @username">
+    <label>Факультет:</label>
+    <select id="reg-faculty">
+        <option value="Гриффиндор">Гриффиндор</option>
+        <option value="Слизерин">Слизерин</option>
+        <option value="Когтевран">Когтевран</option>
+        <option value="Пуффендуй">Пуффендуй</option>
+    </select>
+    <label>Курс:</label>
+    <select id="reg-course">
+        <option value="1">1 курс</option>
+        <option value="2">2 курс</option>
+        <option value="3">3 курс</option>
+        <option value="4">4 курс</option>
+        <option value="5">5 курс</option>
+        <option value="6">6 курс</option>
+        <option value="7">7 курс</option>
+    </select>
+    <label>Номер в списке студентов:</label>
+    <input type="number" id="reg-number" min="1" placeholder="Например, 12">
     <label>Придумайте пароль:</label><input type="password" id="reg-pass" placeholder="Пароль">
     <button onclick="doRegister()" style="margin-top: 20px;">Создать</button>
     <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Назад</a>
@@ -127,6 +146,25 @@
     <label>Имя:</label><input type="text" id="edit-name">
     <label>Ссылка ВК:</label><input type="text" id="edit-link">
     <label>Пароль:</label><input type="text" id="edit-pass">
+    <label>Факультет:</label>
+    <select id="edit-faculty">
+        <option value="Гриффиндор">Гриффиндор</option>
+        <option value="Слизерин">Слизерин</option>
+        <option value="Когтевран">Когтевран</option>
+        <option value="Пуффендуй">Пуффендуй</option>
+    </select>
+    <label>Курс:</label>
+    <select id="edit-course">
+        <option value="1">1 курс</option>
+        <option value="2">2 курс</option>
+        <option value="3">3 курс</option>
+        <option value="4">4 курс</option>
+        <option value="5">5 курс</option>
+        <option value="6">6 курс</option>
+        <option value="7">7 курс</option>
+    </select>
+    <label>Номер в списке:</label>
+    <input type="number" id="edit-number" min="1">
     <label>Палочка:</label><input type="text" id="edit-wand">
     <label>Патронус:</label><input type="text" id="edit-patronus">
     
@@ -147,42 +185,69 @@
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
-<div id="quiz-screen" class="center-menu hidden" style="max-width: 500px; margin: 0 auto;">
-    <h1>Распределение палочки</h1>
-    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, чтобы мистер Олливандер подобрал вам палочку и патронуса.</p>
+<!-- Отдельный квиз для палочки -->
+<div id="wand-quiz-screen" class="center-menu hidden" style="max-width: 500px; margin: 0 auto;">
+    <h1>Выбор палочки</h1>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, чтобы мистер Олливандер подобрал вам палочку.</p>
     
-    <div id="quiz-content">
+    <div id="wand-quiz-content">
         <div class="quiz-question">
             <label>1. Что для вас важнее всего в жизни?</label>
-            <label><input type="radio" name="q1" value="brave"> Смелость и героизм</label>
-            <label><input type="radio" name="q1" value="wise"> Мудрость и знания</label>
-            <label><input type="radio" name="q1" value="cunning"> Хитрость и амбиции</label>
-            <label><input type="radio" name="q1" value="loyal"> Верность и дружба</label>
+            <label><input type="radio" name="wq1" value="brave"> Смелость и героизм</label>
+            <label><input type="radio" name="wq1" value="wise"> Мудрость и знания</label>
+            <label><input type="radio" name="wq1" value="cunning"> Хитрость и амбиции</label>
+            <label><input type="radio" name="wq1" value="loyal"> Верность и дружба</label>
         </div>
         <div class="quiz-question">
             <label>2. Как вы решаете конфликты?</label>
-            <label><input type="radio" name="q2" value="fight"> Вступаю в бой</label>
-            <label><input type="radio" name="q2" value="talk"> Ищу компромисс</label>
-            <label><input type="radio" name="q2" value="avoid"> Ухожу от конфликта</label>
-            <label><input type="radio" name="q2" value="magic"> Использую магию</label>
+            <label><input type="radio" name="wq2" value="fight"> Вступаю в бой</label>
+            <label><input type="radio" name="wq2" value="talk"> Ищу компромисс</label>
+            <label><input type="radio" name="wq2" value="avoid"> Ухожу от конфликта</label>
+            <label><input type="radio" name="wq2" value="magic"> Использую магию</label>
         </div>
         <div class="quiz-question">
             <label>3. Ваш рост (для расчета длины)?</label>
-            <label><input type="radio" name="q3" value="short"> Меньше 140 см</label>
-            <label><input type="radio" name="q3" value="mid"> 140 - 170 см</label>
-            <label><input type="radio" name="q3" value="tall"> Больше 170 см</label>
-        </div>
-        <div class="quiz-question">
-            <label>4. Какая магия вам ближе?</label>
-            <label><input type="radio" name="q4" value="attack"> Боевая (Огонь)</label>
-            <label><input type="radio" name="q4" value="protect"> Защитная (Земля)</label>
-            <label><input type="radio" name="q4" value="heal"> Исцеляющая (Вода)</label>
-            <label><input type="radio" name="q4" value="mind"> Ментальная (Воздух)</label>
+            <label><input type="radio" name="wq3" value="short"> Меньше 140 см</label>
+            <label><input type="radio" name="wq3" value="mid"> 140 - 170 см</label>
+            <label><input type="radio" name="wq3" value="tall"> Больше 170 см</label>
         </div>
     </div>
     
-    <button onclick="calculateResult()" style="margin-top:20px; background:#d4af37; color:#111;">Получить палочку</button>
-    <a onclick="cancelQuiz()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
+    <button onclick="calculateWandResult()" style="margin-top:20px; background:#d4af37; color:#111;">Получить палочку</button>
+    <a onclick="cancelWandQuiz()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
+</div>
+
+<!-- Отдельный квиз для патронуса -->
+<div id="patronus-quiz-screen" class="center-menu hidden" style="max-width: 500px; margin: 0 auto;">
+    <h1>Вызов Патронуса</h1>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Вспомните самое счастливое воспоминание...</p>
+    
+    <div id="patronus-quiz-content">
+        <div class="quiz-question">
+            <label>1. Какое воспоминание вызывает у вас самую сильную радость?</label>
+            <label><input type="radio" name="pq1" value="victory"> Момент победы</label>
+            <label><input type="radio" name="pq1" value="friends"> Время с друзьями</label>
+            <label><input type="radio" name="pq1" value="knowledge"> Открытие новой истины</label>
+            <label><input type="radio" name="pq1" value="family"> Тепло семьи</label>
+        </div>
+        <div class="quiz-question">
+            <label>2. Какое животное вам ближе всего?</label>
+            <label><input type="radio" name="pq2" value="deer"> Олень</label>
+            <label><input type="radio" name="pq2" value="owl"> Сова</label>
+            <label><input type="radio" name="pq2" value="wolf"> Волк</label>
+            <label><input type="radio" name="pq2" value="otter"> Выдра</label>
+        </div>
+        <div class="quiz-question">
+            <label>3. Что вы больше всего хотите защитить?</label>
+            <label><input type="radio" name="pq3" value="freedom"> Свободу</label>
+            <label><input type="radio" name="pq3" value="knowledge"> Знания</label>
+            <label><input type="radio" name="pq3" value="love"> Любовь</label>
+            <label><input type="radio" name="pq3" value="home"> Дом</label>
+        </div>
+    </div>
+    
+    <button onclick="calculatePatronusResult()" style="margin-top:20px; background:#d4af37; color:#111;">Вызвать Патронуса</button>
+    <a onclick="cancelPatronusQuiz()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
 <div id="cabinet" class="container cabinet hidden">
@@ -194,7 +259,7 @@
     <header class="cabinet-top">
         <span class="eyebrow" id="header-title">Хогвартс / Досье</span>
         <div id="header-buttons">
-            <button class="text-button" style="color:#ff5555;" onclick="location.reload()">Выйти</button>
+            <button class="text-button" style="color:#ff5555;" onclick="logout()">Выйти</button>
         </div>
     </header>
     
@@ -210,6 +275,9 @@
             <div class="character-details">
                 <span>Ссылка ВК <strong id="saved-link"></strong></span>
                 <span>Пароль <strong id="saved-pass"></strong></span>
+                <span>Факультет <strong id="saved-faculty">—</strong></span>
+                <span>Курс <strong id="saved-course">—</strong></span>
+                <span>Номер в списке <strong id="saved-number">—</strong></span>
                 <span>Палочка <strong id="saved-wand">Не получена</strong></span>
                 <span>Патронус <strong id="saved-patronus">Неизвестен</strong></span>
             </div>
@@ -253,8 +321,42 @@
     let chatTimer = null;
     let editItemIndex = -1; 
 
+    // --- Сессия ---
+    function saveSession(id, link, pass) {
+        localStorage.setItem('vk_id', id);
+        localStorage.setItem('vk_link', link || '');
+        localStorage.setItem('vk_pass', pass);
+    }
+    function clearSession() {
+        localStorage.removeItem('vk_id');
+        localStorage.removeItem('vk_link');
+        localStorage.removeItem('vk_pass');
+    }
+    function logout() {
+        clearSession();
+        location.reload();
+    }
+    async function restoreSession() {
+        const savedId = localStorage.getItem('vk_id');
+        const savedPass = localStorage.getItem('vk_pass');
+        if (savedId && savedPass && !vkUser) {
+            try {
+                const res = await fetch(`${DB_URL}/students/${savedId}.json`);
+                const data = await res.json();
+                if (data && data.secretCode === savedPass) {
+                    vkUser = { id: Number(savedId), first_name: "Пользователь", last_name: savedId };
+                    myProfile = data;
+                    openCabinet(data, false, false);
+                    return;
+                }
+            } catch(e) {}
+            clearSession();
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         showMenu();
+        restoreSession();
         
         if (window.vkBridge) {
             vkBridge.send('VKWebAppInit')
@@ -305,7 +407,7 @@
     }
 
     function hideAll() {
-        ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen', 'quiz-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen', 'wand-quiz-screen', 'patronus-quiz-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
         if(chatTimer) { clearInterval(chatTimer); chatTimer = null; }
     }
     function showMenu() { hideAll(); document.getElementById('main-menu').classList.remove('hidden'); }
@@ -315,22 +417,42 @@
 
     // --- УМНЫЙ ПОИСК ID (СНАЧАЛА ЦИФРЫ, ПОТОМ БАЗА) ---
     async function resolveVkId(input) {
-        // Если это цифры, возвращаем сразу
-        if (!isNaN(input) && input.trim() !== "") return Number(input);
+        if (!input) return null;
+        let clean = input.trim().toLowerCase();
+        
+        // Если это цифры — сразу возвращаем
+        if (/^\d+$/.test(clean)) return Number(clean);
 
-        // Если это ссылка, ищем в Firebase того, у кого она указана в профиле
-        let screenName = input.trim().toLowerCase();
-        if (screenName.includes('/')) screenName = screenName.split('/').pop(); // достаем nott_cr
-        screenName = screenName.split('?')[0]; // убираем параметры
+        // Убираем @ в начале
+        if (clean.startsWith('@')) clean = clean.slice(1);
+        
+        // Убираем протокол и домены
+        clean = clean.replace(/^https?:\/\//, '');
+        clean = clean.replace(/^(www\.)?vk\.(com|ru)\//, '');
+        clean = clean.replace(/^(m\.)?vk\.(com|ru)\//, '');
+        // Убираем параметры и слэши в конце
+        clean = clean.split('?')[0];
+        clean = clean.replace(/\/$/, '');
 
+        // Ищем в Firebase
         try {
             const res = await fetch(`${DB_URL}/students.json`);
             const allStudents = await res.json() || {};
             
             for (let id in allStudents) {
                 const student = allStudents[id];
-                if (student.vkLink && student.vkLink.toLowerCase().includes(screenName)) {
-                    return Number(id); // Нашли! Возвращаем реальный ID
+                if (student.vkLink) {
+                    let linkClean = student.vkLink.toLowerCase().trim();
+                    if (linkClean.startsWith('@')) linkClean = linkClean.slice(1);
+                    linkClean = linkClean.replace(/^https?:\/\//, '');
+                    linkClean = linkClean.replace(/^(www\.)?vk\.(com|ru)\//, '');
+                    linkClean = linkClean.replace(/^(m\.)?vk\.(com|ru)\//, '');
+                    linkClean = linkClean.split('?')[0];
+                    linkClean = linkClean.replace(/\/$/, '');
+                    
+                    if (linkClean === clean) {
+                        return Number(id);
+                    }
                 }
             }
         } catch (e) {
@@ -341,7 +463,7 @@
 
     async function checkVk() {
         if (!vkUser) {
-            const testInput = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID (например, 836264843) ИЛИ ссылку из профиля (например, https://vk.ru/nott_cr):");
+            const testInput = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID (например, 836264843) ИЛИ ссылку из профиля (например, https://vk.ru/nott_cr или @likeaslug):");
             if (!testInput) return false;
 
             const id = await resolveVkId(testInput);
@@ -366,6 +488,7 @@
             const data = await res.json();
             if (data && data.secretCode === pass) {
                 myProfile = data;
+                saveSession(vkUser.id, data.vkLink || '', pass);
                 openCabinet(data, false, false);
             } else {
                 document.getElementById('login-error').style.display = 'block';
@@ -382,6 +505,9 @@
             name: document.getElementById('reg-name').value.trim(), 
             vkLink: document.getElementById('reg-link').value.trim(), 
             role: document.getElementById('reg-role').value, 
+            faculty: document.getElementById('reg-faculty').value,
+            course: document.getElementById('reg-course').value,
+            studentNumber: document.getElementById('reg-number').value.trim(),
             secretCode: document.getElementById('reg-pass').value.trim(), 
             xp: 0, mana: 0, photo: "", wand: "", patronus: "",
             skills: [{title: "Основы чар", desc: "Точность движения палочкой.", req: 0, img: ""}], 
@@ -392,6 +518,7 @@
         try {
             await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
             myProfile = profile;
+            saveSession(vkUser.id, profile.vkLink, profile.secretCode);
             openCabinet(profile, false, false);
         } catch(e) {
             alert("Ошибка сохранения.");
@@ -424,6 +551,7 @@
                 const profile = {
                     id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
                     role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "", wand: "Бузинная палочка", patronus: "Феникс",
+                    faculty: "Хогвартс", course: "0", studentNumber: "",
                     skills: [{title: "Травология", desc: "Профессор Травологии", req: 0, img: ""}], 
                     spells: [], potions: [], notes: ""
                 };
@@ -431,7 +559,7 @@
                 myProfile = profile;
                 alert("Профиль Директора создан!");
             }
-            
+            saveSession(vkUser.id, myProfile.vkLink, pass);
             openCabinet(myProfile, false, false);
         } catch(e) {
             alert("Ошибка базы данных.");
@@ -455,6 +583,9 @@
         else if (!guestMode && profile.id === vkUser.id) showPass = true;
 
         document.getElementById('saved-pass').textContent = showPass ? (profile.secretCode || 'admin') : '******'; 
+        document.getElementById('saved-faculty').textContent = profile.faculty || '—';
+        document.getElementById('saved-course').textContent = profile.course ? profile.course + ' курс' : '—';
+        document.getElementById('saved-number').textContent = profile.studentNumber || '—';
         document.getElementById('saved-wand').textContent = profile.wand || 'Не получена';
         document.getElementById('saved-patronus').textContent = profile.patronus || 'Неизвестен';
         document.getElementById('xp').textContent = profile.xp || 0;
@@ -483,9 +614,12 @@
             document.getElementById('header-title').textContent = "Хогвартс / Досье";
             btnHtml = `
                 <button class="text-button" onclick="openEdit()" style="color:var(--primary);">✏️ Редактировать</button>
-                <button class="text-button" style="color:#ff5555;" onclick="location.reload()">Выйти</button>`;
+                <button class="text-button" style="color:#ff5555;" onclick="logout()">Выйти</button>`;
             if(!profile.wand) {
-                btnHtml = `<button class="text-button" onclick="startQuiz()" style="color:#d4af37; font-weight:bold;">🪄 Получить палочку</button>` + btnHtml;
+                btnHtml = `<button class="text-button" onclick="startWandQuiz()" style="color:#d4af37; font-weight:bold;">🪄 Получить палочку</button>` + btnHtml;
+            }
+            if(!profile.patronus) {
+                btnHtml = `<button class="text-button" onclick="startPatronusQuiz()" style="color:#d4af37; font-weight:bold;">✨ Получить патронуса</button>` + btnHtml;
             }
         }
         document.getElementById('header-buttons').innerHTML = btnHtml;
@@ -503,6 +637,9 @@
         document.getElementById('edit-name').value = viewProfile.name || '';
         document.getElementById('edit-link').value = viewProfile.vkLink || '';
         document.getElementById('edit-pass').value = viewProfile.secretCode || '';
+        document.getElementById('edit-faculty').value = viewProfile.faculty || 'Гриффиндор';
+        document.getElementById('edit-course').value = viewProfile.course || '1';
+        document.getElementById('edit-number').value = viewProfile.studentNumber || '';
         document.getElementById('edit-wand').value = viewProfile.wand || '';
         document.getElementById('edit-patronus').value = viewProfile.patronus || '';
         
@@ -529,6 +666,9 @@
         viewProfile.name = document.getElementById('edit-name').value;
         viewProfile.vkLink = document.getElementById('edit-link').value;
         viewProfile.secretCode = document.getElementById('edit-pass').value;
+        viewProfile.faculty = document.getElementById('edit-faculty').value;
+        viewProfile.course = document.getElementById('edit-course').value;
+        viewProfile.studentNumber = document.getElementById('edit-number').value.trim();
         viewProfile.wand = document.getElementById('edit-wand').value;
         viewProfile.patronus = document.getElementById('edit-patronus').value;
         
@@ -542,7 +682,10 @@
 
         try {
             await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify(viewProfile) });
-            if(!isAdminView && viewProfile.id === vkUser.id) myProfile = viewProfile;
+            if(!isAdminView && viewProfile.id === vkUser.id) {
+                myProfile = viewProfile;
+                saveSession(vkUser.id, viewProfile.vkLink, viewProfile.secretCode);
+            }
             
             openCabinet(viewProfile, isAdminView, isGuestView);
             alert("Данные сохранены!");
@@ -767,7 +910,7 @@
                         ${student.photo ? `<img src="${student.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<div style="width:40px; height:40px; border-radius:50%; background:var(--dark-accent); display:grid; place-items:center;">✦</div>`}
                         <div>
                             <h3 style="margin:0; font-size:18px;">${student.name}</h3>
-                            <span style="font-size:12px; color:var(--accent);">${student.role}</span>
+                            <span style="font-size:12px; color:var(--accent);">${student.role} · ${student.faculty || ''} ${student.course ? '· ' + student.course + ' курс' : ''}</span>
                         </div>
                     </div>
                     <button onclick="visitProfile('${vkId}')" style="background:var(--primary); color:var(--bg); margin-top:10px;">
@@ -894,24 +1037,23 @@
         } catch(e) { alert("Ошибка отправки"); }
     }
 
-    // --- ЛОГИКА ТЕСТА НА ПАЛОЧКУ И ПАТРОНУСА ---
-    function startQuiz() {
+    // --- ТЕСТ НА ПАЛОЧКУ ---
+    function startWandQuiz() {
         if(!viewProfile || viewProfile.id !== vkUser.id) return;
         hideAll();
-        document.getElementById('quiz-screen').classList.remove('hidden');
+        document.getElementById('wand-quiz-screen').classList.remove('hidden');
     }
 
-    function cancelQuiz() {
+    function cancelWandQuiz() {
         openCabinet(myProfile, false, false);
     }
 
-    async function calculateResult() {
-        const q1 = document.querySelector('input[name="q1"]:checked');
-        const q2 = document.querySelector('input[name="q2"]:checked');
-        const q3 = document.querySelector('input[name="q3"]:checked');
-        const q4 = document.querySelector('input[name="q4"]:checked');
+    async function calculateWandResult() {
+        const q1 = document.querySelector('input[name="wq1"]:checked');
+        const q2 = document.querySelector('input[name="wq2"]:checked');
+        const q3 = document.querySelector('input[name="wq3"]:checked');
 
-        if (!q1 || !q2 || !q3 || !q4) {
+        if (!q1 || !q2 || !q3) {
             return alert("Пожалуйста, ответьте на все вопросы!");
         }
 
@@ -919,52 +1061,97 @@
         let core = "";
         let length = "";
         let flexibility = "";
-        let patronus = "";
 
         if (q3.value === 'short') length = "7 - 8 дюймов (Короткая)";
         else if (q3.value === 'mid') length = "9 - 10.5 дюймов (Стандартная)";
         else length = "11 - 13 дюймов (Длинная)";
 
         if (q1.value === 'brave') {
-            wood = "Дуб"; patronus = "Олень";
+            wood = "Дуб";
             if (q2.value === 'fight') { core = "Сердцевина дракона"; flexibility = "Жёсткая"; }
             else { core = "Перо феникса"; flexibility = "Средней гибкости"; }
         } 
         else if (q1.value === 'wise') {
-            wood = "Орех"; patronus = "Сова";
+            wood = "Орех";
             if (q2.value === 'talk') { core = "Грива единорога"; flexibility = "Гибкая"; }
             else { core = "Перо ворона"; flexibility = "Твёрдая"; }
         }
         else if (q1.value === 'cunning') {
-            wood = "Тис"; patronus = "Ворон";
+            wood = "Тис";
             if (q2.value === 'magic') { core = "Зуб василиска"; flexibility = "Несгибаемая"; }
             else { core = "Волос вейлы"; flexibility = "Очень гибкая"; }
         }
         else {
-            wood = "Ива"; patronus = "Выдра";
+            wood = "Ива";
             if (q2.value === 'avoid') { core = "Волос единорога"; flexibility = "Гибкая"; }
             else { core = "Шерсть пегаса"; flexibility = "Средней гибкости"; }
         }
 
-        if (q4.value === 'attack') patronus = patronus === "Олень" ? "Лев" : patronus;
-        else if (q4.value === 'heal') patronus = "Феникс";
-        else if (q4.value === 'mind') patronus = patronus === "Сова" ? "Кошка" : patronus;
-
         const wandResult = `${wood}, ${core}, ${length}, ${flexibility}`;
-        const patronusResult = patronus;
 
         try {
             await fetch(`${DB_URL}/students/${vkUser.id}.json`, { 
                 method: 'PATCH', 
-                body: JSON.stringify({ wand: wandResult, patronus: patronusResult }) 
+                body: JSON.stringify({ wand: wandResult }) 
             });
             
             myProfile.wand = wandResult;
-            myProfile.patronus = patronusResult;
             viewProfile.wand = wandResult;
-            viewProfile.patronus = patronusResult;
 
-            alert(`✨ Палочка выбрала вас!\n\nДревесина: ${wood}\nСердцевина: ${core}\nДлина: ${length}\nГибкость: ${flexibility}\n\nВаш Патронус: ${patronusResult}`);
+            alert(`✨ Палочка выбрала вас!\n\n${wandResult}`);
+            openCabinet(myProfile, false, false);
+        } catch(e) {
+            alert("Ошибка сохранения результата.");
+        }
+    }
+
+    // --- ТЕСТ НА ПАТРОНУСА ---
+    function startPatronusQuiz() {
+        if(!viewProfile || viewProfile.id !== vkUser.id) return;
+        hideAll();
+        document.getElementById('patronus-quiz-screen').classList.remove('hidden');
+    }
+
+    function cancelPatronusQuiz() {
+        openCabinet(myProfile, false, false);
+    }
+
+    async function calculatePatronusResult() {
+        const q1 = document.querySelector('input[name="pq1"]:checked');
+        const q2 = document.querySelector('input[name="pq2"]:checked');
+        const q3 = document.querySelector('input[name="pq3"]:checked');
+
+        if (!q1 || !q2 || !q3) {
+            return alert("Пожалуйста, ответьте на все вопросы!");
+        }
+
+        let patronus = "";
+
+        // Комбинируем ответы
+        if (q1.value === 'victory') patronus = "Лев";
+        else if (q1.value === 'friends') patronus = "Выдра";
+        else if (q1.value === 'knowledge') patronus = "Сова";
+        else patronus = "Олень";
+
+        if (q2.value === 'deer' && patronus !== "Олень") patronus = "Олень";
+        else if (q2.value === 'owl' && patronus !== "Сова") patronus = "Сова";
+        else if (q2.value === 'wolf') patronus = "Волк";
+        else if (q2.value === 'otter') patronus = "Выдра";
+
+        if (q3.value === 'freedom') patronus = "Феникс";
+        else if (q3.value === 'love') patronus = "Лебедь";
+        else if (q3.value === 'home') patronus = "Собака";
+
+        try {
+            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { 
+                method: 'PATCH', 
+                body: JSON.stringify({ patronus: patronus }) 
+            });
+            
+            myProfile.patronus = patronus;
+            viewProfile.patronus = patronus;
+
+            alert(`✨ Ваш Патронус: ${patronus}!`);
             openCabinet(myProfile, false, false);
         } catch(e) {
             alert("Ошибка сохранения результата.");
