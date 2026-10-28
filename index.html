@@ -79,6 +79,11 @@
         
         input[type="file"] { display: none; }
         .custom-file-upload { border: 1px dashed var(--primary); display: inline-block; padding: 10px; cursor: pointer; border-radius: 4px; text-align: center; width: 100%; color: var(--primary); margin-top: 10px;}
+        
+        /* Стили для теста */
+        .quiz-question { margin-bottom: 15px; text-align: left; }
+        .quiz-question label { display: block; margin-top: 5px; cursor: pointer; }
+        .quiz-question input[type="radio"] { margin-right: 10px; }
     </style>
 </head>
 <body>
@@ -123,6 +128,8 @@
     <label>Имя:</label><input type="text" id="edit-name">
     <label>Ссылка ВК:</label><input type="text" id="edit-link">
     <label>Пароль:</label><input type="text" id="edit-pass">
+    <label>Палочка:</label><input type="text" id="edit-wand">
+    <label>Патронус:</label><input type="text" id="edit-patronus">
     
     <div id="admin-only-stats" style="display:none;">
         <label>Опыт (XP):</label><input type="number" id="edit-xp">
@@ -139,6 +146,45 @@
     
     <button onclick="saveEdit()" style="margin-top:20px; background:#4CAF50; color:white;">Сохранить</button>
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
+</div>
+
+<!-- ЭКРАН ТЕСТА -->
+<div id="quiz-screen" class="center-menu hidden" style="max-width: 500px; margin: 0 auto;">
+    <h1>Распределение палочки</h1>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, чтобы олливандер подобрал вам палочку и патронуса.</p>
+    
+    <div id="quiz-content">
+        <div class="quiz-question">
+            <label>1. Что для вас важнее всего в жизни?</label>
+            <label><input type="radio" name="q1" value="brave"> Смелость и героизм</label>
+            <label><input type="radio" name="q1" value="wise"> Мудрость и знания</label>
+            <label><input type="radio" name="q1" value="cunning"> Хитрость и амбиции</label>
+            <label><input type="radio" name="q1" value="loyal"> Верность и дружба</label>
+        </div>
+        <div class="quiz-question">
+            <label>2. Как вы решаете конфликты?</label>
+            <label><input type="radio" name="q2" value="fight"> Вступаю в бой</label>
+            <label><input type="radio" name="q2" value="talk"> Ищу компромисс</label>
+            <label><input type="radio" name="q2" value="avoid"> Ухожу от конфликта</label>
+            <label><input type="radio" name="q2" value="magic"> Использую магию</label>
+        </div>
+        <div class="quiz-question">
+            <label>3. Ваш рост (для расчета длины)?</label>
+            <label><input type="radio" name="q3" value="short"> Меньше 140 см</label>
+            <label><input type="radio" name="q3" value="mid"> 140 - 170 см</label>
+            <label><input type="radio" name="q3" value="tall"> Больше 170 см</label>
+        </div>
+        <div class="quiz-question">
+            <label>4. Какая магия вам ближе?</label>
+            <label><input type="radio" name="q4" value="attack"> Боевая (Огонь)</label>
+            <label><input type="radio" name="q4" value="protect"> Защитная (Земля)</label>
+            <label><input type="radio" name="q4" value="heal"> Исцеляющая (Вода)</label>
+            <label><input type="radio" name="q4" value="mind"> Ментальная (Воздух)</label>
+        </div>
+    </div>
+    
+    <button onclick="calculateResult()" style="margin-top:20px; background:#d4af37; color:#111;">Получить палочку</button>
+    <a onclick="cancelQuiz()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
 <div id="cabinet" class="container cabinet hidden">
@@ -166,6 +212,8 @@
             <div class="character-details">
                 <span>Ссылка ВК <strong id="saved-link"></strong></span>
                 <span>Пароль <strong id="saved-pass"></strong></span>
+                <span>Палочка <strong id="saved-wand">Не получена</strong></span>
+                <span>Патронус <strong id="saved-patronus">Неизвестен</strong></span>
             </div>
             <div id="visit-actions" class="hidden" style="margin-top: 15px;">
                 <button onclick="startChatFromProfile()" style="background: var(--accent); color: white;">🦉 Написать сову</button>
@@ -259,7 +307,7 @@
     }
 
     function hideAll() {
-        ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen', 'quiz-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
         if(chatTimer) { clearInterval(chatTimer); chatTimer = null; }
     }
     function showMenu() { hideAll(); document.getElementById('main-menu').classList.remove('hidden'); }
@@ -267,7 +315,6 @@
     function showRegister() { hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
     function showDirectorLogin() { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
 
-    // ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ ЗАПУСКА ВНЕ ВК
     function checkVk() {
         if (!vkUser) {
             const testId = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID для входа (например, 836264843):");
@@ -306,7 +353,7 @@
             vkLink: document.getElementById('reg-link').value.trim(), 
             role: document.getElementById('reg-role').value, 
             secretCode: document.getElementById('reg-pass').value.trim(), 
-            xp: 0, mana: 0, photo: "",
+            xp: 0, mana: 0, photo: "", wand: "", patronus: "",
             skills: [{title: "Основы чар", desc: "Точность движения палочкой.", req: 0, img: ""}], 
             spells: [], potions: [], notes: ""
         };
@@ -346,7 +393,7 @@
             } else {
                 const profile = {
                     id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
-                    role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "",
+                    role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "", wand: "Бузинная палочка", patronus: "Феникс",
                     skills: [{title: "Травология", desc: "Профессор Травологии", req: 0, img: ""}], 
                     spells: [], potions: [], notes: ""
                 };
@@ -378,6 +425,8 @@
         else if (!guestMode && profile.id === vkUser.id) showPass = true;
 
         document.getElementById('saved-pass').textContent = showPass ? (profile.secretCode || 'admin') : '******'; 
+        document.getElementById('saved-wand').textContent = profile.wand || 'Не получена';
+        document.getElementById('saved-patronus').textContent = profile.patronus || 'Неизвестен';
         document.getElementById('xp').textContent = profile.xp || 0;
         document.getElementById('mana').textContent = profile.mana || 0;
         document.getElementById('room-name').textContent = 'Гостиная · ' + (profile.faculty || 'Хогвартс');
@@ -405,6 +454,9 @@
             btnHtml = `
                 <button class="text-button" onclick="openEdit()" style="color:var(--primary);">✏️ Редактировать</button>
                 <button class="text-button" style="color:#ff5555;" onclick="location.reload()">Выйти</button>`;
+            if(!profile.wand) {
+                btnHtml = `<button class="text-button" onclick="startQuiz()" style="color:#d4af37; font-weight:bold;">🪄 Получить палочку</button>` + btnHtml;
+            }
         }
         document.getElementById('header-buttons').innerHTML = btnHtml;
 
@@ -421,6 +473,8 @@
         document.getElementById('edit-name').value = viewProfile.name || '';
         document.getElementById('edit-link').value = viewProfile.vkLink || '';
         document.getElementById('edit-pass').value = viewProfile.secretCode || '';
+        document.getElementById('edit-wand').value = viewProfile.wand || '';
+        document.getElementById('edit-patronus').value = viewProfile.patronus || '';
         
         if (myProfile.role === 'director') {
             document.getElementById('admin-only-stats').style.display = 'block';
@@ -445,6 +499,8 @@
         viewProfile.name = document.getElementById('edit-name').value;
         viewProfile.vkLink = document.getElementById('edit-link').value;
         viewProfile.secretCode = document.getElementById('edit-pass').value;
+        viewProfile.wand = document.getElementById('edit-wand').value;
+        viewProfile.patronus = document.getElementById('edit-patronus').value;
         
         if (myProfile.role === 'director') {
             viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
@@ -475,29 +531,30 @@
         
         const root = document.getElementById('book-content');
         
+        // ИСПРАВЛЕНИЕ ПРАВ: Профессор может редактировать СВОЙ профиль и карточки. Директор - любые.
         let canEdit = false;
         if (myProfile.role === 'director') {
-            if ((!isGuestView && viewProfile.id === vkUser.id) || isAdminView) {
-                canEdit = true;
-            }
+            canEdit = true; 
+        } else if (myProfile.role === 'professor' && viewProfile.id === vkUser.id && !isGuestView) {
+            canEdit = true;
         }
 
         if (tab === 'skills') {
-            updateCatText("Здесь твои <b>Навыки</b>. Директор может добавить новые.");
+            updateCatText("Здесь твои <b>Навыки</b>.");
             renderList('skills', 'Навыки', '✦', root, canEdit);
         }
         else if (tab === 'spells') {
-            updateCatText("Это твои <b>Заклинания</b>. Директор может добавить новые.");
+            updateCatText("Это твои <b>Заклинания</b>.");
             renderList('spells', 'Заклинания', '⚡', root, canEdit);
         }
         else if (tab === 'potions') {
-            updateCatText("Твои <b>Зелья</b>. Директор может добавить новые.");
+            updateCatText("Твои <b>Зелья</b>.");
             renderList('potions', 'Зелья', '🧪', root, canEdit);
         }
         else if (tab === 'notes') {
-            updateCatText("Твой <b>Личный дневник</b>. Пиши сюда заметки.");
+            updateCatText("Твой <b>Личный дневник</b>.");
             root.innerHTML = `<div class="product-card"><div class="product-info"><h3>📝 Дневник</h3><p>${viewProfile.notes || 'Заметок пока нет.'}</p></div></div>`;
-            if (canEdit) {
+            if (canEdit || (!isGuestView && viewProfile.id === vkUser.id)) {
                 root.innerHTML += `<div class="builder-box"><textarea id="edit-notes" rows="5">${viewProfile.notes||''}</textarea><button onclick="saveText('notes')" style="margin-top:10px; background:#4CAF50; color:white;">Сохранить заметки</button></div>`;
             }
         }
@@ -806,6 +863,91 @@
         try {
             await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
         } catch(e) { alert("Ошибка отправки"); }
+    }
+
+    // --- ЛОГИКА ТЕСТА НА ПАЛОЧКУ И ПАТРОНУСА ---
+    function startQuiz() {
+        if(!viewProfile || viewProfile.id !== vkUser.id) return;
+        hideAll();
+        document.getElementById('quiz-screen').classList.remove('hidden');
+    }
+
+    function cancelQuiz() {
+        openCabinet(myProfile, false, false);
+    }
+
+    async function calculateResult() {
+        const q1 = document.querySelector('input[name="q1"]:checked');
+        const q2 = document.querySelector('input[name="q2"]:checked');
+        const q3 = document.querySelector('input[name="q3"]:checked');
+        const q4 = document.querySelector('input[name="q4"]:checked');
+
+        if (!q1 || !q2 || !q3 || !q4) {
+            return alert("Пожалуйста, ответьте на все вопросы!");
+        }
+
+        // Логика на основе ваших документов (упрощенная)
+        let wood = "";
+        let core = "";
+        let length = "";
+        let flexibility = "";
+        let patronus = "";
+
+        // Длина (от роста)
+        if (q3.value === 'short') length = "7 - 8 дюймов (Короткая)";
+        else if (q3.value === 'mid') length = "9 - 10.5 дюймов (Стандартная)";
+        else length = "11 - 13 дюймов (Длинная)";
+
+        // Палочка и Патронус (от характера и магии)
+        if (q1.value === 'brave') { // Смелость
+            wood = "Дуб"; // Мудрость, сила
+            patronus = "Олень"; // Защитник и проводник
+            if (q2.value === 'fight') { core = "Сердцевина дракона"; flexibility = "Жёсткая"; }
+            else { core = "Перо феникса"; flexibility = "Средней гибкости"; }
+        } 
+        else if (q1.value === 'wise') { // Мудрость
+            wood = "Орех"; // Мудрость
+            patronus = "Сова"; // Наблюдательность, мудрость
+            if (q2.value === 'talk') { core = "Грива единорога"; flexibility = "Гибкая"; }
+            else { core = "Перо ворона"; flexibility = "Твёрдая"; }
+        }
+        else if (q1.value === 'cunning') { // Хитрость
+            wood = "Тис"; // Поиск власти
+            patronus = "Ворон"; // Ночной страж
+            if (q2.value === 'magic') { core = "Зуб василиска"; flexibility = "Несгибаемая"; }
+            else { core = "Волос вейлы"; flexibility = "Очень гибкая"; }
+        }
+        else { // Верность
+            wood = "Ива"; // Уравновешенность
+            patronus = "Выдра"; // Энергичность, дружелюбие
+            if (q2.value === 'avoid') { core = "Волос единорога"; flexibility = "Гибкая"; }
+            else { core = "Шерсть пегаса"; flexibility = "Средней гибкости"; }
+        }
+
+        // Магия меняет патронуса немного
+        if (q4.value === 'attack') patronus = patronus === "Олень" ? "Лев" : patronus;
+        else if (q4.value === 'heal') patronus = "Феникс";
+        else if (q4.value === 'mind') patronus = patronus === "Сова" ? "Кошка" : patronus;
+
+        const wandResult = `${wood}, ${core}, ${length}, ${flexibility}`;
+        const patronusResult = patronus;
+
+        try {
+            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { 
+                method: 'PATCH', 
+                body: JSON.stringify({ wand: wandResult, patronus: patronusResult }) 
+            });
+            
+            myProfile.wand = wandResult;
+            myProfile.patronus = patronusResult;
+            viewProfile.wand = wandResult;
+            viewProfile.patronus = patronusResult;
+
+            alert(`✨ Палочка выбрала вас!\n\nДревесина: ${wood}\nСердцевина: ${core}\nДлина: ${length}\nГибкость: ${flexibility}\n\nВаш Патронус: ${patronusResult}`);
+            openCabinet(myProfile, false, false);
+        } catch(e) {
+            alert("Ошибка сохранения результата.");
+        }
     }
 </script>
 </body>
