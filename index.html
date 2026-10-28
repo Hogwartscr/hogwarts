@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хогвартс ВГП</title>
-<script src="vk-bridge.js"></script>
+    <script src="vk-bridge.js"></script>
     <style>
         :root { --primary: #BEA7B9; --accent: #975F8F; --dark-accent: #48294E; --panel: #1F1B3D; --bg: #161228; --text: #EADCE6; }
         *{box-sizing:border-box}
@@ -267,9 +267,14 @@
     function showRegister() { hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
     function showDirectorLogin() { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
 
+    // ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ ЗАПУСКА ВНЕ ВК
     function checkVk() {
         if (!vkUser) {
-            alert("Ошибка: Вы должны открыть приложение через ВКонтакте, чтобы сохранять данные!");
+            const testId = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID для входа (например, 836264843):");
+            if (testId && !isNaN(testId)) {
+                vkUser = { id: Number(testId), first_name: "Пользователь", last_name: testId };
+                return true;
+            }
             return false;
         }
         return true;
