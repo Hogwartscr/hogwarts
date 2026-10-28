@@ -58,7 +58,7 @@
         .builder-box { border: 1px dashed var(--primary); padding: 20px; margin-top: 20px; border-radius: 6px; background: rgba(0,0,0,0.2); }
         
         .center-menu { text-align: center; padding: 50px 20px; }
-        .center-menu button { max-width: 400px; margin: 10px auto; display: block; }
+        .center-menu button { max-width: 400px; margin: 10px auto; display: block; width: 100%;}
         .hidden { display: none !important; }
 
         .cat-helper { position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end;}
@@ -75,23 +75,47 @@
         .msg img { max-width: 100%; border-radius: 4px; margin-top: 5px; }
         .chat-input-area { display: flex; gap: 10px; }
         .chat-input-area input { margin: 0; }
-        .chat-input-area button { margin: 0; }
+        .chat-input-area button { margin: 0; width: auto; }
         
         input[type="file"] { display: none; }
         .custom-file-upload { border: 1px dashed var(--primary); display: inline-block; padding: 10px; cursor: pointer; border-radius: 4px; text-align: center; width: 100%; color: var(--primary); margin-top: 10px;}
         
-        .quiz-question { margin-bottom: 15px; text-align: left; }
-        .quiz-question label { display: block; margin-top: 5px; cursor: pointer; }
-        .quiz-question input[type="radio"] { margin-right: 10px; }
+        /* Стили для тестов */
+        .test-container { max-width: 700px; margin: 0 auto; text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; border: 1px solid var(--accent); }
+        .quiz-question { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px dashed var(--dark-accent); }
+        .quiz-question > label:first-child { font-weight: bold; font-size: 16px; color: var(--primary); margin-bottom: 12px; display: block;}
+        .quiz-option { display: flex; align-items: flex-start; margin-top: 10px; cursor: pointer; padding: 10px; border-radius: 6px; border: 1px solid transparent; transition: 0.2s; background: rgba(255,255,255,0.02);}
+        .quiz-option:hover { border-color: var(--accent); background: rgba(255,255,255,0.05);}
+        .quiz-option input[type="radio"] { width: auto; margin: 3px 12px 0 0; cursor: pointer; accent-color: var(--accent); transform: scale(1.2); }
+        .quiz-option-text { font-size: 14px; line-height: 1.4; }
+        .test-btn { background:#d4af37; color:#111; font-size: 16px; padding: 15px; margin-top: 30px; font-weight: bold; width: 100%;}
+        .test-btn:hover { background:#fce167; }
+
+        /* Стили для 60 вопросов MBTI */
+        .mbti-question-block { margin-bottom: 20px; border-bottom: 1px solid var(--dark-accent); padding-bottom: 15px; }
+        .mbti-question-text { font-size: 15px; margin-bottom: 10px; color: var(--text); line-height: 1.3; }
+        .mbti-scale { display: flex; justify-content: space-between; width: 100%; max-width: 450px; margin: 5px auto; }
+        .mbti-scale label { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--accent); cursor: pointer; margin: 0; transition: color 0.2s; }
+        .mbti-scale label:hover { color: var(--primary); }
+        .mbti-scale input[type="radio"] { margin: 0 0 4px 0; accent-color: var(--accent); transform: scale(1.1); cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="main-menu" class="center-menu">
+<div id="main-menu" class="center-menu hidden">
     <h1>Хогвартс ВГП</h1>
     <button onclick="showLogin()" style="margin-top: 20px;">🔑 Войти</button>
     <button onclick="showRegister()" style="margin-top: 15px; background: transparent; border: 1px solid var(--primary); color: var(--primary);">📝 Регистрация</button>
     <button onclick="showDirectorLogin()" style="margin-top: 30px; background: #99564b; color: white;">👑 Вход для Директора</button>
+</div>
+
+<div id="vk-input-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
+    <h1>Идентификация</h1>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Вы открыли приложение вне ВКонтакте.<br>Введите ваш цифровой ID или ссылку на профиль для входа.</p>
+    <input type="text" id="vk-input-val" placeholder="Ваш ID или ссылка">
+    <p id="vk-input-error" style="color: #ff5555; font-size: 13px; margin-top: 10px; display: none;">Профиль не найден. Проверьте данные.</p>
+    <button onclick="submitVkInput()" style="margin-top:20px;">Продолжить</button>
+    <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
 <div id="login-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
@@ -105,9 +129,12 @@
 <div id="register-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
     <h1>Регистрация</h1>
     <label>Ваша роль:</label>
-    <select id="reg-role"><option value="student">Студент</option><option value="professor">Профессор</option></select>
+    <select id="reg-role" onchange="toggleRegFields()">
+        <option value="student">Студент</option>
+        <option value="professor">Профессор</option>
+    </select>
     <label>Имя персонажа:</label><input type="text" id="reg-name" placeholder="Имя">
-    <label>Ссылка на ВК:</label><input type="text" id="reg-link" placeholder="https://vk.com/... или @username">
+    <label>Ссылка на ВК:</label><input type="text" id="reg-link" placeholder="Ссылка или @username">
     <label>Факультет:</label>
     <select id="reg-faculty">
         <option value="Гриффиндор">Гриффиндор</option>
@@ -115,18 +142,22 @@
         <option value="Когтевран">Когтевран</option>
         <option value="Пуффендуй">Пуффендуй</option>
     </select>
-    <label>Курс:</label>
-    <select id="reg-course">
-        <option value="1">1 курс</option>
-        <option value="2">2 курс</option>
-        <option value="3">3 курс</option>
-        <option value="4">4 курс</option>
-        <option value="5">5 курс</option>
-        <option value="6">6 курс</option>
-        <option value="7">7 курс</option>
-    </select>
-    <label>Номер в списке студентов:</label>
-    <input type="number" id="reg-number" min="1" placeholder="Например, 12">
+    
+    <div id="reg-student-fields">
+        <label>Курс:</label>
+        <select id="reg-course">
+            <option value="1">1 курс</option>
+            <option value="2">2 курс</option>
+            <option value="3">3 курс</option>
+            <option value="4">4 курс</option>
+            <option value="5">5 курс</option>
+            <option value="6">6 курс</option>
+            <option value="7">7 курс</option>
+        </select>
+        <label>Номер в списке студентов:</label>
+        <input type="number" id="reg-number" min="1" placeholder="Например, 12">
+    </div>
+
     <label>Придумайте пароль:</label><input type="password" id="reg-pass" placeholder="Пароль">
     <button onclick="doRegister()" style="margin-top: 20px;">Создать</button>
     <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Назад</a>
@@ -134,7 +165,7 @@
 
 <div id="director-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
     <h1>Вход для Директора</h1>
-    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Если вы заходите впервые, введите желаемый пароль. Если забыли старый, введите новый, и система предложит его сбросить.</p>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Введите ваш пароль.</p>
     <label>Ваш пароль:</label>
     <input type="password" id="dir-pass" placeholder="Введите пароль">
     <button onclick="doDirectorLogin()" style="margin-top:20px;">Войти</button>
@@ -152,21 +183,27 @@
         <option value="Слизерин">Слизерин</option>
         <option value="Когтевран">Когтевран</option>
         <option value="Пуффендуй">Пуффендуй</option>
+        <option value="Хогвартс">Хогвартс (Для Директора)</option>
     </select>
-    <label>Курс:</label>
-    <select id="edit-course">
-        <option value="1">1 курс</option>
-        <option value="2">2 курс</option>
-        <option value="3">3 курс</option>
-        <option value="4">4 курс</option>
-        <option value="5">5 курс</option>
-        <option value="6">6 курс</option>
-        <option value="7">7 курс</option>
-    </select>
-    <label>Номер в списке:</label>
-    <input type="number" id="edit-number" min="1">
+    
+    <div id="edit-student-fields">
+        <label>Курс:</label>
+        <select id="edit-course">
+            <option value="1">1 курс</option>
+            <option value="2">2 курс</option>
+            <option value="3">3 курс</option>
+            <option value="4">4 курс</option>
+            <option value="5">5 курс</option>
+            <option value="6">6 курс</option>
+            <option value="7">7 курс</option>
+        </select>
+        <label>Номер в списке:</label>
+        <input type="number" id="edit-number" min="1">
+    </div>
+
     <label>Палочка:</label><input type="text" id="edit-wand">
     <label>Патронус:</label><input type="text" id="edit-patronus">
+    <label>Тип личности:</label><input type="text" id="edit-mbti" readonly>
     
     <div id="admin-only-stats" style="display:none;">
         <label>Опыт (XP):</label><input type="number" id="edit-xp">
@@ -185,69 +222,122 @@
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
-<!-- Отдельный квиз для палочки -->
-<div id="wand-quiz-screen" class="center-menu hidden" style="max-width: 500px; margin: 0 auto;">
-    <h1>Выбор палочки</h1>
-    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, чтобы мистер Олливандер подобрал вам палочку.</p>
+<!-- ТЕСТ НА ПАЛОЧКУ -->
+<div id="wand-quiz-screen" class="center-menu hidden">
+    <h1>🪄 Анкета для подбора волшебной палочки</h1>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте честно на вопросы, чтобы мистер Олливандер нашел вашу идеальную пару.</p>
     
-    <div id="wand-quiz-content">
+    <div class="test-container">
         <div class="quiz-question">
-            <label>1. Что для вас важнее всего в жизни?</label>
-            <label><input type="radio" name="wq1" value="brave"> Смелость и героизм</label>
-            <label><input type="radio" name="wq1" value="wise"> Мудрость и знания</label>
-            <label><input type="radio" name="wq1" value="cunning"> Хитрость и амбиции</label>
-            <label><input type="radio" name="wq1" value="loyal"> Верность и дружба</label>
+            <label>1. Ваш рост (в см):</label>
+            <input type="number" id="wq-height" placeholder="Например: 165" style="max-width: 200px; margin: 0;">
         </div>
         <div class="quiz-question">
-            <label>2. Как вы решаете конфликты?</label>
-            <label><input type="radio" name="wq2" value="fight"> Вступаю в бой</label>
-            <label><input type="radio" name="wq2" value="talk"> Ищу компромисс</label>
-            <label><input type="radio" name="wq2" value="avoid"> Ухожу от конфликта</label>
-            <label><input type="radio" name="wq2" value="magic"> Использую магию</label>
+            <label>2. Как вы обычно решаете конфликты?</label>
+            <label class="quiz-option"><input type="radio" name="wq-flex" value="flexible"><span class="quiz-option-text">Я легко адаптируюсь и ищу компромисс.</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-flex" value="balanced"><span class="quiz-option-text">Я стараюсь мыслить логично и сохранять баланс.</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-flex" value="rigid"><span class="quiz-option-text">Я иду до конца и редко меняю решения.</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-flex" value="unyielding"><span class="quiz-option-text">Мои правила — моя сила. Я не поддаюсь контролю.</span></label>
         </div>
         <div class="quiz-question">
-            <label>3. Ваш рост (для расчета длины)?</label>
-            <label><input type="radio" name="wq3" value="short"> Меньше 140 см</label>
-            <label><input type="radio" name="wq3" value="mid"> 140 - 170 см</label>
-            <label><input type="radio" name="wq3" value="tall"> Больше 170 см</label>
+            <label>3. Какая магия вас привлекает больше всего?</label>
+            <label class="quiz-option"><input type="radio" name="wq-magic" value="combat"><span class="quiz-option-text">Боевая магия (Огонь, сила)</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-magic" value="heal"><span class="quiz-option-text">Исцеляющая магия (Вода, жизнь)</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-magic" value="protect"><span class="quiz-option-text">Защитные чары (Земля, стабильность)</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-magic" value="mind"><span class="quiz-option-text">Иллюзии и ментальные воздействия (Воздух, разум)</span></label>
         </div>
+        <div class="quiz-question">
+            <label>4. Что вы чувствуете, когда используете магию?</label>
+            <label class="quiz-option"><input type="radio" name="wq-feel" value="heat"><span class="quiz-option-text">Жар и мощный поток энергии</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-feel" value="cold"><span class="quiz-option-text">Холод, ясность и пульсацию в висках</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-feel" value="flow"><span class="quiz-option-text">Мягкий поток, похожий на воду</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-feel" value="heavy"><span class="quiz-option-text">Ощущение тяжести и глубокой связи с землей</span></label>
+        </div>
+        <div class="quiz-question">
+            <label>5. Опишите свой темперамент и жизненные принципы:</label>
+            <label class="quiz-option"><input type="radio" name="wq-temp" value="noble"><span class="quiz-option-text">Благородство, гордость, скрытая сила</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-temp" value="passion"><span class="quiz-option-text">Страсть, амбиции, стремление к лидерству</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-temp" value="wise"><span class="quiz-option-text">Мудрость, наблюдательность, спокойствие</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-temp" value="creative"><span class="quiz-option-text">Творческий беспорядок, чувствительность, новаторство</span></label>
+        </div>
+        <div class="quiz-question">
+            <label>6. Как вы относитесь к обучению магии?</label>
+            <label class="quiz-option"><input type="radio" name="wq-learn" value="experiment"><span class="quiz-option-text">Часто экспериментирую и пробую нестандартные подходы</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-learn" value="discipline"><span class="quiz-option-text">Предпочитаю дисциплину, точность и правила</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-learn" value="theory"><span class="quiz-option-text">Люблю изучать древние книги и теорию</span></label>
+        </div>
+        <div class="quiz-question">
+            <label>7. Палочка — это просто инструмент или живое существо?</label>
+            <label class="quiz-option"><input type="radio" name="wq-view" value="tool"><span class="quiz-option-text">Это инструмент, продолжение моей воли</span></label>
+            <label class="quiz-option"><input type="radio" name="wq-view" value="living"><span class="quiz-option-text">Это партнер, с которым важно наладить связь</span></label>
+        </div>
+        <button class="test-btn" onclick="calculateWandResult()">Получить палочку</button>
+        <a onclick="cancelWandQuiz()" class="text-button" style="display:block; margin-top:20px; text-align:center;">← Отмена</a>
     </div>
-    
-    <button onclick="calculateWandResult()" style="margin-top:20px; background:#d4af37; color:#111;">Получить палочку</button>
-    <a onclick="cancelWandQuiz()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
-<!-- Отдельный квиз для патронуса -->
-<div id="patronus-quiz-screen" class="center-menu hidden" style="max-width: 500px; margin: 0 auto;">
-    <h1>Вызов Патронуса</h1>
-    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Вспомните самое счастливое воспоминание...</p>
+<!-- ТЕСТ НА ПАТРОНУСА (По анкете качеств) -->
+<div id="patronus-quiz-screen" class="center-menu hidden">
+    <h1>✨ Анкета для подбора Патронуса</h1>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, используя ключевые слова. Система подберет патронуса по совпадению качеств.</p>
     
-    <div id="patronus-quiz-content">
+    <div class="test-container">
         <div class="quiz-question">
-            <label>1. Какое воспоминание вызывает у вас самую сильную радость?</label>
-            <label><input type="radio" name="pq1" value="victory"> Момент победы</label>
-            <label><input type="radio" name="pq1" value="friends"> Время с друзьями</label>
-            <label><input type="radio" name="pq1" value="knowledge"> Открытие новой истины</label>
-            <label><input type="radio" name="pq1" value="family"> Тепло семьи</label>
+            <label>1. Опишите свои физические, эмоциональные и магические качества. (Например: смелый, упорный, выносливый, скрытный, чувствительный)</label>
+            <textarea id="pq1" rows="3" placeholder="Введите качества..."></textarea>
         </div>
         <div class="quiz-question">
-            <label>2. Какое животное вам ближе всего?</label>
-            <label><input type="radio" name="pq2" value="deer"> Олень</label>
-            <label><input type="radio" name="pq2" value="owl"> Сова</label>
-            <label><input type="radio" name="pq2" value="wolf"> Волк</label>
-            <label><input type="radio" name="pq2" value="otter"> Выдра</label>
+            <label>2. Опишите свой темперамент, жизненные принципы и внутренние мотивы. (Например: целеустремлённый, мечтательный, импульсивный, добрый, хитрый)</label>
+            <textarea id="pq2" rows="3" placeholder="Введите описание..."></textarea>
         </div>
         <div class="quiz-question">
-            <label>3. Что вы больше всего хотите защитить?</label>
-            <label><input type="radio" name="pq3" value="freedom"> Свободу</label>
-            <label><input type="radio" name="pq3" value="knowledge"> Знания</label>
-            <label><input type="radio" name="pq3" value="love"> Любовь</label>
-            <label><input type="radio" name="pq3" value="home"> Дом</label>
+            <label>3. Как вы реагируете на конфликты и сложные ситуации? Как справляетесь с проблемами? (Например: иду напролом, жду, ищу компромисс, ускользаю)</label>
+            <textarea id="pq3" rows="3" placeholder="Ваш ответ..."></textarea>
         </div>
+        <div class="quiz-question">
+            <label>4. Есть ли у вас необычные магические способности или особенности? (Например: метаморфомаг, наследие крови, реликвии, контракт с существами)</label>
+            <textarea id="pq4" rows="3" placeholder="Ваш ответ..."></textarea>
+        </div>
+        <div class="quiz-question">
+            <label>5. Какая магия вас привлекает больше всего?</label>
+            <label class="quiz-option"><input type="radio" name="pq5" value="combat"><span class="quiz-option-text">Боевая магия</span></label>
+            <label class="quiz-option"><input type="radio" name="pq5" value="heal"><span class="quiz-option-text">Исцеляющая магия</span></label>
+            <label class="quiz-option"><input type="radio" name="pq5" value="protect"><span class="quiz-option-text">Защитные чары</span></label>
+            <label class="quiz-option"><input type="radio" name="pq5" value="mind"><span class="quiz-option-text">Иллюзии и ментальные воздействия</span></label>
+            <label class="quiz-option"><input type="radio" name="pq5" value="creatures"><span class="quiz-option-text">Взаимодействие с существами</span></label>
+            <label class="quiz-option"><input type="radio" name="pq5" value="research"><span class="quiz-option-text">Исследования / артефактология</span></label>
+        </div>
+        <div class="quiz-question">
+            <label>6. Как вы учитесь магии? Экспериментируете или действуете системно и по традиции?</label>
+            <textarea id="pq6" rows="3" placeholder="Ваш ответ..."></textarea>
+        </div>
+        <div class="quiz-question">
+            <label>7. Что вы чувствуете при использовании магии? (Жар, холод, тяжесть, поток, пульсацию, лёгкость)</label>
+            <textarea id="pq7" rows="3" placeholder="Ваш ответ..."></textarea>
+        </div>
+        <div class="quiz-question">
+            <label>8. Патронус для вас — инструмент защиты или почти живое существо?</label>
+            <label class="quiz-option"><input type="radio" name="pq8" value="living"><span class="quiz-option-text">Живое существо, важна связь</span></label>
+            <label class="quiz-option"><input type="radio" name="pq8" value="shield"><span class="quiz-option-text">Инструмент защиты</span></label>
+        </div>
+        <button class="test-btn" onclick="calculatePatronusResult()">Узнать Патронуса</button>
+        <a onclick="cancelPatronusQuiz()" class="text-button" style="display:block; margin-top:20px; text-align:center;">← Отмена</a>
+    </div>
+</div>
+
+<!-- ТЕСТ НА ТИП ЛИЧНОСТИ (60 ВОПРОСОВ) -->
+<div id="mbti-quiz-screen" class="center-menu hidden">
+    <h1>🧠 Тест на тип личности (16Personalities)</h1>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на 60 утверждений, используя шкалу от «Полностью не согласен» до «Полностью согласен».</p>
+    
+    <div class="test-container" id="mbti-container">
+        <!-- Вопросы генерируются в JS -->
     </div>
     
-    <button onclick="calculatePatronusResult()" style="margin-top:20px; background:#d4af37; color:#111;">Вызвать Патронуса</button>
-    <a onclick="cancelPatronusQuiz()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
+    <div style="max-width: 700px; margin: 0 auto;">
+        <button class="test-btn" onclick="calculateMbtiResult()">Рассчитать тип личности</button>
+        <a onclick="cancelMbtiQuiz()" class="text-button" style="display:block; margin-top:20px; text-align:center;">← Отмена</a>
+    </div>
 </div>
 
 <div id="cabinet" class="container cabinet hidden">
@@ -276,10 +366,11 @@
                 <span>Ссылка ВК <strong id="saved-link"></strong></span>
                 <span>Пароль <strong id="saved-pass"></strong></span>
                 <span>Факультет <strong id="saved-faculty">—</strong></span>
-                <span>Курс <strong id="saved-course">—</strong></span>
-                <span>Номер в списке <strong id="saved-number">—</strong></span>
+                <span id="saved-course-wrapper">Курс <strong id="saved-course">—</strong></span>
+                <span id="saved-number-wrapper">Номер в списке <strong id="saved-number">—</strong></span>
                 <span>Палочка <strong id="saved-wand">Не получена</strong></span>
                 <span>Патронус <strong id="saved-patronus">Неизвестен</strong></span>
+                <span>Тип личности <strong id="saved-mbti">Не определен</strong></span>
             </div>
             <div id="visit-actions" class="hidden" style="margin-top: 15px;">
                 <button onclick="startChatFromProfile()" style="background: var(--accent); color: white;">🦉 Написать сову</button>
@@ -320,8 +411,256 @@
     let isGuestView = false;
     let chatTimer = null;
     let editItemIndex = -1; 
+    let pendingAction = null; 
 
-    // --- Сессия ---
+    // --- ДАННЫЕ ДЛЯ ТЕСТА ПАТРОНУСА (ИЗ ДОКУМЕНТА) ---
+    const patronusDB = [
+        { name: "Аист", traits: "перерождение, обновление, сила, свобода, уверенность, неподатливость" },
+        { name: "Бегемот", traits: "адаптивность, комфорт, слияние, яркость, дружелюбие" },
+        { name: "Волк", traits: "таинственность, воинственность, скрытность, страсть, эмоциональность, верность" },
+        { name: "Ворон", traits: "наблюдательность, скрытность, харизма, свобода, покоритель, контроль эмоций, алчность" },
+        { name: "Белый лебедь", traits: "чистота, грация, верность, скрытая сила, защита, справедливость, прощение, свет" },
+        { name: "Воробей", traits: "настойчивость, скромность, выживание, воля, радость, упорство" },
+        { name: "Ворона", traits: "ум, хитрость, адаптивность, стратегия, недооцененность, терпение, знания" },
+        { name: "Гриф", traits: "терпение, зоркость, выжидание, точность, спокойствие, широта" },
+        { name: "Дрозд", traits: "жизнерадостность, оптимизм, смелость, справедливость, свет" },
+        { name: "Орёл", traits: "величие, ясность, лидерство, широта, благородство, мудрость" },
+        { name: "Павлин", traits: "красота, гордость, харизма, чувствительность, страх, верность" },
+        { name: "Сокол", traits: "острота, реакция, точность, решительность, ясность, защита" },
+        { name: "Сойка", traits: "энергия, яркость, смелость, защита, оптимизм" },
+        { name: "Сорока", traits: "ум, любопытство, знания, эрудиция, находчивость" },
+        { name: "Фазан", traits: "скрытность, харизма, тайна" },
+        { name: "Ястреб-тетеревятник", traits: "зоркость, быстрота, бескомпромиссность, точность, решительность, защита" },
+        { name: "Выдра", traits: "артистичность, дружелюбие, независимость, энергия, свободолюбие, творчество, интуиция" },
+        { name: "Гепард", traits: "амбициозность, нетерпеливость, торопливость, видение" },
+        { name: "Голубь", traits: "добросердечие, экспрессивность, харизма, умиротворение, оптимизм, любовь" },
+        { name: "Дракон", traits: "страстность, целеустремленность, ярость, темперамент, импульсивность, скрытность" },
+        { name: "Альбатрос", traits: "свобода, удача, легкость, беспечность, горизонт, стойкость" },
+        { name: "Бассет-хаунд", traits: "упорство, преданность, чутье, спокойствие, верность" },
+        { name: "Белый жеребец", traits: "свобода, благородство, сила, лидерство, уверенность, свет" },
+        { name: "Борзая", traits: "изящество, скорость, точность, сдержанность, аристократизм, реакция" },
+        { name: "Вест-хайленд-уайт-терьер", traits: "упорство, смелость, оптимизм, азарт, исследование, энергия" },
+        { name: "Дельфин", traits: "радость, игра, интеллект, любопытство, защита, юмор" },
+        { name: "Дирхаунд", traits: "благородство, выносливость, достоинство, уверенность, хладнокровие, честь" },
+        { name: "Ёж", traits: "самодостаточность, защита, скромность, твердость" },
+        { name: "Единорог", traits: "скромность, загадочность, вера, чистота, свой путь, свет" },
+        { name: "Кабан", traits: "надежность, прямота, упорство, верность, сила" },
+        { name: "Козёл", traits: "независимость, практичность, упрямство, вера, суть" },
+        { name: "Кошка Нибелунг", traits: "верность, застенчивость, скрытность, преданность, тайны" },
+        { name: "Ласка", traits: "неуловимость, смелость, энергия, нестандартность, расчет, риск" },
+        { name: "Лань", traits: "нежность, чуткость, тихая сила, защита, мягкость, свет" },
+        { name: "Белая лань", traits: "мягкость, мечтательность, прочность, жертвенность, верность, защита" },
+        { name: "Лебедь", traits: "грация, верность, достоинство, обдуманность, чистота" },
+        { name: "Мэнская кошка", traits: "преданность, замкнутость, привязанность, опора, безопасность" },
+        { name: "Олень", traits: "защита, проводник, ответственность, благородство, спокойствие" },
+        { name: "Полярная сова", traits: "бесшумность, беспощадность, видение, бесстрашие, защита, молчание" },
+        { name: "Рысь", traits: "собранность, чутье, терпение, точность, защита, тишина, концентрация" },
+        { name: "Сибирский кот", traits: "выносливость, спокойствие, привязанность, надежность, тепло" },
+        { name: "Скопа", traits: "целеустремленность, зрение, фокус, расчет, дальновидность" },
+        { name: "Токинская кошка", traits: "игривость, ласковость, сила, привязанность, энергия, тепло" },
+        { name: "Черепаховая кошка", traits: "индивидуальность, непредсказуемость, стойкость, находчивость, яркость" },
+        { name: "Львица", traits: "смелость, трудолюбие, практичность, защита, ярость, любовь" },
+        { name: "Тигр", traits: "скрытность, точность, одиночество, страсть, территориальность, мощь, воинственность" },
+        { name: "Чёрная кобыла", traits: "мотивация, страсть, решительность, свобода, скрытность, таинственность" },
+        { name: "Белая лошадь", traits: "грация, духовность, безмятежность, благородство, чистота, исцеление, спокойствие" },
+        { name: "Вороной жеребец", traits: "страсть, решительность, лидерство, уверенность, огонь, опора" },
+        { name: "Гнедая кобыла", traits: "спокойствие, мудрость, надежность, стабильность, тепло, опора" },
+        { name: "Гнедой жеребец", traits: "упорство, благородство, прямота, честность, выдержка, достоинство" },
+        { name: "Каштановый жеребец", traits: "яркость, дерзость, страсть, драйв, приключения, интуиция" },
+        { name: "Пегая кобыла", traits: "непредсказуемость, многообразие, гибкость, эксперимент, развитие" },
+        { name: "Пегий жеребец", traits: "независимость, свобода, свой путь, целостность, лидерство" },
+        { name: "Серый в яблоках жеребец", traits: "грация, сила, аристократизм, стиль, достоинство, лидерство" },
+        { name: "Каштановая кобыла", traits: "решительность, дерзость, приключения, упрямство, защита" },
+        { name: "Фокстерьер", traits: "храбрость, верность, энергичность, командность" },
+        { name: "Чёрная пантера", traits: "красота, выдержка, спокойствие, ум, одиночество, независимость, защита, интуиция, эмпатия, мудрость, скрытность" },
+        { name: "Кролик", traits: "непорочность, безвредность, доброта, безмятежность, сила" },
+        { name: "Медведь", traits: "стабильность, приземленность, внутренняя сила, перфекционизм, целеустремленность" },
+        { name: "Чёрный медведь", traits: "свирепость, изобретательность, приспособляемость, мягкость" },
+        { name: "Сенбернар", traits: "помощь, храбрость, сердце, нежность" },
+        { name: "Русская голубая кошка", traits: "эмпатия, настороженность, сдержанность, наблюдательность, верность" },
+        { name: "Лисица рыжая", traits: "хитрость, харизма, замкнутость, амбициозность, внимательность, ораторство" },
+        { name: "Полярная лисица", traits: "хитрость, осторожность, находчивость, амбициозность, ум" },
+        { name: "Ирландский волкодав", traits: "сила, скорость, мягкость, надежность, агрессивность, преданность" },
+        { name: "Собака", traits: "верность, защита, оптимизм, преданность, эмпатия, дружба, семья" },
+        { name: "Пегас", traits: "свобода, высота, независимость, настойчивость, одиночество, благородство" },
+        { name: "Гиппогриф", traits: "гордость, независимость, честь, кодекс, благородство, грация, мощь, одиночество" },
+        { name: "Древесная мышь", traits: "сила, храбрость, изобретательность, ум, хитрость, терпение, верность" },
+        { name: "Окками", traits: "гибкость, нестандартность, перемены, адаптивность, многогранность" },
+        { name: "Рунеспур", traits: "многогранность, мышление, проницательность, глубина, мудрость" },
+        { name: "Саламандра", traits: "стойкость, закалка, огонь, страстность, целеустремленность, честность" },
+        { name: "Фейстрал", traits: "мудрость, принятие, сила, одиночество, правда, стойкость" },
+        { name: "Феникс", traits: "возрождение, мудрость, сила, надежда, очищение, бесстрашие" },
+        { name: "Эрумпент", traits: "сила, прямолинейность, честность, упорство, защита, доверие" },
+        { name: "Калико", traits: "индивидуальность, непредсказуемость, многогранность, уникальность, баланс" },
+        { name: "Оцикат", traits: "независимость, верность, мягкость, непокорность, баланс, ответственность" },
+        { name: "Рэгдолл", traits: "спокойствие, доверчивость, доброта, гармония, решимость, защита" },
+        { name: "Сфинкс", traits: "аутентичность, чувствительность, любовь, доверие, тепло" },
+        { name: "Бигль", traits: "любопытство, энергия, преданность, дружелюбие, оптимизм, радость" },
+        { name: "Бладхаунд", traits: "упорство, чутье, терпение, фокус, преданность, аналитика" },
+        { name: "Грейхаунд", traits: "скорость, грация, аристократизм, точность, сдержанность, достоинство" },
+        { name: "Мастиф", traits: "надежность, сила, преданность, нежность, защита, гнев" },
+        { name: "Ньюфаундленд", traits: "спасение, помощь, доброта, мощь, сострадание, благородство" },
+        { name: "Ротвейлер", traits: "сила, дисциплина, самообладание, верность, защита, репутация" },
+        { name: "Хаски", traits: "выносливость, верность, свобода, командность, приключения, надежда" },
+        { name: "Чау-чау", traits: "независимость, гордость, отстраненность, верность, достоинство" },
+        { name: "Барсук", traits: "упорство, честность, справедливость, трудолюбие, верность, надежность" },
+        { name: "Белый медведь", traits: "сила, спокойствие, защита, холодная голова, горячее сердце, достоинство" },
+        { name: "Буйвол", traits: "сила, выносливость, упорство, негибкость, решительность" },
+        { name: "Волчица", traits: "преданность, интуиция, защита, нежность, ярость, мудрость" },
+        { name: "Гадюка", traits: "скрытность, терпение, молниеносность, расчет, защита" },
+        { name: "Горностай", traits: "грация, скрытность, элегантность, ум, незаметность" },
+        { name: "Енот", traits: "любопытство, изобретательность, исследование, смекалка, гибкость" },
+        { name: "Заяц", traits: "быстрота, хитрость, независимость, нестандартность, легкость, одиночество" },
+        { name: "Землеройка", traits: "энергия, ум, продуктивность, неутомимость, находчивость" },
+        { name: "Королевская кобра", traits: "власть, достоинство, лидерство, мудрость, защита, невозмутимость" },
+        { name: "Косатка", traits: "интеллект, сила, семья, защита, командность, единство" },
+        { name: "Крот", traits: "настойчивость, трудолюбие, скрытность, помощь, основа, незаметность" },
+        { name: "Летучая мышь", traits: "загадочность, ориентация, интуиция, скрытность, видение" },
+        { name: "Лосось", traits: "упорство, воля, верность, возвращение, преодоление" },
+        { name: "Норка", traits: "ловкость, скрытность, свободолюбие, гибкость, независимость, адаптивность" },
+        { name: "Орангутан", traits: "мудрость, спокойствие, природа, терпение, глубина, гармония" },
+        { name: "Орикс", traits: "стремительность, благородство, движение, устремленность, выживание" },
+        { name: "Питон", traits: "терпение, сила, хладнокровие, выжидание, точность, защита" },
+        { name: "Полевка", traits: "живучесть, неприметность, радость, поддержка, порядок" },
+        { name: "Рыжая белка", traits: "энергия, любопытство, запасливость, планирование, оптимизм, уют" },
+        { name: "Слон", traits: "мудрость, память, сила, достоинство, надежность, помощь, мощь" },
+        { name: "Тюлень", traits: "игривость, любопытство, легкость, свобода, радость, глубина" },
+        { name: "Хорёк", traits: "ловкость, хитрость, неуловимость, гибкость, сообразительность, осторожность" },
+        { name: "Чёрная мамба", traits: "быстрота, точность, безжалостность, защита, решительность" },
+        { name: "Шиншилла", traits: "нежность, чувствительность, заботливость, тепло, гармония, поддержка" },
+        { name: "Щегол", traits: "жизнерадостность, яркость, свет, радость, оптимизм" },
+        { name: "Черно-белый кот", traits: "независимость, баланс, многогранность, самодостаточность, гармония" }
+    ];
+
+    const traitKeywords = {
+        'смел': ['смелость', 'храбрость'], 'храбр': ['смелость', 'храбрость'],
+        'упорн': ['упорство', 'настойчивость'], 'настойчив': ['настойчивость', 'упорство'],
+        'выносл': ['выносливость', 'сила'], 'сильн': ['сила', 'мощь'],
+        'защит': ['защита'], 'независ': ['независимость'],
+        'скрытн': ['скрытность'], 'замкнут': ['скрытность', 'замкнутость'],
+        'грациоз': ['грация'], 'изящн': ['грация', 'изящество'],
+        'чувствит': ['чувствительность'], 'эмпат': ['эмпатия'],
+        'свобод': ['свобода', 'свободолюбие'], 'страст': ['страстность', 'страсть'],
+        'благород': ['благородство'], 'стремит': ['стремительность', 'скорость'],
+        'быстр': ['быстрота', 'скорость'], 'наблюдат': ['наблюдательность'],
+        'внимат': ['внимательность'], 'стратег': ['стратегия', 'стратегическое мышление'],
+        'ум': ['ум', 'интеллект', 'знания'], 'логик': ['ум', 'логика'],
+        'зорк': ['зоркость'], 'изобретат': ['изобретательность'],
+        'находчив': ['находчивость'], 'смекал': ['смекалка'],
+        'ловк': ['ловкость'], 'гибк': ['гибкость'],
+        'любопытн': ['любопытство'], 'исслед': ['исследование'],
+        'выжива': ['выживание'], 'адапт': ['адаптивность'],
+        'магическ': ['магическая мощь'], 'мощь': ['мощь', 'магическая мощь'],
+        'мудр': ['мудрость'], 'загадоч': ['загадочность'],
+        'таинств': ['таинственность'], 'возрожд': ['возрождение'],
+        'целеустр': ['целеустремленность'], 'решит': ['решительность'],
+        'дисциплин': ['дисциплина'], 'верн': ['верность', 'преданность'],
+        'предан': ['преданность', 'верность'], 'мечтат': ['мечтательность'],
+        'импульс': ['импульсивность'], 'ярк': ['яркость'],
+        'спокой': ['спокойствие'], 'уравновеш': ['спокойствие', 'уравновешенность'],
+        'добр': ['доброта'], 'забот': ['забота'],
+        'сострад': ['сострадание'], 'амбици': ['амбициозность'],
+        'лидер': ['лидерство'], 'власт': ['власть', 'лидерство'],
+        'терпел': ['терпение'], 'хитр': ['хитрость'],
+        'расчет': ['расчёт'], 'расчёт': ['расчёт'],
+        'напролом': ['смелость', 'решительность'], 'жду': ['терпение', 'выжидание'],
+        'выжида': ['выжидание'], 'компромисс': ['компромисс'],
+        'сглажив': ['компромисс'], 'ускольз': ['ускользание'],
+        'лазейк': ['адаптивность', 'ускользание'], 'достоин': ['достоинство'],
+        'себя': ['самодостаточность'], 'наследие': ['магическая мощь'],
+        'реликвии': ['магическая мощь'], 'контракт': ['магическая мощь'],
+        'метаморф': ['гибкость'], 'огонь': ['огонь', 'страстность', 'импульсивность'],
+        'жар': ['страстность', 'огонь'], 'пульсация': ['импульсивность'],
+        'холод': ['спокойствие', 'выдержка'], 'тишина': ['тишина', 'молчание'],
+        'глубина': ['глубина'], 'поток': ['свобода', 'легкость'],
+        'легкость': ['легкость'], 'полет': ['свобода', 'высота'],
+        'тяжесть': ['сила', 'мощь'], 'давление': ['сила'],
+        'живое': ['верность', 'эмпатия'], 'связь': ['верность', 'эмпатия']
+    };
+
+    // --- ДАННЫЕ ДЛЯ ТЕСТА MBTI (60 ВОПРОСОВ) ---
+    const mbtiQuestions = [
+        { text: "Вы регулярно заводите новых друзей", mult: 1 },
+        { text: "Идея налаживания связей или самопрезентации перед незнакомцами кажется вам очень пугающей", mult: -1 },
+        { text: "Вы чувствуете себя комфортно, просто подходя к интересному вам человеку и начиная разговор", mult: 1 },
+        { text: "Вам нравится участвовать в командных мероприятиях", mult: 1 },
+        { text: "Вам больше нравятся уединённые хобби или занятия, чем групповые", mult: -1 },
+        { text: "Обычно на социальных мероприятиях вы ждёте, пока другие представятся первыми", mult: -1 },
+        { text: "Обычно вы предпочитаете находиться среди других, а не в одиночестве", mult: 1 },
+        { text: "Друзья описали бы вас как живого и общительного человека", mult: 1 },
+        { text: "Вы избегаете телефонных звонков", mult: -1 },
+        { text: "Вы легко находите общий язык с людьми, с которыми только что познакомились", mult: 1 },
+        { text: "Вам бы понравилась работа, которая требует от вас работать в одиночку большую часть времени", mult: -1 },
+        { text: "Вас больше привлекает шумная, суетливая атмосфера, чем тихие, уединённые места", mult: 1 },
+        { text: "Сложные и новые идеи волнуют вас больше, чем простые и понятные", mult: 1 },
+        { text: "Вы эффективно расставляете приоритеты и планируете задачи, часто выполняя их задолго до дедлайна", mult: -1 },
+        { text: "Вас не очень интересуют дискуссии о различных интерпретациях творческих работ", mult: -1 },
+        { text: "Вам нравится экспериментировать с новыми и непроверенными подходами", mult: 1 },
+        { text: "Вы не можете представить себя пишущим художественные истории на жизнь", mult: -1 },
+        { text: "Ваше настроение может очень быстро меняться", mult: 1 },
+        { text: "Вам становится скучно или вы теряете интерес, когда дискуссия становится очень теоретической", mult: -1 },
+        { text: "Вас привлекают различные формы творческого самовыражения, например писательство", mult: 1 },
+        { text: "Вам нравится исследовать незнакомые идеи и точки зрения", mult: 1 },
+        { text: "Вас не очень интересуют дискуссии о том, как мир мог бы выглядеть в будущем", mult: -1 },
+        { text: "Вы считаете, что размышления об абстрактных философских вопросах — пустая трата времени", mult: -1 },
+        { text: "Вы предпочитаете задачи, требующие творческих решений, а не следования конкретным шагам", mult: 1 },
+        { text: "Обычно вас больше убеждают доводы, которые находят эмоциональный отклик, чем фактические аргументы", mult: 1 },
+        { text: "Истории и эмоции людей говорят с вами громче, чем цифры или данные", mult: 1 },
+        { text: "При определении образа действий вы ставите факты выше чувств людей", mult: -1 },
+        { text: "Вы предпочитаете проявлять чуткость, а не быть полностью честным", mult: 1 },
+        { text: "Вы выступаете за эффективность в решениях, даже если это означает игнорирование некоторых эмоциональных аспектов", mult: -1 },
+        { text: "В разногласиях вы ставите приоритет на доказательство своей точки зрения выше сохранения чувств других", mult: -1 },
+        { text: "Вас нелегко поколебать эмоциональными аргументами", mult: -1 },
+        { text: "Вам нравится обсуждать этические дилеммы", mult: 1 },
+        { text: "Когда факты и чувства конфликтуют, вы обычно следуете зову сердца", mult: 1 },
+        { text: "Обычно вы основываете свой выбор на объективных фактах, а не на эмоциональных впечатлениях", mult: -1 },
+        { text: "При принятии решений вы больше сосредоточены на том, что могут почувствовать затронутые люди, чем на том, что наиболее логично или эффективно", mult: 1 },
+        { text: "При выборе вы скорее полагаетесь на эмоциональную интуицию, чем на логические рассуждения", mult: 1 },
+        { text: "Ваши жилые и рабочие пространства чистые и организованные", mult: -1 },
+        { text: "Вам нравится использовать инструменты для организации, такие как расписания и списки", mult: -1 },
+        { text: "Вы часто позволяете дню идти своим чередом без какого-либо расписания", mult: 1 },
+        { text: "Вы активно ищете новый опыт и области знаний для изучения", mult: 1 },
+        { text: "Вы предпочитаете выполнять свои обязанности, прежде чем позволить себе расслабиться", mult: -1 },
+        { text: "Вы часто делаете дела в последний возможный момент", mult: 1 },
+        { text: "Вам сложно поддерживать постоянный график работы или учёбы", mult: 1 },
+        { text: "Вам нравится иметь список дел на каждый день", mult: -1 },
+        { text: "Если ваши планы нарушены, ваша главная задача — как можно скорее вернуться в нужное русло", mult: -1 },
+        { text: "Ваш личный стиль работы ближе к спонтанным всплескам энергии, чем к организованным и последовательным усилиям", mult: 1 },
+        { text: "Вы выполняете дела методично, не пропуская ни одного шага", mult: -1 },
+        { text: "Вам трудно укладываться в дедлайны", mult: 1 },
+        { text: "Обычно вы сохраняете спокойствие даже под сильным давлением", mult: -1 },
+        { text: "Даже небольшая ошибка может заставить вас усомниться в своих общих способностях и знаниях", mult: 1 },
+        { text: "Вы редко беспокоитесь о том, производите ли вы хорошее впечатление на людей, с которыми встречаетесь", mult: -1 },
+        { text: "Вы склонны беспокоиться о том, что дела могут пойти хуже", mult: 1 },
+        { text: "Вы редко сомневаетесь в сделанном выборе", mult: -1 },
+        { text: "Вы редко чувствуете неуверенность в себе", mult: -1 },
+        { text: "Вас до сих пор беспокоят ошибки, которые вы совершили давным-давно", mult: 1 },
+        { text: "Когда кто-то высокого о вас мнения, вы задаётесь вопросом, сколько времени им потребуется, чтобы в вас разочароваться", mult: 1 },
+        { text: "Если решение кажется вам правильным, вы часто действуете, не нуждаясь в дополнительных доказательствах", mult: -1 },
+        { text: "Вы часто чувствуете себя перегруженным", mult: 1 },
+        { text: "Вы уверены, что всё для вас сложится хорошо", mult: -1 },
+        { text: "Вы часто переживаете о том, что подумают другие", mult: 1 }
+    ];
+
+    const mbtiDescriptions = {
+        'INTJ': 'Стратег. Независимый, проницательный, любит сложные задачи. Идеальный Когтевранец.',
+        'INTP': 'Логик. Изобретательный, любознательный, обожает теории и загадки. Когтевран.',
+        'ENTJ': 'Командир. Смелый, решительный, прирожденный лидер. Слизерин или Гриффиндор.',
+        'ENTP': 'Полемист. Хитрый, изобретательный, любит интеллектуальные вызовы. Слизерин.',
+        'INFJ': 'Активист. Творческий, проницательный, принципиальный. Пуффендуй или Когтевран.',
+        'INFP': 'Посредник. Мечтательный, добрый, ищет гармонию. Идеальный Пуффендуй.',
+        'ENFJ': 'Тренер. Харизматичный, вдохновляющий лидер, заботящийся о других. Гриффиндор.',
+        'ENFP': 'Борец. Энтузиаст, творческий, свободолюбивый. Гриффиндор.',
+        'ISTJ': 'Администратор. Практичный, надежный, любит порядок. Пуффендуй.',
+        'ISFJ': 'Защитник. Заботливый, преданный, готовый помочь. Пуффендуй.',
+        'ESTJ': 'Менеджер. Организованный, лидер, ценит порядок и правила. Слизерин.',
+        'ESFJ': 'Консул. Общительный, заботливый, душа компании. Пуффендуй.',
+        'ISTP': 'Виртуоз. Смелый, практичный, любит разбираться в механизмах. Когтевран.',
+        'ISFP': 'Артист. Гибкий, очаровательный, ценит красоту. Пуффендуй.',
+        'ESTP': 'Делец. Энергичный, находчивый, любит риск. Гриффиндор или Слизерин.',
+        'ESFP': 'Развлекатель. Спонтанный, веселый, любит быть в центре внимания. Гриффиндор.'
+    };
+
     function saveSession(id, link, pass) {
         localStorage.setItem('vk_id', id);
         localStorage.setItem('vk_link', link || '');
@@ -336,6 +675,7 @@
         clearSession();
         location.reload();
     }
+    
     async function restoreSession() {
         const savedId = localStorage.getItem('vk_id');
         const savedPass = localStorage.getItem('vk_pass');
@@ -347,22 +687,24 @@
                     vkUser = { id: Number(savedId), first_name: "Пользователь", last_name: savedId };
                     myProfile = data;
                     openCabinet(data, false, false);
-                    return;
+                    return true;
                 }
             } catch(e) {}
             clearSession();
         }
+        return false;
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        showMenu();
-        restoreSession();
+    document.addEventListener("DOMContentLoaded", async () => {
+        const restored = await restoreSession();
+        if (!restored) showMenu();
         
         if (window.vkBridge) {
             vkBridge.send('VKWebAppInit')
                 .then(() => vkBridge.send('VKWebAppGetUserInfo'))
                 .then(info => {
                     vkUser = info;
+                    if(!myProfile) showMenu();
                 })
                 .catch(e => console.log("ВК ошибка", e));
         }
@@ -391,12 +733,9 @@
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
-                    
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.7); 
-                    
                     if (previewId) document.getElementById(previewId).innerHTML = `<img src="${dataUrl}" style="max-width:100px; border-radius:4px;">`;
                     if (hiddenInputId) document.getElementById(hiddenInputId).value = dataUrl;
                 }
@@ -407,82 +746,73 @@
     }
 
     function hideAll() {
-        ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen', 'wand-quiz-screen', 'patronus-quiz-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        ['main-menu', 'vk-input-screen', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen', 'wand-quiz-screen', 'patronus-quiz-screen', 'mbti-quiz-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
         if(chatTimer) { clearInterval(chatTimer); chatTimer = null; }
     }
+    
     function showMenu() { hideAll(); document.getElementById('main-menu').classList.remove('hidden'); }
-    function showLogin() { hideAll(); document.getElementById('login-screen').classList.remove('hidden'); }
-    function showRegister() { hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
-    function showDirectorLogin() { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
+    
+    function showLogin() { 
+        if(!vkUser) { pendingAction = 'doLogin'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; }
+        hideAll(); document.getElementById('login-screen').classList.remove('hidden'); 
+    }
+    function showRegister() { 
+        if(!vkUser) { pendingAction = 'doRegister'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; }
+        hideAll(); document.getElementById('register-screen').classList.remove('hidden'); 
+    }
+    function showDirectorLogin() { 
+        if(!vkUser) { pendingAction = 'doDirectorLogin'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; }
+        hideAll(); document.getElementById('director-screen').classList.remove('hidden'); 
+    }
 
-    // --- УМНЫЙ ПОИСК ID (СНАЧАЛА ЦИФРЫ, ПОТОМ БАЗА) ---
+    function toggleRegFields() {
+        const role = document.getElementById('reg-role').value;
+        if (role === 'student') {
+            document.getElementById('reg-student-fields').style.display = 'block';
+        } else {
+            document.getElementById('reg-student-fields').style.display = 'none';
+        }
+    }
+
     async function resolveVkId(input) {
         if (!input) return null;
         let clean = input.trim().toLowerCase();
-        
-        // Если это цифры — сразу возвращаем
         if (/^\d+$/.test(clean)) return Number(clean);
-
-        // Убираем @ в начале
         if (clean.startsWith('@')) clean = clean.slice(1);
-        
-        // Убираем протокол и домены
-        clean = clean.replace(/^https?:\/\//, '');
-        clean = clean.replace(/^(www\.)?vk\.(com|ru)\//, '');
-        clean = clean.replace(/^(m\.)?vk\.(com|ru)\//, '');
-        // Убираем параметры и слэши в конце
-        clean = clean.split('?')[0];
-        clean = clean.replace(/\/$/, '');
-
-        // Ищем в Firebase
+        clean = clean.replace(/^https?:\/\//, '').replace(/^(www\.|m\.)?vk\.(com|ru)\//, '').split('?')[0].replace(/\/$/, '');
         try {
             const res = await fetch(`${DB_URL}/students.json`);
             const allStudents = await res.json() || {};
-            
             for (let id in allStudents) {
                 const student = allStudents[id];
                 if (student.vkLink) {
-                    let linkClean = student.vkLink.toLowerCase().trim();
-                    if (linkClean.startsWith('@')) linkClean = linkClean.slice(1);
-                    linkClean = linkClean.replace(/^https?:\/\//, '');
-                    linkClean = linkClean.replace(/^(www\.)?vk\.(com|ru)\//, '');
-                    linkClean = linkClean.replace(/^(m\.)?vk\.(com|ru)\//, '');
-                    linkClean = linkClean.split('?')[0];
-                    linkClean = linkClean.replace(/\/$/, '');
-                    
-                    if (linkClean === clean) {
-                        return Number(id);
-                    }
+                    let linkClean = student.vkLink.toLowerCase().trim().replace(/^@/, '').replace(/^https?:\/\//, '').replace(/^(www\.|m\.)?vk\.(com|ru)\//, '').split('?')[0].replace(/\/$/, '');
+                    if (linkClean === clean) return Number(id);
                 }
             }
-        } catch (e) {
-            console.error("Ошибка поиска в базе:", e);
-        }
+        } catch (e) {}
         return null;
     }
 
-    async function checkVk() {
-        if (!vkUser) {
-            const testInput = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID (например, 836264843) ИЛИ ссылку из профиля (например, https://vk.ru/nott_cr или @likeaslug):");
-            if (!testInput) return false;
-
-            const id = await resolveVkId(testInput);
-            
-            if (id) {
-                vkUser = { id: id, first_name: "Пользователь", last_name: id };
-                return true;
-            } else {
-                alert("Профиль не найден. Убедитесь, что вы зарегистрировались в приложении и указали эту ссылку при регистрации, либо введите цифровой ID.");
-                return false;
-            }
+    async function submitVkInput() {
+        const inputVal = document.getElementById('vk-input-val').value.trim();
+        if (!inputVal) return;
+        const id = await resolveVkId(inputVal);
+        if (id) {
+            vkUser = { id: id, first_name: "Пользователь", last_name: id };
+            document.getElementById('vk-input-val').value = '';
+            document.getElementById('vk-input-error').style.display = 'none';
+            if (pendingAction === 'doLogin') { hideAll(); document.getElementById('login-screen').classList.remove('hidden'); }
+            else if (pendingAction === 'doRegister') { hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
+            else if (pendingAction === 'doDirectorLogin') { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
+            else showMenu();
+        } else {
+            document.getElementById('vk-input-error').style.display = 'block';
         }
-        return true;
     }
 
     async function doLogin() {
-        if (!(await checkVk())) return;
         const pass = document.getElementById('login-pass').value.trim();
-        
         try {
             const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
             const data = await res.json();
@@ -493,77 +823,63 @@
             } else {
                 document.getElementById('login-error').style.display = 'block';
             }
-        } catch(e) {
-            alert("Ошибка базы данных.");
-        }
+        } catch(e) { alert("Ошибка базы данных."); }
     }
 
     async function doRegister() {
-        if (!(await checkVk())) return;
+        const role = document.getElementById('reg-role').value;
         const profile = {
             id: vkUser.id, 
             name: document.getElementById('reg-name').value.trim(), 
             vkLink: document.getElementById('reg-link').value.trim(), 
-            role: document.getElementById('reg-role').value, 
+            role: role, 
             faculty: document.getElementById('reg-faculty').value,
-            course: document.getElementById('reg-course').value,
-            studentNumber: document.getElementById('reg-number').value.trim(),
+            course: role === 'student' ? document.getElementById('reg-course').value : "",
+            studentNumber: role === 'student' ? document.getElementById('reg-number').value.trim() : "",
             secretCode: document.getElementById('reg-pass').value.trim(), 
-            xp: 0, mana: 0, photo: "", wand: "", patronus: "",
+            xp: 0, mana: 0, photo: "", wand: "", patronus: "", mbti: "",
             skills: [{title: "Основы чар", desc: "Точность движения палочкой.", req: 0, img: ""}], 
             spells: [], potions: [], notes: ""
         };
         if(!profile.name || !profile.secretCode) return alert("Заполните поля!");
-        
         try {
             await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
             myProfile = profile;
             saveSession(vkUser.id, profile.vkLink, profile.secretCode);
             openCabinet(profile, false, false);
-        } catch(e) {
-            alert("Ошибка сохранения.");
-        }
+        } catch(e) { alert("Ошибка сохранения."); }
     }
 
     async function doDirectorLogin() {
-        if (!(await checkVk())) return;
         if (vkUser.id !== DIRECTOR_ID) return alert("Вы не Директор!");
-        
         const pass = document.getElementById('dir-pass').value.trim();
         if (!pass) return alert("Введите пароль!");
-
         try {
             const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
             const existing = await res.json();
-
             if (existing) {
                 if (existing.secretCode !== pass) {
                     const confirmReset = confirm("Пароль не совпадает. Хотите сбросить его на новый?");
                     if (confirmReset) {
                         existing.secretCode = pass;
                         await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ secretCode: pass }) });
-                    } else {
-                        return; 
-                    }
+                    } else { return; }
                 }
                 myProfile = existing;
             } else {
                 const profile = {
-                    id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
-                    role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "", wand: "Бузинная палочка", patronus: "Феникс",
-                    faculty: "Хогвартс", course: "0", studentNumber: "",
+                    id: vkUser.id, name: "Теодор Нотт", vkLink: "@nott_cr", 
+                    role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "", wand: "Бузинная палочка", patronus: "Феникс", mbti: "INTJ",
+                    faculty: "Хогвартс", course: "", studentNumber: "",
                     skills: [{title: "Травология", desc: "Профессор Травологии", req: 0, img: ""}], 
                     spells: [], potions: [], notes: ""
                 };
                 await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
                 myProfile = profile;
-                alert("Профиль Директора создан!");
             }
             saveSession(vkUser.id, myProfile.vkLink, pass);
             openCabinet(myProfile, false, false);
-        } catch(e) {
-            alert("Ошибка базы данных.");
-        }
+        } catch(e) { alert("Ошибка базы данных."); }
     }
 
     function openCabinet(profile, adminMode, guestMode) {
@@ -578,16 +894,23 @@
         document.getElementById('cabinet-role').textContent = profile.role === 'director' ? '👑 Директор' : (profile.role === 'professor' ? '📖 Профессор' : '🎓 Студент');
         document.getElementById('saved-link').textContent = profile.vkLink || '—';
         
-        let showPass = false;
-        if (adminMode) showPass = true;
-        else if (!guestMode && profile.id === vkUser.id) showPass = true;
-
+        let showPass = adminMode || (!guestMode && profile.id === vkUser.id);
         document.getElementById('saved-pass').textContent = showPass ? (profile.secretCode || 'admin') : '******'; 
         document.getElementById('saved-faculty').textContent = profile.faculty || '—';
-        document.getElementById('saved-course').textContent = profile.course ? profile.course + ' курс' : '—';
-        document.getElementById('saved-number').textContent = profile.studentNumber || '—';
+        
+        if (profile.role === 'student') {
+            document.getElementById('saved-course-wrapper').style.display = 'inline';
+            document.getElementById('saved-number-wrapper').style.display = 'inline';
+            document.getElementById('saved-course').textContent = profile.course ? profile.course + ' курс' : '—';
+            document.getElementById('saved-number').textContent = profile.studentNumber || '—';
+        } else {
+            document.getElementById('saved-course-wrapper').style.display = 'none';
+            document.getElementById('saved-number-wrapper').style.display = 'none';
+        }
+
         document.getElementById('saved-wand').textContent = profile.wand || 'Не получена';
         document.getElementById('saved-patronus').textContent = profile.patronus || 'Неизвестен';
+        document.getElementById('saved-mbti').textContent = profile.mbti || 'Не определен';
         document.getElementById('xp').textContent = profile.xp || 0;
         document.getElementById('mana').textContent = profile.mana || 0;
         document.getElementById('room-name').textContent = 'Гостиная · ' + (profile.faculty || 'Хогвартс');
@@ -619,7 +942,10 @@
                 btnHtml = `<button class="text-button" onclick="startWandQuiz()" style="color:#d4af37; font-weight:bold;">🪄 Получить палочку</button>` + btnHtml;
             }
             if(!profile.patronus) {
-                btnHtml = `<button class="text-button" onclick="startPatronusQuiz()" style="color:#d4af37; font-weight:bold;">✨ Получить патронуса</button>` + btnHtml;
+                btnHtml = `<button class="text-button" onclick="startPatronusQuiz()" style="color:#d4af37; font-weight:bold;">✨ Узнать патронуса</button>` + btnHtml;
+            }
+            if(!profile.mbti) {
+                btnHtml = `<button class="text-button" onclick="startMbtiQuiz()" style="color:#d4af37; font-weight:bold;">🧠 Тест личности</button>` + btnHtml;
             }
         }
         document.getElementById('header-buttons').innerHTML = btnHtml;
@@ -638,10 +964,17 @@
         document.getElementById('edit-link').value = viewProfile.vkLink || '';
         document.getElementById('edit-pass').value = viewProfile.secretCode || '';
         document.getElementById('edit-faculty').value = viewProfile.faculty || 'Гриффиндор';
-        document.getElementById('edit-course').value = viewProfile.course || '1';
-        document.getElementById('edit-number').value = viewProfile.studentNumber || '';
         document.getElementById('edit-wand').value = viewProfile.wand || '';
         document.getElementById('edit-patronus').value = viewProfile.patronus || '';
+        document.getElementById('edit-mbti').value = viewProfile.mbti || '';
+        
+        if (viewProfile.role === 'student') {
+            document.getElementById('edit-student-fields').style.display = 'block';
+            document.getElementById('edit-course').value = viewProfile.course || '1';
+            document.getElementById('edit-number').value = viewProfile.studentNumber || '';
+        } else {
+            document.getElementById('edit-student-fields').style.display = 'none';
+        }
         
         if (myProfile.role === 'director') {
             document.getElementById('admin-only-stats').style.display = 'block';
@@ -667,10 +1000,13 @@
         viewProfile.vkLink = document.getElementById('edit-link').value;
         viewProfile.secretCode = document.getElementById('edit-pass').value;
         viewProfile.faculty = document.getElementById('edit-faculty').value;
-        viewProfile.course = document.getElementById('edit-course').value;
-        viewProfile.studentNumber = document.getElementById('edit-number').value.trim();
         viewProfile.wand = document.getElementById('edit-wand').value;
         viewProfile.patronus = document.getElementById('edit-patronus').value;
+        
+        if (viewProfile.role === 'student') {
+            viewProfile.course = document.getElementById('edit-course').value;
+            viewProfile.studentNumber = document.getElementById('edit-number').value.trim();
+        }
         
         if (myProfile.role === 'director') {
             viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
@@ -686,12 +1022,9 @@
                 myProfile = viewProfile;
                 saveSession(vkUser.id, viewProfile.vkLink, viewProfile.secretCode);
             }
-            
             openCabinet(viewProfile, isAdminView, isGuestView);
             alert("Данные сохранены!");
-        } catch(e) {
-            alert("Ошибка сохранения.");
-        }
+        } catch(e) { alert("Ошибка сохранения."); }
     }
 
     function cancelEdit() { openCabinet(viewProfile, isAdminView, isGuestView); }
@@ -703,7 +1036,6 @@
         if (btn) btn.classList.add('active');
         
         const root = document.getElementById('book-content');
-        
         let canEdit = false;
         if (myProfile.role === 'director') {
             canEdit = true; 
@@ -711,18 +1043,9 @@
             canEdit = true;
         }
 
-        if (tab === 'skills') {
-            updateCatText("Здесь твои <b>Навыки</b>.");
-            renderList('skills', 'Навыки', '✦', root, canEdit);
-        }
-        else if (tab === 'spells') {
-            updateCatText("Это твои <b>Заклинания</b>.");
-            renderList('spells', 'Заклинания', '⚡', root, canEdit);
-        }
-        else if (tab === 'potions') {
-            updateCatText("Твои <b>Зелья</b>.");
-            renderList('potions', 'Зелья', '🧪', root, canEdit);
-        }
+        if (tab === 'skills') { updateCatText("Здесь твои <b>Навыки</b>."); renderList('skills', 'Навыки', '✦', root, canEdit); }
+        else if (tab === 'spells') { updateCatText("Это твои <b>Заклинания</b>."); renderList('spells', 'Заклинания', '⚡', root, canEdit); }
+        else if (tab === 'potions') { updateCatText("Твои <b>Зелья</b>."); renderList('potions', 'Зелья', '🧪', root, canEdit); }
         else if (tab === 'notes') {
             updateCatText("Твой <b>Личный дневник</b>.");
             root.innerHTML = `<div class="product-card"><div class="product-info"><h3>📝 Дневник</h3><p>${viewProfile.notes || 'Заметок пока нет.'}</p></div></div>`;
@@ -730,48 +1053,23 @@
                 root.innerHTML += `<div class="builder-box"><textarea id="edit-notes" rows="5">${viewProfile.notes||''}</textarea><button onclick="saveText('notes')" style="margin-top:10px; background:#4CAF50; color:white;">Сохранить заметки</button></div>`;
             }
         }
-        else if (tab === 'students') {
-            updateCatText("Это <b>База профилей</b>.");
-            renderStudentsList(root);
-        }
-        else if (tab === 'messages') {
-            updateCatText("Твои <b>Совы</b> (сообщения).");
-            renderMessagesList(root);
-        }
+        else if (tab === 'students') { updateCatText("Это <b>База профилей</b>."); renderStudentsList(root); }
+        else if (tab === 'messages') { updateCatText("Твои <b>Совы</b> (сообщения)."); renderMessagesList(root); }
     }
 
     function renderList(type, title, icon, container, canEdit) {
         let html = `<div class="skills-grid">`;
         const items = viewProfile[type] || [];
-        
         if (items.length > 0) {
             items.forEach((item, index) => {
-                let isLocked = false;
-                let statusText = 'Изучено';
-                
-                if (item.req > 0 && viewProfile.xp < item.req) {
-                    isLocked = true;
-                    statusText = `Требуется ${item.req} XP`;
-                }
-
-                let imgHtml = item.img 
-                    ? `<img src="${item.img}" alt="${item.title}">` 
-                    : `<div style="font-size:50px;">${icon}</div>`;
-
-                let btnHtml = '';
-                if (canEdit) {
-                    btnHtml = `
-                        <div class="product-actions">
-                            <button onclick="startEditItem('${type}', ${index})" style="background:#4CAF50; color:white; border:none;">Ред.</button>
-                            <button onclick="deleteItem('${type}', ${index})" style="border:1px solid #ff5555; color:#ff5555; background:transparent;">Удал.</button>
-                        </div>
-                    `;
-                } else {
-                    btnHtml = isLocked 
-                        ? `<button disabled>Недоступно</button>`
-                        : `<button disabled>Изучено</button>`;
-                }
-
+                let isLocked = item.req > 0 && viewProfile.xp < item.req;
+                let statusText = isLocked ? `Требуется ${item.req} XP` : 'Изучено';
+                let imgHtml = item.img ? `<img src="${item.img}" alt="${item.title}">` : `<div style="font-size:50px;">${icon}</div>`;
+                let btnHtml = canEdit ? `
+                    <div class="product-actions">
+                        <button onclick="startEditItem('${type}', ${index})" style="background:#4CAF50; color:white; border:none;">Ред.</button>
+                        <button onclick="deleteItem('${type}', ${index})" style="border:1px solid #ff5555; color:#ff5555; background:transparent;">Удал.</button>
+                    </div>` : (isLocked ? `<button disabled>Недоступно</button>` : `<button disabled>Изучено</button>`);
                 html += `
                 <div class="product-card">
                     <div class="product-img">${imgHtml}</div>
@@ -783,380 +1081,8 @@
                     </div>
                 </div>`;
             });
-        } else {
-            html += `<p style="color:var(--accent); grid-column: 1 / -1;">Здесь пока пусто.</p>`;
-        }
+        } else { html += `<p style="color:var(--accent); grid-column: 1 / -1;">Здесь пока пусто.</p>`; }
         html += `</div>`;
-
         if (canEdit) {
             html += `
-            <div class="builder-box" id="item-builder">
-                <h3 style="color:var(--primary);" id="builder-title">Добавить ${title}</h3>
-                <label>Название:</label><input type="text" id="add-title" placeholder="Название">
-                <label>Описание:</label><textarea id="add-desc" rows="2" placeholder="Что это дает..."></textarea>
-                <label>Требуемый опыт (XP, оставьте 0 для свободного доступа):</label><input type="number" id="add-req" value="0">
-                
-                <label>Картинка (Загрузить с устройства):</label>
-                <label class="custom-file-upload">
-                    <input type="file" id="add-img-file" accept="image/*" onchange="previewImage(this, 'add-img-preview', 'add-img-data')">
-                    📷 Выбрать картинку
-                </label>
-                <div id="add-img-preview" style="margin-top:10px; text-align:center;"></div>
-                <input type="hidden" id="add-img-data">
-                
-                <button onclick="saveItem('${type}')" id="builder-btn" style="background: #4CAF50; color: white; margin-top: 10px;">Добавить в профиль</button>
-                <button onclick="cancelItemEdit('${type}')" id="builder-cancel" style="background: transparent; border: 1px solid #ff5555; color: #ff5555; margin-top: 5px; display: none;">Отмена</button>
-            </div>`;
-            editItemIndex = -1; 
-        }
-        container.innerHTML = html;
-    }
-
-    function startEditItem(type, index) {
-        editItemIndex = index;
-        const item = viewProfile[type][index];
-        
-        document.getElementById('add-title').value = item.title;
-        document.getElementById('add-desc').value = item.desc;
-        document.getElementById('add-req').value = item.req || 0;
-        document.getElementById('add-img-data').value = item.img || '';
-        
-        if(item.img) {
-            document.getElementById('add-img-preview').innerHTML = `<img src="${item.img}" style="max-width:100px; border-radius:4px;">`;
-        } else {
-            document.getElementById('add-img-preview').innerHTML = '';
-        }
-
-        document.getElementById('builder-title').innerText = 'Редактировать карточку';
-        document.getElementById('builder-btn').innerText = 'Сохранить изменения';
-        document.getElementById('builder-cancel').style.display = 'block';
-        
-        document.getElementById('item-builder').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function cancelItemEdit(type) {
-        editItemIndex = -1;
-        document.getElementById('add-title').value = '';
-        document.getElementById('add-desc').value = '';
-        document.getElementById('add-req').value = '0';
-        document.getElementById('add-img-data').value = '';
-        document.getElementById('add-img-preview').innerHTML = '';
-        
-        document.getElementById('builder-title').innerText = 'Добавить';
-        document.getElementById('builder-btn').innerText = 'Добавить в профиль';
-        document.getElementById('builder-cancel').style.display = 'none';
-    }
-
-    async function saveItem(type) {
-        const title = document.getElementById('add-title').value.trim();
-        const desc = document.getElementById('add-desc').value.trim();
-        const req = Number(document.getElementById('add-req').value) || 0;
-        const img = document.getElementById('add-img-data').value;
-        
-        if (!title) return alert("Введите название!");
-        
-        if (!viewProfile[type]) viewProfile[type] = [];
-        
-        if (editItemIndex > -1) {
-            viewProfile[type][editItemIndex] = { title, desc, req, img };
-        } else {
-            viewProfile[type].push({ title, desc, req, img });
-        }
-        
-        try {
-            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
-            switchTab(type);
-        } catch(e) { alert("Ошибка сохранения"); }
-    }
-
-    async function deleteItem(type, index) {
-        if (!confirm("Удалить эту карточку?")) return;
-        viewProfile[type].splice(index, 1);
-        try {
-            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
-            switchTab(type);
-        } catch(e) { alert("Ошибка удаления"); }
-    }
-
-    async function saveText(field) {
-        const val = document.getElementById(`edit-${field}`).value;
-        viewProfile[field] = val;
-        try {
-            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: val }) });
-            alert("Сохранено!");
-            switchTab(field);
-        } catch(e) { alert("Ошибка"); }
-    }
-
-    async function renderStudentsList(container) {
-        container.innerHTML = `<div class="center-menu">Загрузка...</div>`;
-        try {
-            const res = await fetch(`${DB_URL}/students.json`);
-            const allStudents = await res.json() || {};
-            
-            let html = `<h2>База профилей</h2><div class="admin-panel">`;
-            let usersCount = 0;
-            
-            Object.keys(allStudents).forEach(vkId => {
-                const student = allStudents[vkId];
-                const isMe = String(vkId) === String(vkUser.id); 
-                
-                if (isMe) return;
-                
-                usersCount++;
-                html += `
-                <div class="admin-card">
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        ${student.photo ? `<img src="${student.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<div style="width:40px; height:40px; border-radius:50%; background:var(--dark-accent); display:grid; place-items:center;">✦</div>`}
-                        <div>
-                            <h3 style="margin:0; font-size:18px;">${student.name}</h3>
-                            <span style="font-size:12px; color:var(--accent);">${student.role} · ${student.faculty || ''} ${student.course ? '· ' + student.course + ' курс' : ''}</span>
-                        </div>
-                    </div>
-                    <button onclick="visitProfile('${vkId}')" style="background:var(--primary); color:var(--bg); margin-top:10px;">
-                        ${myProfile.role === 'director' ? '🚪 Зайти в комнату' : '👁 Посмотреть профиль'}
-                    </button>
-                </div>`;
-            });
-            
-            if (usersCount === 0) html += `<p style="color:var(--accent)">Вы единственный зарегистрированный пользователь.</p>`;
-            
-            html += `</div>`;
-            container.innerHTML = html;
-        } catch(e) {
-            container.innerHTML = `<div style="color:red">Ошибка подключения к базе: ${e.message}</div>`;
-        }
-    }
-
-    async function visitProfile(studentId) {
-        try {
-            const res = await fetch(`${DB_URL}/students/${studentId}.json`);
-            const data = await res.json();
-            
-            if (!data) return alert("Профиль не найден в базе!");
-            
-            if (myProfile.role === 'director') openCabinet(data, true, false); 
-            else openCabinet(data, false, true); 
-        } catch(e) { alert("Ошибка загрузки профиля"); }
-    }
-
-    function backToStudents() {
-        openCabinet(myProfile, false, false);
-        document.querySelector('.tabs button[data-tab="students"]').click();
-    }
-
-    async function renderMessagesList(container) {
-        container.innerHTML = `<div class="center-menu">Загрузка диалогов...</div>`;
-        try {
-            const res = await fetch(`${DB_URL}/students.json`);
-            const allStudents = await res.json() || {};
-            
-            let html = `<h2>Личные сообщения (Совы)</h2><div class="admin-panel">`;
-            Object.keys(allStudents).forEach(vkId => {
-                const student = allStudents[vkId];
-                if(String(vkId) !== String(vkUser.id)) {
-                    html += `
-                    <div class="admin-card">
-                        <h3 style="margin:0; font-size:18px;">${student.name}</h3>
-                        <button onclick="openChat('${vkId}', '${student.name}')" style="background:var(--accent); color:white; margin-top:10px;">Открыть переписку</button>
-                    </div>`;
-                }
-            });
-            html += `</div>`;
-            container.innerHTML = html;
-        } catch(e) { container.innerHTML = `<div style="color:red">Ошибка базы</div>`; }
-    }
-
-    function getChatId(id1, id2) {
-        const sorted = [id1, id2].sort((a,b) => a - b);
-        return `${sorted[0]}_${sorted[1]}`;
-    }
-
-    function startChatFromProfile() {
-        openChat(viewProfile.id, viewProfile.name);
-    }
-
-    function openChat(targetId, targetName) {
-        const chatId = getChatId(vkUser.id, targetId);
-        const root = document.getElementById('book-content');
-        
-        root.innerHTML = `
-            <h2>Переписка с ${targetName}</h2>
-            <div class="chat-container">
-                <div class="chat-messages" id="chat-box"><div style="text-align:center; color:var(--accent);">Загрузка...</div></div>
-                <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Сообщение или ссылка...">
-                    <button onclick="sendMsg('${targetId}')">Отправить</button>
-                </div>
-            </div>
-            <button onclick="switchTab('messages')" style="margin-top:15px;">← Назад к диалогам</button>
-        `;
-
-        const chatBox = document.getElementById('chat-box');
-        
-        const loadMsgs = async () => {
-            if(!document.getElementById('chat-box')) { clearInterval(chatTimer); return; }
-            try {
-                const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
-                const msgs = await res.json() || {};
-                let html = '';
-                Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
-                    const isMe = m.senderId === vkUser.id;
-                    let content = m.text;
-                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
-                        content = `<img src="${m.text}">`;
-                    }
-                    html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
-                });
-                chatBox.innerHTML = html;
-                chatBox.scrollTop = chatBox.scrollHeight;
-            } catch(e) {}
-        };
-
-        loadMsgs();
-        if(chatTimer) clearInterval(chatTimer);
-        chatTimer = setInterval(loadMsgs, 2000);
-    }
-
-    async function sendMsg(targetId) {
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if (!text) return;
-
-        const chatId = getChatId(vkUser.id, targetId);
-        const msg = {
-            senderId: vkUser.id,
-            senderName: myProfile.name,
-            text: text,
-            time: Date.now()
-        };
-
-        input.value = '';
-        try {
-            await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
-        } catch(e) { alert("Ошибка отправки"); }
-    }
-
-    // --- ТЕСТ НА ПАЛОЧКУ ---
-    function startWandQuiz() {
-        if(!viewProfile || viewProfile.id !== vkUser.id) return;
-        hideAll();
-        document.getElementById('wand-quiz-screen').classList.remove('hidden');
-    }
-
-    function cancelWandQuiz() {
-        openCabinet(myProfile, false, false);
-    }
-
-    async function calculateWandResult() {
-        const q1 = document.querySelector('input[name="wq1"]:checked');
-        const q2 = document.querySelector('input[name="wq2"]:checked');
-        const q3 = document.querySelector('input[name="wq3"]:checked');
-
-        if (!q1 || !q2 || !q3) {
-            return alert("Пожалуйста, ответьте на все вопросы!");
-        }
-
-        let wood = "";
-        let core = "";
-        let length = "";
-        let flexibility = "";
-
-        if (q3.value === 'short') length = "7 - 8 дюймов (Короткая)";
-        else if (q3.value === 'mid') length = "9 - 10.5 дюймов (Стандартная)";
-        else length = "11 - 13 дюймов (Длинная)";
-
-        if (q1.value === 'brave') {
-            wood = "Дуб";
-            if (q2.value === 'fight') { core = "Сердцевина дракона"; flexibility = "Жёсткая"; }
-            else { core = "Перо феникса"; flexibility = "Средней гибкости"; }
-        } 
-        else if (q1.value === 'wise') {
-            wood = "Орех";
-            if (q2.value === 'talk') { core = "Грива единорога"; flexibility = "Гибкая"; }
-            else { core = "Перо ворона"; flexibility = "Твёрдая"; }
-        }
-        else if (q1.value === 'cunning') {
-            wood = "Тис";
-            if (q2.value === 'magic') { core = "Зуб василиска"; flexibility = "Несгибаемая"; }
-            else { core = "Волос вейлы"; flexibility = "Очень гибкая"; }
-        }
-        else {
-            wood = "Ива";
-            if (q2.value === 'avoid') { core = "Волос единорога"; flexibility = "Гибкая"; }
-            else { core = "Шерсть пегаса"; flexibility = "Средней гибкости"; }
-        }
-
-        const wandResult = `${wood}, ${core}, ${length}, ${flexibility}`;
-
-        try {
-            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { 
-                method: 'PATCH', 
-                body: JSON.stringify({ wand: wandResult }) 
-            });
-            
-            myProfile.wand = wandResult;
-            viewProfile.wand = wandResult;
-
-            alert(`✨ Палочка выбрала вас!\n\n${wandResult}`);
-            openCabinet(myProfile, false, false);
-        } catch(e) {
-            alert("Ошибка сохранения результата.");
-        }
-    }
-
-    // --- ТЕСТ НА ПАТРОНУСА ---
-    function startPatronusQuiz() {
-        if(!viewProfile || viewProfile.id !== vkUser.id) return;
-        hideAll();
-        document.getElementById('patronus-quiz-screen').classList.remove('hidden');
-    }
-
-    function cancelPatronusQuiz() {
-        openCabinet(myProfile, false, false);
-    }
-
-    async function calculatePatronusResult() {
-        const q1 = document.querySelector('input[name="pq1"]:checked');
-        const q2 = document.querySelector('input[name="pq2"]:checked');
-        const q3 = document.querySelector('input[name="pq3"]:checked');
-
-        if (!q1 || !q2 || !q3) {
-            return alert("Пожалуйста, ответьте на все вопросы!");
-        }
-
-        let patronus = "";
-
-        // Комбинируем ответы
-        if (q1.value === 'victory') patronus = "Лев";
-        else if (q1.value === 'friends') patronus = "Выдра";
-        else if (q1.value === 'knowledge') patronus = "Сова";
-        else patronus = "Олень";
-
-        if (q2.value === 'deer' && patronus !== "Олень") patronus = "Олень";
-        else if (q2.value === 'owl' && patronus !== "Сова") patronus = "Сова";
-        else if (q2.value === 'wolf') patronus = "Волк";
-        else if (q2.value === 'otter') patronus = "Выдра";
-
-        if (q3.value === 'freedom') patronus = "Феникс";
-        else if (q3.value === 'love') patronus = "Лебедь";
-        else if (q3.value === 'home') patronus = "Собака";
-
-        try {
-            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { 
-                method: 'PATCH', 
-                body: JSON.stringify({ patronus: patronus }) 
-            });
-            
-            myProfile.patronus = patronus;
-            viewProfile.patronus = patronus;
-
-            alert(`✨ Ваш Патронус: ${patronus}!`);
-            openCabinet(myProfile, false, false);
-        } catch(e) {
-            alert("Ошибка сохранения результата.");
-        }
-    }
-</script>
-</body>
-</html>
+            <div class="builder-box"
