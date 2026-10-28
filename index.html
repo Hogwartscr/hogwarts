@@ -85,7 +85,6 @@
 
 <div id="main-menu" class="center-menu">
     <h1>Хогвартс ВГП</h1>
-    <p id="vk-status" style="color:orange; font-size:12px; margin-bottom:10px;">Проверка ВК...</p>
     <button onclick="showLogin()" style="margin-top: 20px;">🔑 Войти</button>
     <button onclick="showRegister()" style="margin-top: 15px; background: transparent; border: 1px solid var(--primary); color: var(--primary);">📝 Регистрация</button>
     <button onclick="showDirectorLogin()" style="margin-top: 30px; background: #99564b; color: white;">👑 Вход для Директора</button>
@@ -208,28 +207,18 @@
     let chatTimer = null;
     let editItemIndex = -1; 
 
-    // СРАЗУ ПОКАЗЫВАЕМ МЕНЮ (чтобы не было вечной загрузки)
     document.addEventListener("DOMContentLoaded", () => {
         showMenu();
+        
+        if (window.vkBridge) {
+            vkBridge.send('VKWebAppInit')
+                .then(() => vkBridge.send('VKWebAppGetUserInfo'))
+                .then(info => {
+                    vkUser = info;
+                })
+                .catch(e => console.log("ВК ошибка", e));
+        }
     });
-
-    // В ФОНЕ ГРУЗИМ ВК
-    if (window.vkBridge) {
-        vkBridge.send('VKWebAppInit')
-            .then(() => vkBridge.send('VKWebAppGetUserInfo'))
-            .then(info => {
-                vkUser = info;
-                document.getElementById('vk-status').innerText = "✅ ВК подключен. ID: " + vkUser.id;
-                document.getElementById('vk-status').style.color = "lightgreen";
-            })
-            .catch(e => {
-                document.getElementById('vk-status').innerText = "⚠️ Вы не в ВК. Вход не сработает.";
-                document.getElementById('vk-status').style.color = "red";
-            });
-    } else {
-        document.getElementById('vk-status').innerText = "⚠️ VK Bridge не загрузился.";
-        document.getElementById('vk-status').style.color = "red";
-    }
 
     function updateCatText(text) {
         const bubble = document.getElementById('cat-bubble');
@@ -508,11 +497,11 @@
             }
         }
         else if (tab === 'students') {
-            updateCatText("Это <b>База профилей</b>. Нажми «Посмотреть профиль», чтобы зайти к другому волшебнику.");
+            updateCatText("Это <b>База профилей</b>.");
             renderStudentsList(root);
         }
         else if (tab === 'messages') {
-            updateCatText("Твои <b>Совы</b> (сообщения). Выбери друга и напиши ему.");
+            updateCatText("Твои <b>Совы</b> (сообщения).");
             renderMessagesList(root);
         }
     }
