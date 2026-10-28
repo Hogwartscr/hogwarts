@@ -10,37 +10,30 @@
         *{box-sizing:border-box}
         body{font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px; margin: 0;}
         .container{max-width:1100px;padding:30px 40px;background:linear-gradient(120deg, rgba(31,27,61,0.95), rgba(22,18,40,0.98));border: 1px solid var(--accent);border-radius:8px;margin: 0 auto; box-shadow: 0 24px 100px rgba(0,0,0,0.8); position: relative;}
-        
         h1,h2,h3{font-weight:normal;color:var(--primary);margin-top:0;}
         button{background:var(--primary);color:var(--bg);border-radius:4px;font-family:inherit;font-weight:bold;transition:all .2s;padding:10px 15px;border:none;cursor:pointer;font-size: 14px;}
         button:hover{background:var(--accent); color:white;}
         input,select,textarea{font-family:inherit;background:rgba(0,0,0,0.2);color:var(--text);border:1px solid var(--accent);border-radius:4px;padding:10px;font-size:14px;width:100%;margin-top:5px}
         select option{background:var(--panel)}
         label{color:var(--primary);font-weight:normal;display:block;margin-top:12px; font-size:14px;}
-        
         .cabinet-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--dark-accent);padding-bottom:18px;gap:10px; flex-wrap: wrap;}
         .eyebrow{font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
         .text-button{width:auto;margin:0;padding:8px 0;background:transparent;color:var(--primary);font-size:14px; margin-right: 10px;}
-        
         .character{display:grid;grid-template-columns:150px 1fr;gap:30px;margin:20px 0 16px;align-items:center}
         .portrait-wrap{height:180px;width:150px;position:relative;border:1px solid var(--accent);padding:6px;background:var(--bg);box-shadow:0 0 15px rgba(151,95,143,0.3); border-radius: 4px;}
         .portrait-wrap img{width:100%; height:100%; object-fit:cover; border-radius: 2px;}
         #portrait-empty{height:100%;display:grid;place-items:center;font-size:60px;color:var(--accent);background:radial-gradient(ellipse at 50% 40%,#48294E55,#161228)}
-        
         .cabinet h1{font-size:38px;line-height:1.15;margin:0;color:var(--primary);}
         .character-details{display:flex;gap:26px;flex-wrap:wrap;margin:15px 0 10px}
         .character-details span{font-size:12px; color: var(--accent);}
         .character-details strong{display:block;font-size:15px;font-weight:normal;color:var(--text);margin-top:7px; word-break: break-all;}
-        
         .resources{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:24px;padding:20px;background:rgba(72,41,78,0.3);border:1px solid var(--accent);border-left:4px solid var(--primary);margin:20px 0 30px;border-radius:4px;}
         .resources label{margin:0;display:flex;justify-content:space-between}
         .resources strong{display:block;font-size:32px;color:var(--primary);margin-top:5px}
-        
         .book-header { margin-top: 30px; border-top: 1px solid var(--dark-accent); padding-top: 20px; }
         .tabs{display:flex;gap:20px;border-bottom:1px solid var(--dark-accent);margin:20px 0; flex-wrap:wrap;}
         .tabs button{border-radius:0;width:auto;background:none;color:var(--accent);font-size:16px;padding:10px 0;margin:0;border-bottom:2px solid transparent}
         .tabs button.active{color:var(--primary);border-color:var(--primary); font-weight:bold;}
-        
         .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
         .product-card { border: 1px solid var(--accent); background: rgba(31,27,61,0.6); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
@@ -52,21 +45,17 @@
         .product-info .status { font-size: 11px; color: var(--accent); margin-bottom: 10px; text-align: center;}
         .product-actions { display: flex; gap: 5px; margin-top: auto;}
         .product-actions button { flex: 1; padding: 8px; font-size: 12px;}
-        
         .admin-panel { display: grid; gap: 15px; margin-top: 20px;}
         .admin-card { padding: 15px; border: 1px solid var(--accent); border-radius: 6px; background: rgba(72,41,78,0.2); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;}
         .builder-box { border: 1px dashed var(--primary); padding: 20px; margin-top: 20px; border-radius: 6px; background: rgba(0,0,0,0.2); }
-        
         .center-menu { text-align: center; padding: 50px 20px; }
         .center-menu button { max-width: 400px; margin: 10px auto; display: block; width: 100%;}
         .hidden { display: none !important; }
-
         .cat-helper { position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end;}
         .cat-icon { width: 60px; height: 60px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid var(--accent); transition: transform 0.2s;}
         .cat-icon:hover { transform: scale(1.1); }
         .cat-bubble { background: var(--panel); border: 1px solid var(--primary); color: var(--text); padding: 15px; border-radius: 12px; border-bottom-right-radius: 0; width: 250px; margin-bottom: 10px; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; position: relative;}
         .cat-bubble::after { content: ''; position: absolute; bottom: -10px; right: 10px; border-width: 10px 10px 0 0; border-style: solid; border-color: var(--primary) transparent transparent transparent; }
-
         .chat-container { border: 1px solid var(--accent); border-radius: 6px; padding: 15px; margin-top: 15px; background: rgba(0,0,0,0.3); }
         .chat-messages { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding-right: 10px;}
         .msg { padding: 10px; border-radius: 8px; max-width: 80%; font-size: 14px; word-wrap: break-word;}
@@ -76,11 +65,8 @@
         .chat-input-area { display: flex; gap: 10px; }
         .chat-input-area input { margin: 0; }
         .chat-input-area button { margin: 0; width: auto; }
-        
         input[type="file"] { display: none; }
         .custom-file-upload { border: 1px dashed var(--primary); display: inline-block; padding: 10px; cursor: pointer; border-radius: 4px; text-align: center; width: 100%; color: var(--primary); margin-top: 10px;}
-        
-        /* Стили для тестов */
         .test-container { max-width: 700px; margin: 0 auto; text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; border: 1px solid var(--accent); }
         .quiz-question { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px dashed var(--dark-accent); }
         .quiz-question > label:first-child { font-weight: bold; font-size: 16px; color: var(--primary); margin-bottom: 12px; display: block;}
@@ -88,10 +74,8 @@
         .quiz-option:hover { border-color: var(--accent); background: rgba(255,255,255,0.05);}
         .quiz-option input[type="radio"] { width: auto; margin: 3px 12px 0 0; cursor: pointer; accent-color: var(--accent); transform: scale(1.2); }
         .quiz-option-text { font-size: 14px; line-height: 1.4; }
-        .test-btn { background:#d4af37; color:#111; font-size: 16px; padding: 15px; margin-top: 30px; font-weight: bold; width: 100%;}
+        .test-btn { background:#d4af37; color:#111; font-size: 16px; padding: 15px; margin-top: 30px; font-weight: bold; width: 100%; border-radius: 4px;}
         .test-btn:hover { background:#fce167; }
-
-        /* Стили для 60 вопросов MBTI */
         .mbti-question-block { margin-bottom: 20px; border-bottom: 1px solid var(--dark-accent); padding-bottom: 15px; }
         .mbti-question-text { font-size: 15px; margin-bottom: 10px; color: var(--text); line-height: 1.3; }
         .mbti-scale { display: flex; justify-content: space-between; width: 100%; max-width: 450px; margin: 5px auto; }
@@ -142,7 +126,6 @@
         <option value="Когтевран">Когтевран</option>
         <option value="Пуффендуй">Пуффендуй</option>
     </select>
-    
     <div id="reg-student-fields">
         <label>Курс:</label>
         <select id="reg-course">
@@ -157,7 +140,6 @@
         <label>Номер в списке студентов:</label>
         <input type="number" id="reg-number" min="1" placeholder="Например, 12">
     </div>
-
     <label>Придумайте пароль:</label><input type="password" id="reg-pass" placeholder="Пароль">
     <button onclick="doRegister()" style="margin-top: 20px;">Создать</button>
     <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Назад</a>
@@ -185,7 +167,6 @@
         <option value="Пуффендуй">Пуффендуй</option>
         <option value="Хогвартс">Хогвартс (Для Директора)</option>
     </select>
-    
     <div id="edit-student-fields">
         <label>Курс:</label>
         <select id="edit-course">
@@ -200,16 +181,13 @@
         <label>Номер в списке:</label>
         <input type="number" id="edit-number" min="1">
     </div>
-
     <label>Палочка:</label><input type="text" id="edit-wand">
     <label>Патронус:</label><input type="text" id="edit-patronus">
     <label>Тип личности:</label><input type="text" id="edit-mbti" readonly>
-    
     <div id="admin-only-stats" style="display:none;">
         <label>Опыт (XP):</label><input type="number" id="edit-xp">
         <label>Мана (MP):</label><input type="number" id="edit-mp">
     </div>
-
     <label>Фото профиля (Загрузить с устройства):</label>
     <label class="custom-file-upload">
         <input type="file" id="edit-photo-file" accept="image/*" onchange="previewImage(this, 'edit-photo-preview', 'edit-photo-data')">
@@ -217,16 +195,14 @@
     </label>
     <div id="edit-photo-preview" style="margin-top:10px; text-align:center;"></div>
     <input type="hidden" id="edit-photo-data">
-    
     <button onclick="saveEdit()" style="margin-top:20px; background:#4CAF50; color:white;">Сохранить</button>
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
 <!-- ТЕСТ НА ПАЛОЧКУ -->
 <div id="wand-quiz-screen" class="center-menu hidden">
-    <h1>🪄 Анкета для подбора волшебной палочки</h1>
+    <h1>🪄 Анкета для подбора палочки</h1>
     <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте честно на вопросы, чтобы мистер Олливандер нашел вашу идеальную пару.</p>
-    
     <div class="test-container">
         <div class="quiz-question">
             <label>1. Ваш рост (в см):</label>
@@ -276,11 +252,10 @@
     </div>
 </div>
 
-<!-- ТЕСТ НА ПАТРОНУСА (По анкете качеств) -->
+<!-- ТЕСТ НА ПАТРОНУСА -->
 <div id="patronus-quiz-screen" class="center-menu hidden">
     <h1>✨ Анкета для подбора Патронуса</h1>
     <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, используя ключевые слова. Система подберет патронуса по совпадению качеств.</p>
-    
     <div class="test-container">
         <div class="quiz-question">
             <label>1. Опишите свои физические, эмоциональные и магические качества. (Например: смелый, упорный, выносливый, скрытный, чувствительный)</label>
@@ -325,15 +300,11 @@
     </div>
 </div>
 
-<!-- ТЕСТ НА ТИП ЛИЧНОСТИ (60 ВОПРОСОВ) -->
+<!-- ТЕСТ НА ТИП ЛИЧНОСТИ -->
 <div id="mbti-quiz-screen" class="center-menu hidden">
     <h1>🧠 Тест на тип личности (16Personalities)</h1>
     <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на 60 утверждений, используя шкалу от «Полностью не согласен» до «Полностью согласен».</p>
-    
-    <div class="test-container" id="mbti-container">
-        <!-- Вопросы генерируются в JS -->
-    </div>
-    
+    <div class="test-container" id="mbti-container"></div>
     <div style="max-width: 700px; margin: 0 auto;">
         <button class="test-btn" onclick="calculateMbtiResult()">Рассчитать тип личности</button>
         <a onclick="cancelMbtiQuiz()" class="text-button" style="display:block; margin-top:20px; text-align:center;">← Отмена</a>
@@ -345,14 +316,12 @@
         <div class="cat-bubble" id="cat-bubble"></div>
         <div class="cat-icon">🐈‍⬛</div>
     </div>
-
     <header class="cabinet-top">
         <span class="eyebrow" id="header-title">Хогвартс / Досье</span>
         <div id="header-buttons">
             <button class="text-button" style="color:#ff5555;" onclick="logout()">Выйти</button>
         </div>
     </header>
-    
     <div class="character">
         <div class="portrait-wrap">
             <div id="portrait-empty">✦</div>
@@ -377,17 +346,14 @@
             </div>
         </div>
     </div>
-    
     <div class="resources">
         <div><label><span>Опыт · XP</span></label><strong id="xp">0</strong></div>
         <div><label><span>Мана · MP</span></label><strong id="mana">0</strong></div>
     </div>
-
     <div class="book-header">
         <span class="eyebrow">Знания, Сила и Инвентарь</span>
         <h2>Книга персонажа</h2>
     </div>
-
     <nav class="tabs">
         <button data-tab="skills" class="active" onclick="switchTab('skills')">Навыки</button>
         <button data-tab="spells" onclick="switchTab('spells')">Заклинания</button>
@@ -396,24 +362,15 @@
         <button data-tab="students" onclick="switchTab('students')">👥 База профилей</button>
         <button data-tab="messages" onclick="switchTab('messages')">🦉 Совы</button>
     </nav>
-    
     <section id="book-content"></section>
 </div>
 
 <script>
     const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
     const DIRECTOR_ID = 836264843; 
-    
-    let vkUser = null;
-    let myProfile = null;     
-    let viewProfile = null;   
-    let isAdminView = false;
-    let isGuestView = false;
-    let chatTimer = null;
-    let editItemIndex = -1; 
-    let pendingAction = null; 
+    let vkUser = null, myProfile = null, viewProfile = null;
+    let isAdminView = false, isGuestView = false, chatTimer = null, editItemIndex = -1, pendingAction = null; 
 
-    // --- ДАННЫЕ ДЛЯ ТЕСТА ПАТРОНУСА (ИЗ ДОКУМЕНТА) ---
     const patronusDB = [
         { name: "Аист", traits: "перерождение, обновление, сила, свобода, уверенность, неподатливость" },
         { name: "Бегемот", traits: "адаптивность, комфорт, слияние, яркость, дружелюбие" },
@@ -533,148 +490,77 @@
     ];
 
     const traitKeywords = {
-        'смел': ['смелость', 'храбрость'], 'храбр': ['смелость', 'храбрость'],
-        'упорн': ['упорство', 'настойчивость'], 'настойчив': ['настойчивость', 'упорство'],
-        'выносл': ['выносливость', 'сила'], 'сильн': ['сила', 'мощь'],
-        'защит': ['защита'], 'независ': ['независимость'],
-        'скрытн': ['скрытность'], 'замкнут': ['скрытность', 'замкнутость'],
-        'грациоз': ['грация'], 'изящн': ['грация', 'изящество'],
-        'чувствит': ['чувствительность'], 'эмпат': ['эмпатия'],
-        'свобод': ['свобода', 'свободолюбие'], 'страст': ['страстность', 'страсть'],
-        'благород': ['благородство'], 'стремит': ['стремительность', 'скорость'],
-        'быстр': ['быстрота', 'скорость'], 'наблюдат': ['наблюдательность'],
-        'внимат': ['внимательность'], 'стратег': ['стратегия', 'стратегическое мышление'],
-        'ум': ['ум', 'интеллект', 'знания'], 'логик': ['ум', 'логика'],
-        'зорк': ['зоркость'], 'изобретат': ['изобретательность'],
-        'находчив': ['находчивость'], 'смекал': ['смекалка'],
-        'ловк': ['ловкость'], 'гибк': ['гибкость'],
-        'любопытн': ['любопытство'], 'исслед': ['исследование'],
-        'выжива': ['выживание'], 'адапт': ['адаптивность'],
-        'магическ': ['магическая мощь'], 'мощь': ['мощь', 'магическая мощь'],
-        'мудр': ['мудрость'], 'загадоч': ['загадочность'],
-        'таинств': ['таинственность'], 'возрожд': ['возрождение'],
-        'целеустр': ['целеустремленность'], 'решит': ['решительность'],
-        'дисциплин': ['дисциплина'], 'верн': ['верность', 'преданность'],
-        'предан': ['преданность', 'верность'], 'мечтат': ['мечтательность'],
-        'импульс': ['импульсивность'], 'ярк': ['яркость'],
-        'спокой': ['спокойствие'], 'уравновеш': ['спокойствие', 'уравновешенность'],
-        'добр': ['доброта'], 'забот': ['забота'],
-        'сострад': ['сострадание'], 'амбици': ['амбициозность'],
-        'лидер': ['лидерство'], 'власт': ['власть', 'лидерство'],
-        'терпел': ['терпение'], 'хитр': ['хитрость'],
-        'расчет': ['расчёт'], 'расчёт': ['расчёт'],
-        'напролом': ['смелость', 'решительность'], 'жду': ['терпение', 'выжидание'],
-        'выжида': ['выжидание'], 'компромисс': ['компромисс'],
-        'сглажив': ['компромисс'], 'ускольз': ['ускользание'],
-        'лазейк': ['адаптивность', 'ускользание'], 'достоин': ['достоинство'],
-        'себя': ['самодостаточность'], 'наследие': ['магическая мощь'],
-        'реликвии': ['магическая мощь'], 'контракт': ['магическая мощь'],
-        'метаморф': ['гибкость'], 'огонь': ['огонь', 'страстность', 'импульсивность'],
-        'жар': ['страстность', 'огонь'], 'пульсация': ['импульсивность'],
-        'холод': ['спокойствие', 'выдержка'], 'тишина': ['тишина', 'молчание'],
-        'глубина': ['глубина'], 'поток': ['свобода', 'легкость'],
-        'легкость': ['легкость'], 'полет': ['свобода', 'высота'],
-        'тяжесть': ['сила', 'мощь'], 'давление': ['сила'],
+        'смел': ['смелость', 'храбрость'], 'храбр': ['смелость', 'храбрость'], 'упорн': ['упорство', 'настойчивость'], 'настойчив': ['настойчивость', 'упорство'],
+        'выносл': ['выносливость', 'сила'], 'сильн': ['сила', 'мощь'], 'защит': ['защита'], 'независ': ['независимость'],
+        'скрытн': ['скрытность'], 'замкнут': ['скрытность', 'замкнутость'], 'грациоз': ['грация'], 'изящн': ['грация', 'изящество'],
+        'чувствит': ['чувствительность'], 'эмпат': ['эмпатия'], 'свобод': ['свобода', 'свободолюбие'], 'страст': ['страстность', 'страсть'],
+        'благород': ['благородство'], 'стремит': ['стремительность', 'скорость'], 'быстр': ['быстрота', 'скорость'], 'наблюдат': ['наблюдательность'],
+        'внимат': ['внимательность'], 'стратег': ['стратегия', 'стратегическое мышление'], 'ум': ['ум', 'интеллект', 'знания'], 'логик': ['ум', 'логика'],
+        'зорк': ['зоркость'], 'изобретат': ['изобретательность'], 'находчив': ['находчивость'], 'смекал': ['смекалка'],
+        'ловк': ['ловкость'], 'гибк': ['гибкость'], 'любопытн': ['любопытство'], 'исслед': ['исследование'],
+        'выжива': ['выживание'], 'адапт': ['адаптивность'], 'магическ': ['магическая мощь'], 'мощь': ['мощь', 'магическая мощь'],
+        'мудр': ['мудрость'], 'загадоч': ['загадочность'], 'таинств': ['таинственность'], 'возрожд': ['возрождение'],
+        'целеустр': ['целеустремленность'], 'решит': ['решительность'], 'дисциплин': ['дисциплина'], 'верн': ['верность', 'преданность'],
+        'предан': ['преданность', 'верность'], 'мечтат': ['мечтательность'], 'импульс': ['импульсивность'], 'ярк': ['яркость'],
+        'спокой': ['спокойствие'], 'уравновеш': ['спокойствие', 'уравновешенность'], 'добр': ['доброта'], 'забот': ['забота'],
+        'сострад': ['сострадание'], 'амбици': ['амбициозность'], 'лидер': ['лидерство'], 'власт': ['власть', 'лидерство'],
+        'терпел': ['терпение'], 'хитр': ['хитрость'], 'расчет': ['расчёт'], 'расчёт': ['расчёт'],
+        'напролом': ['смелость', 'решительность'], 'жду': ['терпение', 'выжидание'], 'выжида': ['выжидание'], 'компромисс': ['компромисс'],
+        'сглажив': ['компромисс'], 'ускольз': ['ускользание'], 'лазейк': ['адаптивность', 'ускользание'], 'достоин': ['достоинство'],
+        'себя': ['самодостаточность'], 'наследие': ['магическая мощь'], 'реликвии': ['магическая мощь'], 'контракт': ['магическая мощь'],
+        'метаморф': ['гибкость'], 'огонь': ['огонь', 'страстность', 'импульсивность'], 'жар': ['страстность', 'огонь'], 'пульсация': ['импульсивность'],
+        'холод': ['спокойствие', 'выдержка'], 'тишина': ['тишина', 'молчание'], 'глубина': ['глубина'], 'поток': ['свобода', 'легкость'],
+        'легкость': ['легкость'], 'полет': ['свобода', 'высота'], 'тяжесть': ['сила', 'мощь'], 'давление': ['сила'],
         'живое': ['верность', 'эмпатия'], 'связь': ['верность', 'эмпатия']
     };
 
-    // --- ДАННЫЕ ДЛЯ ТЕСТА MBTI (60 ВОПРОСОВ) ---
     const mbtiQuestions = [
-        { text: "Вы регулярно заводите новых друзей", mult: 1 },
-        { text: "Идея налаживания связей или самопрезентации перед незнакомцами кажется вам очень пугающей", mult: -1 },
-        { text: "Вы чувствуете себя комфортно, просто подходя к интересному вам человеку и начиная разговор", mult: 1 },
-        { text: "Вам нравится участвовать в командных мероприятиях", mult: 1 },
-        { text: "Вам больше нравятся уединённые хобби или занятия, чем групповые", mult: -1 },
-        { text: "Обычно на социальных мероприятиях вы ждёте, пока другие представятся первыми", mult: -1 },
-        { text: "Обычно вы предпочитаете находиться среди других, а не в одиночестве", mult: 1 },
-        { text: "Друзья описали бы вас как живого и общительного человека", mult: 1 },
-        { text: "Вы избегаете телефонных звонков", mult: -1 },
-        { text: "Вы легко находите общий язык с людьми, с которыми только что познакомились", mult: 1 },
-        { text: "Вам бы понравилась работа, которая требует от вас работать в одиночку большую часть времени", mult: -1 },
-        { text: "Вас больше привлекает шумная, суетливая атмосфера, чем тихие, уединённые места", mult: 1 },
-        { text: "Сложные и новые идеи волнуют вас больше, чем простые и понятные", mult: 1 },
-        { text: "Вы эффективно расставляете приоритеты и планируете задачи, часто выполняя их задолго до дедлайна", mult: -1 },
-        { text: "Вас не очень интересуют дискуссии о различных интерпретациях творческих работ", mult: -1 },
-        { text: "Вам нравится экспериментировать с новыми и непроверенными подходами", mult: 1 },
-        { text: "Вы не можете представить себя пишущим художественные истории на жизнь", mult: -1 },
-        { text: "Ваше настроение может очень быстро меняться", mult: 1 },
-        { text: "Вам становится скучно или вы теряете интерес, когда дискуссия становится очень теоретической", mult: -1 },
-        { text: "Вас привлекают различные формы творческого самовыражения, например писательство", mult: 1 },
-        { text: "Вам нравится исследовать незнакомые идеи и точки зрения", mult: 1 },
-        { text: "Вас не очень интересуют дискуссии о том, как мир мог бы выглядеть в будущем", mult: -1 },
-        { text: "Вы считаете, что размышления об абстрактных философских вопросах — пустая трата времени", mult: -1 },
-        { text: "Вы предпочитаете задачи, требующие творческих решений, а не следования конкретным шагам", mult: 1 },
-        { text: "Обычно вас больше убеждают доводы, которые находят эмоциональный отклик, чем фактические аргументы", mult: 1 },
-        { text: "Истории и эмоции людей говорят с вами громче, чем цифры или данные", mult: 1 },
-        { text: "При определении образа действий вы ставите факты выше чувств людей", mult: -1 },
-        { text: "Вы предпочитаете проявлять чуткость, а не быть полностью честным", mult: 1 },
-        { text: "Вы выступаете за эффективность в решениях, даже если это означает игнорирование некоторых эмоциональных аспектов", mult: -1 },
-        { text: "В разногласиях вы ставите приоритет на доказательство своей точки зрения выше сохранения чувств других", mult: -1 },
-        { text: "Вас нелегко поколебать эмоциональными аргументами", mult: -1 },
-        { text: "Вам нравится обсуждать этические дилеммы", mult: 1 },
-        { text: "Когда факты и чувства конфликтуют, вы обычно следуете зову сердца", mult: 1 },
-        { text: "Обычно вы основываете свой выбор на объективных фактах, а не на эмоциональных впечатлениях", mult: -1 },
-        { text: "При принятии решений вы больше сосредоточены на том, что могут почувствовать затронутые люди, чем на том, что наиболее логично или эффективно", mult: 1 },
-        { text: "При выборе вы скорее полагаетесь на эмоциональную интуицию, чем на логические рассуждения", mult: 1 },
-        { text: "Ваши жилые и рабочие пространства чистые и организованные", mult: -1 },
-        { text: "Вам нравится использовать инструменты для организации, такие как расписания и списки", mult: -1 },
-        { text: "Вы часто позволяете дню идти своим чередом без какого-либо расписания", mult: 1 },
-        { text: "Вы активно ищете новый опыт и области знаний для изучения", mult: 1 },
-        { text: "Вы предпочитаете выполнять свои обязанности, прежде чем позволить себе расслабиться", mult: -1 },
-        { text: "Вы часто делаете дела в последний возможный момент", mult: 1 },
-        { text: "Вам сложно поддерживать постоянный график работы или учёбы", mult: 1 },
-        { text: "Вам нравится иметь список дел на каждый день", mult: -1 },
-        { text: "Если ваши планы нарушены, ваша главная задача — как можно скорее вернуться в нужное русло", mult: -1 },
-        { text: "Ваш личный стиль работы ближе к спонтанным всплескам энергии, чем к организованным и последовательным усилиям", mult: 1 },
-        { text: "Вы выполняете дела методично, не пропуская ни одного шага", mult: -1 },
-        { text: "Вам трудно укладываться в дедлайны", mult: 1 },
-        { text: "Обычно вы сохраняете спокойствие даже под сильным давлением", mult: -1 },
-        { text: "Даже небольшая ошибка может заставить вас усомниться в своих общих способностях и знаниях", mult: 1 },
-        { text: "Вы редко беспокоитесь о том, производите ли вы хорошее впечатление на людей, с которыми встречаетесь", mult: -1 },
-        { text: "Вы склонны беспокоиться о том, что дела могут пойти хуже", mult: 1 },
-        { text: "Вы редко сомневаетесь в сделанном выборе", mult: -1 },
-        { text: "Вы редко чувствуете неуверенность в себе", mult: -1 },
-        { text: "Вас до сих пор беспокоят ошибки, которые вы совершили давным-давно", mult: 1 },
-        { text: "Когда кто-то высокого о вас мнения, вы задаётесь вопросом, сколько времени им потребуется, чтобы в вас разочароваться", mult: 1 },
-        { text: "Если решение кажется вам правильным, вы часто действуете, не нуждаясь в дополнительных доказательствах", mult: -1 },
-        { text: "Вы часто чувствуете себя перегруженным", mult: 1 },
-        { text: "Вы уверены, что всё для вас сложится хорошо", mult: -1 },
-        { text: "Вы часто переживаете о том, что подумают другие", mult: 1 }
+        { text: "Вы регулярно заводите новых друзей", mult: 1 }, { text: "Идея налаживания связей или самопрезентации перед незнакомцами кажется вам очень пугающей", mult: -1 },
+        { text: "Вы чувствуете себя комфортно, просто подходя к интересному вам человеку и начиная разговор", mult: 1 }, { text: "Вам нравится участвовать в командных мероприятиях", mult: 1 },
+        { text: "Вам больше нравятся уединённые хобби или занятия, чем групповые", mult: -1 }, { text: "Обычно на социальных мероприятиях вы ждёте, пока другие представятся первыми", mult: -1 },
+        { text: "Обычно вы предпочитаете находиться среди других, а не в одиночестве", mult: 1 }, { text: "Друзья описали бы вас как живого и общительного человека", mult: 1 },
+        { text: "Вы избегаете телефонных звонков", mult: -1 }, { text: "Вы легко находите общий язык с людьми, с которыми только что познакомились", mult: 1 },
+        { text: "Вам бы понравилась работа, которая требует от вас работать в одиночку большую часть времени", mult: -1 }, { text: "Вас больше привлекает шумная, суетливая атмосфера, чем тихие, уединённые места", mult: 1 },
+        { text: "Сложные и новые идеи волнуют вас больше, чем простые и понятные", mult: 1 }, { text: "Вы эффективно расставляете приоритеты и планируете задачи, часто выполняя их задолго до дедлайна", mult: -1 },
+        { text: "Вас не очень интересуют дискуссии о различных интерпретациях творческих работ", mult: -1 }, { text: "Вам нравится экспериментировать с новыми и непроверенными подходами", mult: 1 },
+        { text: "Вы не можете представить себя пишущим художественные истории на жизнь", mult: -1 }, { text: "Ваше настроение может очень быстро меняться", mult: 1 },
+        { text: "Вам становится скучно или вы теряете интерес, когда дискуссия становится очень теоретической", mult: -1 }, { text: "Вас привлекают различные формы творческого самовыражения, например писательство", mult: 1 },
+        { text: "Вам нравится исследовать незнакомые идеи и точки зрения", mult: 1 }, { text: "Вас не очень интересуют дискуссии о том, как мир мог бы выглядеть в будущем", mult: -1 },
+        { text: "Вы считаете, что размышления об абстрактных философских вопросах — пустая трата времени", mult: -1 }, { text: "Вы предпочитаете задачи, требующие творческих решений, а не следования конкретным шагам", mult: 1 },
+        { text: "Обычно вас больше убеждают доводы, которые находят эмоциональный отклик, чем фактические аргументы", mult: 1 }, { text: "Истории и эмоции людей говорят с вами громче, чем цифры или данные", mult: 1 },
+        { text: "При определении образа действий вы ставите факты выше чувств людей", mult: -1 }, { text: "Вы предпочитаете проявлять чуткость, а не быть полностью честным", mult: 1 },
+        { text: "Вы выступаете за эффективность в решениях, даже если это означает игнорирование некоторых эмоциональных аспектов", mult: -1 }, { text: "В разногласиях вы ставите приоритет на доказательство своей точки зрения выше сохранения чувств других", mult: -1 },
+        { text: "Вас нелегко поколебать эмоциональными аргументами", mult: -1 }, { text: "Вам нравится обсуждать этические дилеммы", mult: 1 },
+        { text: "Когда факты и чувства конфликтуют, вы обычно следуете зову сердца", mult: 1 }, { text: "Обычно вы основываете свой выбор на объективных фактах, а не на эмоциональных впечатлениях", mult: -1 },
+        { text: "При принятии решений вы больше сосредоточены на том, что могут почувствовать затронутые люди, чем на том, что наиболее логично или эффективно", mult: 1 }, { text: "При выборе вы скорее полагаетесь на эмоциональную интуицию, чем на логические рассуждения", mult: 1 },
+        { text: "Ваши жилые и рабочие пространства чистые и организованные", mult: -1 }, { text: "Вам нравится использовать инструменты для организации, такие как расписания и списки", mult: -1 },
+        { text: "Вы часто позволяете дню идти своим чередом без какого-либо расписания", mult: 1 }, { text: "Вы активно ищете новый опыт и области знаний для изучения", mult: 1 },
+        { text: "Вы предпочитаете выполнять свои обязанности, прежде чем позволить себе расслабиться", mult: -1 }, { text: "Вы часто делаете дела в последний возможный момент", mult: 1 },
+        { text: "Вам сложно поддерживать постоянный график работы или учёбы", mult: 1 }, { text: "Вам нравится иметь список дел на каждый день", mult: -1 },
+        { text: "Если ваши планы нарушены, ваша главная задача — как можно скорее вернуться в нужное русло", mult: -1 }, { text: "Ваш личный стиль работы ближе к спонтанным всплескам энергии, чем к организованным и последовательным усилиям", mult: 1 },
+        { text: "Вы выполняете дела методично, не пропуская ни одного шага", mult: -1 }, { text: "Вам трудно укладываться в дедлайны", mult: 1 },
+        { text: "Обычно вы сохраняете спокойствие даже под сильным давлением", mult: -1 }, { text: "Даже небольшая ошибка может заставить вас усомниться в своих общих способностях и знаниях", mult: 1 },
+        { text: "Вы редко беспокоитесь о том, производите ли вы хорошее впечатление на людей, с которыми встречаетесь", mult: -1 }, { text: "Вы склонны беспокоиться о том, что дела могут пойти хуже", mult: 1 },
+        { text: "Вы редко сомневаетесь в сделанном выборе", mult: -1 }, { text: "Вы редко чувствуете неуверенность в себе", mult: -1 },
+        { text: "Вас до сих пор беспокоят ошибки, которые вы совершили давным-давно", mult: 1 }, { text: "Когда кто-то высокого о вас мнения, вы задаётесь вопросом, сколько времени им потребуется, чтобы в вас разочароваться", mult: 1 },
+        { text: "Если решение кажется вам правильным, вы часто действуете, не нуждаясь в дополнительных доказательствах", mult: -1 }, { text: "Вы часто чувствуете себя перегруженным", mult: 1 },
+        { text: "Вы уверены, что всё для вас сложится хорошо", mult: -1 }, { text: "Вы часто переживаете о том, что подумают другие", mult: 1 }
     ];
 
     const mbtiDescriptions = {
-        'INTJ': 'Стратег. Независимый, проницательный, любит сложные задачи. Идеальный Когтевранец.',
-        'INTP': 'Логик. Изобретательный, любознательный, обожает теории и загадки. Когтевран.',
-        'ENTJ': 'Командир. Смелый, решительный, прирожденный лидер. Слизерин или Гриффиндор.',
-        'ENTP': 'Полемист. Хитрый, изобретательный, любит интеллектуальные вызовы. Слизерин.',
-        'INFJ': 'Активист. Творческий, проницательный, принципиальный. Пуффендуй или Когтевран.',
-        'INFP': 'Посредник. Мечтательный, добрый, ищет гармонию. Идеальный Пуффендуй.',
-        'ENFJ': 'Тренер. Харизматичный, вдохновляющий лидер, заботящийся о других. Гриффиндор.',
-        'ENFP': 'Борец. Энтузиаст, творческий, свободолюбивый. Гриффиндор.',
-        'ISTJ': 'Администратор. Практичный, надежный, любит порядок. Пуффендуй.',
-        'ISFJ': 'Защитник. Заботливый, преданный, готовый помочь. Пуффендуй.',
-        'ESTJ': 'Менеджер. Организованный, лидер, ценит порядок и правила. Слизерин.',
-        'ESFJ': 'Консул. Общительный, заботливый, душа компании. Пуффендуй.',
-        'ISTP': 'Виртуоз. Смелый, практичный, любит разбираться в механизмах. Когтевран.',
-        'ISFP': 'Артист. Гибкий, очаровательный, ценит красоту. Пуффендуй.',
-        'ESTP': 'Делец. Энергичный, находчивый, любит риск. Гриффиндор или Слизерин.',
-        'ESFP': 'Развлекатель. Спонтанный, веселый, любит быть в центре внимания. Гриффиндор.'
+        'INTJ': 'Стратег. Независимый, проницательный, любит сложные задачи. Идеальный Когтевранец.', 'INTP': 'Логик. Изобретательный, любознательный, обожает теории и загадки. Когтевран.',
+        'ENTJ': 'Командир. Смелый, решительный, прирожденный лидер. Слизерин или Гриффиндор.', 'ENTP': 'Полемист. Хитрый, изобретательный, любит интеллектуальные вызовы. Слизерин.',
+        'INFJ': 'Активист. Творческий, проницательный, принципиальный. Пуффендуй или Когтевран.', 'INFP': 'Посредник. Мечтательный, добрый, ищет гармонию. Идеальный Пуффендуй.',
+        'ENFJ': 'Тренер. Харизматичный, вдохновляющий лидер, заботящийся о других. Гриффиндор.', 'ENFP': 'Борец. Энтузиаст, творческий, свободолюбивый. Гриффиндор.',
+        'ISTJ': 'Администратор. Практичный, надежный, любит порядок. Пуффендуй.', 'ISFJ': 'Защитник. Заботливый, преданный, готовый помочь. Пуффендуй.',
+        'ESTJ': 'Менеджер. Организованный, лидер, ценит порядок и правила. Слизерин.', 'ESFJ': 'Консул. Общительный, заботливый, душа компании. Пуффендуй.',
+        'ISTP': 'Виртуоз. Смелый, практичный, любит разбираться в механизмах. Когтевран.', 'ISFP': 'Артист. Гибкий, очаровательный, ценит красоту. Пуффендуй.',
+        'ESTP': 'Делец. Энергичный, находчивый, любит риск. Гриффиндор или Слизерин.', 'ESFP': 'Развлекатель. Спонтанный, веселый, любит быть в центре внимания. Гриффиндор.'
     };
 
-    function saveSession(id, link, pass) {
-        localStorage.setItem('vk_id', id);
-        localStorage.setItem('vk_link', link || '');
-        localStorage.setItem('vk_pass', pass);
-    }
-    function clearSession() {
-        localStorage.removeItem('vk_id');
-        localStorage.removeItem('vk_link');
-        localStorage.removeItem('vk_pass');
-    }
-    function logout() {
-        clearSession();
-        location.reload();
-    }
+    function saveSession(id, link, pass) { localStorage.setItem('vk_id', id); localStorage.setItem('vk_link', link || ''); localStorage.setItem('vk_pass', pass); }
+    function clearSession() { localStorage.removeItem('vk_id'); localStorage.removeItem('vk_link'); localStorage.removeItem('vk_pass'); }
+    function logout() { clearSession(); location.reload(); }
     
     async function restoreSession() {
         const savedId = localStorage.getItem('vk_id');
@@ -698,28 +584,16 @@
     document.addEventListener("DOMContentLoaded", async () => {
         const restored = await restoreSession();
         if (!restored) showMenu();
-        
         if (window.vkBridge) {
-            vkBridge.send('VKWebAppInit')
-                .then(() => vkBridge.send('VKWebAppGetUserInfo'))
-                .then(info => {
-                    vkUser = info;
-                    if(!myProfile) showMenu();
-                })
-                .catch(e => console.log("ВК ошибка", e));
+            vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
+                vkUser = info;
+                if(!myProfile) showMenu();
+            }).catch(e => console.log("ВК ошибка", e));
         }
     });
 
-    function updateCatText(text) {
-        const bubble = document.getElementById('cat-bubble');
-        if(bubble) bubble.innerHTML = text;
-    }
-    
-    function toggleCat() {
-        const bubble = document.getElementById('cat-bubble');
-        if(!bubble) return;
-        bubble.style.display = bubble.style.display === 'block' ? 'none' : 'block';
-    }
+    function updateCatText(text) { const bubble = document.getElementById('cat-bubble'); if(bubble) bubble.innerHTML = text; }
+    function toggleCat() { const bubble = document.getElementById('cat-bubble'); if(!bubble) return; bubble.style.display = bubble.style.display === 'block' ? 'none' : 'block'; }
 
     function previewImage(input, previewId, hiddenInputId) {
         const file = input.files[0];
@@ -729,12 +603,9 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 200; 
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const MAX_WIDTH = 200; const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.7); 
                     if (previewId) document.getElementById(previewId).innerHTML = `<img src="${dataUrl}" style="max-width:100px; border-radius:4px;">`;
                     if (hiddenInputId) document.getElementById(hiddenInputId).value = dataUrl;
@@ -751,27 +622,13 @@
     }
     
     function showMenu() { hideAll(); document.getElementById('main-menu').classList.remove('hidden'); }
-    
-    function showLogin() { 
-        if(!vkUser) { pendingAction = 'doLogin'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; }
-        hideAll(); document.getElementById('login-screen').classList.remove('hidden'); 
-    }
-    function showRegister() { 
-        if(!vkUser) { pendingAction = 'doRegister'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; }
-        hideAll(); document.getElementById('register-screen').classList.remove('hidden'); 
-    }
-    function showDirectorLogin() { 
-        if(!vkUser) { pendingAction = 'doDirectorLogin'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; }
-        hideAll(); document.getElementById('director-screen').classList.remove('hidden'); 
-    }
+    function showLogin() { if(!vkUser) { pendingAction = 'doLogin'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; } hideAll(); document.getElementById('login-screen').classList.remove('hidden'); }
+    function showRegister() { if(!vkUser) { pendingAction = 'doRegister'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; } hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
+    function showDirectorLogin() { if(!vkUser) { pendingAction = 'doDirectorLogin'; hideAll(); document.getElementById('vk-input-screen').classList.remove('hidden'); return; } hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
 
     function toggleRegFields() {
         const role = document.getElementById('reg-role').value;
-        if (role === 'student') {
-            document.getElementById('reg-student-fields').style.display = 'block';
-        } else {
-            document.getElementById('reg-student-fields').style.display = 'none';
-        }
+        document.getElementById('reg-student-fields').style.display = role === 'student' ? 'block' : 'none';
     }
 
     async function resolveVkId(input) {
@@ -817,23 +674,16 @@
             const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
             const data = await res.json();
             if (data && data.secretCode === pass) {
-                myProfile = data;
-                saveSession(vkUser.id, data.vkLink || '', pass);
-                openCabinet(data, false, false);
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-            }
+                myProfile = data; saveSession(vkUser.id, data.vkLink || '', pass); openCabinet(data, false, false);
+            } else { document.getElementById('login-error').style.display = 'block'; }
         } catch(e) { alert("Ошибка базы данных."); }
     }
 
     async function doRegister() {
         const role = document.getElementById('reg-role').value;
         const profile = {
-            id: vkUser.id, 
-            name: document.getElementById('reg-name').value.trim(), 
-            vkLink: document.getElementById('reg-link').value.trim(), 
-            role: role, 
-            faculty: document.getElementById('reg-faculty').value,
+            id: vkUser.id, name: document.getElementById('reg-name').value.trim(), vkLink: document.getElementById('reg-link').value.trim(), 
+            role: role, faculty: document.getElementById('reg-faculty').value,
             course: role === 'student' ? document.getElementById('reg-course').value : "",
             studentNumber: role === 'student' ? document.getElementById('reg-number').value.trim() : "",
             secretCode: document.getElementById('reg-pass').value.trim(), 
@@ -844,9 +694,7 @@
         if(!profile.name || !profile.secretCode) return alert("Заполните поля!");
         try {
             await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
-            myProfile = profile;
-            saveSession(vkUser.id, profile.vkLink, profile.secretCode);
-            openCabinet(profile, false, false);
+            myProfile = profile; saveSession(vkUser.id, profile.vkLink, profile.secretCode); openCabinet(profile, false, false);
         } catch(e) { alert("Ошибка сохранения."); }
     }
 
@@ -861,39 +709,28 @@
                 if (existing.secretCode !== pass) {
                     const confirmReset = confirm("Пароль не совпадает. Хотите сбросить его на новый?");
                     if (confirmReset) {
-                        existing.secretCode = pass;
-                        await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ secretCode: pass }) });
+                        existing.secretCode = pass; await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ secretCode: pass }) });
                     } else { return; }
                 }
                 myProfile = existing;
             } else {
                 const profile = {
-                    id: vkUser.id, name: "Теодор Нотт", vkLink: "@nott_cr", 
-                    role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "", wand: "Бузинная палочка", patronus: "Феникс", mbti: "INTJ",
-                    faculty: "Хогвартс", course: "", studentNumber: "",
-                    skills: [{title: "Травология", desc: "Профессор Травологии", req: 0, img: ""}], 
-                    spells: [], potions: [], notes: ""
+                    id: vkUser.id, name: "Теодор Нотт", vkLink: "@nott_cr", role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "", wand: "Бузинная палочка", patronus: "Феникс", mbti: "INTJ",
+                    faculty: "Хогвартс", course: "", studentNumber: "", skills: [{title: "Травология", desc: "Профессор Травологии", req: 0, img: ""}], spells: [], potions: [], notes: ""
                 };
                 await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
                 myProfile = profile;
             }
-            saveSession(vkUser.id, myProfile.vkLink, pass);
-            openCabinet(myProfile, false, false);
+            saveSession(vkUser.id, myProfile.vkLink, pass); openCabinet(myProfile, false, false);
         } catch(e) { alert("Ошибка базы данных."); }
     }
 
     function openCabinet(profile, adminMode, guestMode) {
-        hideAll();
-        viewProfile = profile;
-        isAdminView = adminMode;
-        isGuestView = guestMode;
-
+        hideAll(); viewProfile = profile; isAdminView = adminMode; isGuestView = guestMode;
         document.getElementById('cabinet').classList.remove('hidden');
-
         document.getElementById('cabinet-title').textContent = profile.name;
         document.getElementById('cabinet-role').textContent = profile.role === 'director' ? '👑 Директор' : (profile.role === 'professor' ? '📖 Профессор' : '🎓 Студент');
         document.getElementById('saved-link').textContent = profile.vkLink || '—';
-        
         let showPass = adminMode || (!guestMode && profile.id === vkUser.id);
         document.getElementById('saved-pass').textContent = showPass ? (profile.secretCode || 'admin') : '******'; 
         document.getElementById('saved-faculty').textContent = profile.faculty || '—';
@@ -907,7 +744,6 @@
             document.getElementById('saved-course-wrapper').style.display = 'none';
             document.getElementById('saved-number-wrapper').style.display = 'none';
         }
-
         document.getElementById('saved-wand').textContent = profile.wand || 'Не получена';
         document.getElementById('saved-patronus').textContent = profile.patronus || 'Неизвестен';
         document.getElementById('saved-mbti').textContent = profile.mbti || 'Не определен';
@@ -927,35 +763,20 @@
         let btnHtml = '';
         if (adminMode) {
             document.getElementById('header-title').textContent = "РЕЖИМ ДИРЕКТОРА / " + profile.name;
-            btnHtml = `
-                <button class="text-button" onclick="openEdit()" style="color:var(--primary);">✏️ Редактировать</button>
-                <button class="text-button" onclick="backToStudents()" style="color:#ff5555;">← Назад в базу</button>`;
+            btnHtml = `<button class="text-button" onclick="openEdit()" style="color:var(--primary);">✏️ Редактировать</button><button class="text-button" onclick="backToStudents()" style="color:#ff5555;">← Назад в базу</button>`;
         } else if (guestMode) {
             document.getElementById('header-title').textContent = "ПРОСМОТР ГОСТЯ / " + profile.name;
             btnHtml = `<button class="text-button" onclick="backToStudents()" style="color:var(--primary);">← Назад к профилям</button>`;
         } else {
             document.getElementById('header-title').textContent = "Хогвартс / Досье";
-            btnHtml = `
-                <button class="text-button" onclick="openEdit()" style="color:var(--primary);">✏️ Редактировать</button>
-                <button class="text-button" style="color:#ff5555;" onclick="logout()">Выйти</button>`;
-            if(!profile.wand) {
-                btnHtml = `<button class="text-button" onclick="startWandQuiz()" style="color:#d4af37; font-weight:bold;">🪄 Получить палочку</button>` + btnHtml;
-            }
-            if(!profile.patronus) {
-                btnHtml = `<button class="text-button" onclick="startPatronusQuiz()" style="color:#d4af37; font-weight:bold;">✨ Узнать патронуса</button>` + btnHtml;
-            }
-            if(!profile.mbti) {
-                btnHtml = `<button class="text-button" onclick="startMbtiQuiz()" style="color:#d4af37; font-weight:bold;">🧠 Тест личности</button>` + btnHtml;
-            }
+            btnHtml = `<button class="text-button" onclick="openEdit()" style="color:var(--primary);">✏️ Редактировать</button><button class="text-button" style="color:#ff5555;" onclick="logout()">Выйти</button>`;
+            if(!profile.wand) btnHtml = `<button class="text-button" onclick="startWandQuiz()" style="color:#d4af37; font-weight:bold;">🪄 Получить палочку</button>` + btnHtml;
+            if(!profile.patronus) btnHtml = `<button class="text-button" onclick="startPatronusQuiz()" style="color:#d4af37; font-weight:bold;">✨ Узнать патронуса</button>` + btnHtml;
+            if(!profile.mbti) btnHtml = `<button class="text-button" onclick="startMbtiQuiz()" style="color:#d4af37; font-weight:bold;">🧠 Тест личности</button>` + btnHtml;
         }
         document.getElementById('header-buttons').innerHTML = btnHtml;
-
-        if (guestMode && profile.id !== vkUser.id) {
-            document.getElementById('visit-actions').classList.remove('hidden');
-        } else {
-            document.getElementById('visit-actions').classList.add('hidden');
-        }
-
+        if (guestMode && profile.id !== vkUser.id) document.getElementById('visit-actions').classList.remove('hidden');
+        else document.getElementById('visit-actions').classList.add('hidden');
         switchTab('skills');
     }
 
@@ -972,27 +793,18 @@
             document.getElementById('edit-student-fields').style.display = 'block';
             document.getElementById('edit-course').value = viewProfile.course || '1';
             document.getElementById('edit-number').value = viewProfile.studentNumber || '';
-        } else {
-            document.getElementById('edit-student-fields').style.display = 'none';
-        }
+        } else { document.getElementById('edit-student-fields').style.display = 'none'; }
         
         if (myProfile.role === 'director') {
             document.getElementById('admin-only-stats').style.display = 'block';
             document.getElementById('edit-xp').value = viewProfile.xp || 0;
             document.getElementById('edit-mp').value = viewProfile.mana || 0;
-        } else {
-            document.getElementById('admin-only-stats').style.display = 'none';
-        }
+        } else { document.getElementById('admin-only-stats').style.display = 'none'; }
         
         document.getElementById('edit-photo-data').value = viewProfile.photo || '';
-        if(viewProfile.photo) {
-            document.getElementById('edit-photo-preview').innerHTML = `<img src="${viewProfile.photo}" style="max-width:100px; border-radius:4px;">`;
-        } else {
-            document.getElementById('edit-photo-preview').innerHTML = '';
-        }
-        
-        hideAll(); 
-        document.getElementById('edit-screen').classList.remove('hidden');
+        if(viewProfile.photo) document.getElementById('edit-photo-preview').innerHTML = `<img src="${viewProfile.photo}" style="max-width:100px; border-radius:4px;">`;
+        else document.getElementById('edit-photo-preview').innerHTML = '';
+        hideAll(); document.getElementById('edit-screen').classList.remove('hidden');
     }
 
     async function saveEdit() {
@@ -1007,21 +819,16 @@
             viewProfile.course = document.getElementById('edit-course').value;
             viewProfile.studentNumber = document.getElementById('edit-number').value.trim();
         }
-        
         if (myProfile.role === 'director') {
             viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
             viewProfile.mana = Number(document.getElementById('edit-mp').value) || 0;
         }
-
         const newPhoto = document.getElementById('edit-photo-data').value;
         if(newPhoto) viewProfile.photo = newPhoto;
 
         try {
             await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify(viewProfile) });
-            if(!isAdminView && viewProfile.id === vkUser.id) {
-                myProfile = viewProfile;
-                saveSession(vkUser.id, viewProfile.vkLink, viewProfile.secretCode);
-            }
+            if(!isAdminView && viewProfile.id === vkUser.id) { myProfile = viewProfile; saveSession(vkUser.id, viewProfile.vkLink, viewProfile.secretCode); }
             openCabinet(viewProfile, isAdminView, isGuestView);
             alert("Данные сохранены!");
         } catch(e) { alert("Ошибка сохранения."); }
@@ -1032,16 +839,9 @@
     function switchTab(tab) {
         if(chatTimer) { clearInterval(chatTimer); chatTimer = null; }
         document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        const btn = document.querySelector(`.tabs button[data-tab="${tab}"]`);
-        if (btn) btn.classList.add('active');
-        
+        const btn = document.querySelector(`.tabs button[data-tab="${tab}"]`); if (btn) btn.classList.add('active');
         const root = document.getElementById('book-content');
-        let canEdit = false;
-        if (myProfile.role === 'director') {
-            canEdit = true; 
-        } else if (myProfile.role === 'professor' && viewProfile.id === vkUser.id && !isGuestView) {
-            canEdit = true;
-        }
+        let canEdit = (myProfile.role === 'director') || (myProfile.role === 'professor' && viewProfile.id === vkUser.id && !isGuestView);
 
         if (tab === 'skills') { updateCatText("Здесь твои <b>Навыки</b>."); renderList('skills', 'Навыки', '✦', root, canEdit); }
         else if (tab === 'spells') { updateCatText("Это твои <b>Заклинания</b>."); renderList('spells', 'Заклинания', '⚡', root, canEdit); }
@@ -1065,24 +865,262 @@
                 let isLocked = item.req > 0 && viewProfile.xp < item.req;
                 let statusText = isLocked ? `Требуется ${item.req} XP` : 'Изучено';
                 let imgHtml = item.img ? `<img src="${item.img}" alt="${item.title}">` : `<div style="font-size:50px;">${icon}</div>`;
-                let btnHtml = canEdit ? `
-                    <div class="product-actions">
-                        <button onclick="startEditItem('${type}', ${index})" style="background:#4CAF50; color:white; border:none;">Ред.</button>
-                        <button onclick="deleteItem('${type}', ${index})" style="border:1px solid #ff5555; color:#ff5555; background:transparent;">Удал.</button>
-                    </div>` : (isLocked ? `<button disabled>Недоступно</button>` : `<button disabled>Изучено</button>`);
-                html += `
-                <div class="product-card">
-                    <div class="product-img">${imgHtml}</div>
-                    <div class="product-info">
-                        <h3>${item.title}</h3>
-                        <p>${item.desc}</p>
-                        <div class="status">${statusText}</div>
-                        ${btnHtml}
-                    </div>
-                </div>`;
+                let btnHtml = canEdit ? `<div class="product-actions"><button onclick="startEditItem('${type}', ${index})" style="background:#4CAF50; color:white; border:none;">Ред.</button><button onclick="deleteItem('${type}', ${index})" style="border:1px solid #ff5555; color:#ff5555; background:transparent;">Удал.</button></div>` : (isLocked ? `<button disabled>Недоступно</button>` : `<button disabled>Изучено</button>`);
+                html += `<div class="product-card"><div class="product-img">${imgHtml}</div><div class="product-info"><h3>${item.title}</h3><p>${item.desc}</p><div class="status">${statusText}</div>${btnHtml}</div></div>`;
             });
         } else { html += `<p style="color:var(--accent); grid-column: 1 / -1;">Здесь пока пусто.</p>`; }
         html += `</div>`;
         if (canEdit) {
             html += `
-            <div class="builder-box"
+            <div class="builder-box" id="item-builder">
+                <h3 style="color:var(--primary);" id="builder-title">Добавить ${title}</h3>
+                <label>Название:</label><input type="text" id="add-title" placeholder="Название">
+                <label>Описание:</label><textarea id="add-desc" rows="2" placeholder="Что это дает..."></textarea>
+                <label>Требуемый опыт (XP, 0 - свободный доступ):</label><input type="number" id="add-req" value="0">
+                <label>Картинка:</label><label class="custom-file-upload"><input type="file" id="add-img-file" accept="image/*" onchange="previewImage(this, 'add-img-preview', 'add-img-data')">📷 Выбрать картинку</label>
+                <div id="add-img-preview" style="margin-top:10px; text-align:center;"></div>
+                <input type="hidden" id="add-img-data">
+                <button onclick="saveItem('${type}')" id="builder-btn" style="background: #4CAF50; color: white; margin-top: 10px;">Добавить</button>
+                <button onclick="cancelItemEdit('${type}')" id="builder-cancel" style="background: transparent; border: 1px solid #ff5555; color: #ff5555; margin-top: 5px; display: none;">Отмена</button>
+            </div>`;
+            editItemIndex = -1; 
+        }
+        container.innerHTML = html;
+    }
+
+    function startEditItem(type, index) {
+        editItemIndex = index;
+        const item = viewProfile[type][index];
+        document.getElementById('add-title').value = item.title;
+        document.getElementById('add-desc').value = item.desc;
+        document.getElementById('add-req').value = item.req || 0;
+        document.getElementById('add-img-data').value = item.img || '';
+        if(item.img) document.getElementById('add-img-preview').innerHTML = `<img src="${item.img}" style="max-width:100px; border-radius:4px;">`;
+        else document.getElementById('add-img-preview').innerHTML = '';
+        document.getElementById('builder-title').innerText = 'Редактировать';
+        document.getElementById('builder-btn').innerText = 'Сохранить';
+        document.getElementById('builder-cancel').style.display = 'block';
+        document.getElementById('item-builder').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelItemEdit(type) {
+        editItemIndex = -1;
+        document.getElementById('add-title').value = ''; document.getElementById('add-desc').value = ''; document.getElementById('add-req').value = '0'; document.getElementById('add-img-data').value = ''; document.getElementById('add-img-preview').innerHTML = '';
+        document.getElementById('builder-title').innerText = 'Добавить'; document.getElementById('builder-btn').innerText = 'Добавить'; document.getElementById('builder-cancel').style.display = 'none';
+    }
+
+    async function saveItem(type) {
+        const title = document.getElementById('add-title').value.trim();
+        const desc = document.getElementById('add-desc').value.trim();
+        const req = Number(document.getElementById('add-req').value) || 0;
+        const img = document.getElementById('add-img-data').value;
+        if (!title) return alert("Введите название!");
+        if (!viewProfile[type]) viewProfile[type] = [];
+        if (editItemIndex > -1) viewProfile[type][editItemIndex] = { title, desc, req, img };
+        else viewProfile[type].push({ title, desc, req, img });
+        try {
+            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
+            switchTab(type);
+        } catch(e) { alert("Ошибка сохранения"); }
+    }
+
+    async function deleteItem(type, index) {
+        if (!confirm("Удалить эту карточку?")) return;
+        viewProfile[type].splice(index, 1);
+        try {
+            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
+            switchTab(type);
+        } catch(e) { alert("Ошибка удаления"); }
+    }
+
+    async function saveText(field) {
+        const val = document.getElementById(`edit-${field}`).value;
+        viewProfile[field] = val;
+        try {
+            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: val }) });
+            alert("Сохранено!"); switchTab(field);
+        } catch(e) { alert("Ошибка"); }
+    }
+
+    async function renderStudentsList(container) {
+        container.innerHTML = `<div class="center-menu">Загрузка...</div>`;
+        try {
+            const res = await fetch(`${DB_URL}/students.json`); const allStudents = await res.json() || {};
+            let html = `<h2>База профилей</h2><div class="admin-panel">`; let usersCount = 0;
+            Object.keys(allStudents).forEach(vkId => {
+                const student = allStudents[vkId];
+                if (String(vkId) === String(vkUser.id)) return;
+                usersCount++;
+                html += `<div class="admin-card"><div style="display:flex; gap:10px; align-items:center;">${student.photo ? `<img src="${student.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<div style="width:40px; height:40px; border-radius:50%; background:var(--dark-accent); display:grid; place-items:center;">✦</div>`}<div><h3 style="margin:0; font-size:18px;">${student.name}</h3><span style="font-size:12px; color:var(--accent);">${student.role} · ${student.faculty || ''} ${student.course ? '· ' + student.course + ' курс' : ''}</span></div></div><button onclick="visitProfile('${vkId}')" style="background:var(--primary); color:var(--bg); margin-top:10px;">${myProfile.role === 'director' ? '🚪 Зайти в комнату' : '👁 Посмотреть профиль'}</button></div>`;
+            });
+            if (usersCount === 0) html += `<p style="color:var(--accent)">Вы единственный зарегистрированный пользователь.</p>`;
+            html += `</div>`; container.innerHTML = html;
+        } catch(e) { container.innerHTML = `<div style="color:red">Ошибка: ${e.message}</div>`; }
+    }
+
+    async function visitProfile(studentId) {
+        try {
+            const res = await fetch(`${DB_URL}/students/${studentId}.json`); const data = await res.json();
+            if (!data) return alert("Профиль не найден в базе!");
+            if (myProfile.role === 'director') openCabinet(data, true, false); else openCabinet(data, false, true); 
+        } catch(e) { alert("Ошибка загрузки профиля"); }
+    }
+
+    function backToStudents() { openCabinet(myProfile, false, false); document.querySelector('.tabs button[data-tab="students"]').click(); }
+
+    async function renderMessagesList(container) {
+        container.innerHTML = `<div class="center-menu">Загрузка диалогов...</div>`;
+        try {
+            const res = await fetch(`${DB_URL}/students.json`); const allStudents = await res.json() || {};
+            let html = `<h2>Личные сообщения (Совы)</h2><div class="admin-panel">`;
+            Object.keys(allStudents).forEach(vkId => {
+                const student = allStudents[vkId];
+                if(String(vkId) !== String(vkUser.id)) {
+                    html += `<div class="admin-card"><h3 style="margin:0; font-size:18px;">${student.name}</h3><button onclick="openChat('${vkId}', '${student.name}')" style="background:var(--accent); color:white; margin-top:10px;">Открыть переписку</button></div>`;
+                }
+            });
+            html += `</div>`; container.innerHTML = html;
+        } catch(e) { container.innerHTML = `<div style="color:red">Ошибка базы</div>`; }
+    }
+
+    function getChatId(id1, id2) { const sorted = [id1, id2].sort((a,b) => a - b); return `${sorted[0]}_${sorted[1]}`; }
+    function startChatFromProfile() { openChat(viewProfile.id, viewProfile.name); }
+
+    function openChat(targetId, targetName) {
+        const chatId = getChatId(vkUser.id, targetId); const root = document.getElementById('book-content');
+        root.innerHTML = `<h2>Переписка с ${targetName}</h2><div class="chat-container"><div class="chat-messages" id="chat-box"><div style="text-align:center; color:var(--accent);">Загрузка...</div></div><div class="chat-input-area"><input type="text" id="chat-input" placeholder="Сообщение или ссылка..."><button onclick="sendMsg('${targetId}')">Отправить</button></div></div><button onclick="switchTab('messages')" style="margin-top:15px;">← Назад к диалогам</button>`;
+        const chatBox = document.getElementById('chat-box');
+        const loadMsgs = async () => {
+            if(!document.getElementById('chat-box')) { clearInterval(chatTimer); return; }
+            try {
+                const res = await fetch(`${DB_URL}/messages/${chatId}.json`); const msgs = await res.json() || {};
+                let html = '';
+                Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
+                    const isMe = m.senderId === vkUser.id; let content = m.text;
+                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) content = `<img src="${m.text}">`;
+                    html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
+                });
+                chatBox.innerHTML = html; chatBox.scrollTop = chatBox.scrollHeight;
+            } catch(e) {}
+        };
+        loadMsgs(); if(chatTimer) clearInterval(chatTimer); chatTimer = setInterval(loadMsgs, 2000);
+    }
+
+    async function sendMsg(targetId) {
+        const input = document.getElementById('chat-input'); const text = input.value.trim(); if (!text) return;
+        const chatId = getChatId(vkUser.id, targetId);
+        const msg = { senderId: vkUser.id, senderName: myProfile.name, text: text, time: Date.now() };
+        input.value = '';
+        try { await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) }); } catch(e) { alert("Ошибка отправки"); }
+    }
+
+    function startWandQuiz() { if(!viewProfile || viewProfile.id !== vkUser.id) return; hideAll(); document.getElementById('wq-height').value = ''; document.getElementById('wand-quiz-screen').classList.remove('hidden'); }
+    function cancelWandQuiz() { openCabinet(myProfile, false, false); }
+
+    async function calculateWandResult() {
+        const height = Number(document.getElementById('wq-height').value);
+        const flex = document.querySelector('input[name="wq-flex"]:checked'), magic = document.querySelector('input[name="wq-magic"]:checked'), feel = document.querySelector('input[name="wq-feel"]:checked'), temp = document.querySelector('input[name="wq-temp"]:checked'), learn = document.querySelector('input[name="wq-learn"]:checked'), view = document.querySelector('input[name="wq-view"]:checked');
+        if (!height || !flex || !magic || !feel || !temp || !learn || !view) return alert("Ответьте на все вопросы!");
+
+        let length = ""; if (height < 115) length = "7 - 7.5 дюймов (Очень короткая)"; else if (height >= 115 && height <= 135) length = "8 - 8.5 дюймов (Короткая)"; else if (height >= 136 && height <= 155) length = "9 - 10.5 дюймов (Стандартная)"; else if (height >= 156 && height <= 185) length = "11 - 13.5 дюймов (Длинная)"; else length = "14 - 15.5 дюймов (Очень длинная)";
+        let flexibility = ""; if (flex.value === 'flexible') flexibility = "Очень гибкая"; else if (flex.value === 'balanced') flexibility = "Средней гибкости"; else if (flex.value === 'rigid') flexibility = "Жёсткая"; else flexibility = "Твёрдая";
+
+        let wood = "", core = "";
+        if (temp.value === 'noble') { wood = "Кедр или Тис"; if (magic.value === 'protect') { core = "Грива единорога"; wood = "Остролист"; } else if (magic.value === 'combat') core = "Сердцевина дракона"; else core = "Перо орла"; }
+        else if (temp.value === 'passion') { wood = "Дуб или Ольха"; if (feel.value === 'heat') core = "Жилы дракона"; else core = "Волос вейлы"; }
+        else if (temp.value === 'wise') { wood = "Бук или Рябина"; if (magic.value === 'mind') core = "Перо ворона"; else if (magic.value === 'heal') core = "Перо феникса"; else core = "Совиное перо"; }
+        else { wood = "Ива или Осина"; if (feel.value === 'flow') core = "Чешуя саламандры"; else if (feel.value === 'cold') core = "Волос сфинкса"; else core = "Шерсть Пегаса"; }
+        if (magic.value === 'combat' && core !== "Сердцевина дракона") core = "Сердцевина дракона";
+        if (magic.value === 'heal' && core !== "Перо феникса") core = "Перо феникса";
+
+        const wandResult = `${wood}, ${core}, ${length}, ${flexibility}`;
+        try {
+            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ wand: wandResult }) });
+            myProfile.wand = wandResult; viewProfile.wand = wandResult;
+            alert(`✨ Палочка выбрала вас!\n\nДревесина: ${wood}\nСердцевина: ${core}\nДлина: ${length}\nГибкость: ${flexibility}`);
+            openCabinet(myProfile, false, false);
+        } catch(e) { alert("Ошибка сохранения."); }
+    }
+
+    function startPatronusQuiz() { if(!viewProfile || viewProfile.id !== vkUser.id) return; hideAll(); document.getElementById('pq1').value = ''; document.getElementById('pq2').value = ''; document.getElementById('pq3').value = ''; document.getElementById('pq4').value = ''; document.getElementById('pq6').value = ''; document.getElementById('pq7').value = ''; document.getElementById('patronus-quiz-screen').classList.remove('hidden'); }
+    function cancelPatronusQuiz() { openCabinet(myProfile, false, false); }
+
+    async function calculatePatronusResult() {
+        const q1 = document.getElementById('pq1').value.toLowerCase(), q2 = document.getElementById('pq2').value.toLowerCase(), q3 = document.getElementById('pq3').value.toLowerCase(), q4 = document.getElementById('pq4').value.toLowerCase(), q6 = document.getElementById('pq6').value.toLowerCase(), q7 = document.getElementById('pq7').value.toLowerCase();
+        const q5 = document.querySelector('input[name="pq5"]:checked'), q8 = document.querySelector('input[name="pq8"]:checked');
+        if (!q5 || !q8) return alert("Ответьте на все вопросы!");
+
+        let userText = `${q1} ${q2} ${q3} ${q4} ${q6} ${q7}`;
+        let userTraits = new Set();
+        for (let key in traitKeywords) { if (userText.includes(key)) traitKeywords[key].forEach(t => userTraits.add(t)); }
+        if (q5.value === 'combat') { userTraits.add('смелость'); userTraits.add('сила'); userTraits.add('защита'); }
+        if (q5.value === 'heal') { userTraits.add('целительство'); userTraits.add('сострадание'); userTraits.add('доброта'); }
+        if (q5.value === 'protect') { userTraits.add('защита'); userTraits.add('верность'); userTraits.add('надежность'); }
+        if (q5.value === 'mind') { userTraits.add('хитрость'); userTraits.add('скрытность'); userTraits.add('ум'); }
+        if (q5.value === 'creatures') { userTraits.add('связь с природой'); userTraits.add('эмпатия'); }
+        if (q5.value === 'research') { userTraits.add('любопытство'); userTraits.add('ум'); userTraits.add('наблюдательность'); }
+        if (q8.value === 'living') { userTraits.add('верность'); userTraits.add('преданность'); userTraits.add('эмпатия'); }
+        if (q8.value === 'shield') { userTraits.add('защита'); userTraits.add('расчет'); userTraits.add('спокойствие'); }
+
+        let bestMatch = null, maxScore = -1;
+        patronusDB.forEach(p => {
+            let score = 0, pTraits = p.traits.split(',').map(t => t.trim());
+            pTraits.forEach(pt => { for (let ut of userTraits) { if (ut.includes(pt) || pt.includes(ut)) { score++; break; } } });
+            if (score > maxScore) { maxScore = score; bestMatch = p; }
+        });
+        if (!bestMatch) bestMatch = patronusDB[Math.floor(Math.random() * patronusDB.length)]; 
+
+        try {
+            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ patronus: bestMatch.name }) });
+            myProfile.patronus = bestMatch.name; viewProfile.patronus = bestMatch.name;
+            alert(`✨ Ваш Патронус: ${bestMatch.name}!\n\nСистема подобрала его на основе ваших качеств.`);
+            openCabinet(myProfile, false, false);
+        } catch(e) { alert("Ошибка сохранения результата."); }
+    }
+
+    function startMbtiQuiz() { if(!viewProfile || viewProfile.id !== vkUser.id) return; hideAll(); renderMbtiQuestions(); document.getElementById('mbti-quiz-screen').classList.remove('hidden'); }
+    function cancelMbtiQuiz() { openCabinet(myProfile, false, false); }
+
+    function renderMbtiQuestions() {
+        const container = document.getElementById('mbti-container'); let html = '';
+        mbtiQuestions.forEach((q, i) => {
+            html += `<div class="mbti-question-block"><div class="mbti-question-text">${i + 1}. ${q.text}</div><div class="mbti-scale"><label><input type="radio" name="mbti_q${i}" value="-3">-3<br>Полн. нет</label><label><input type="radio" name="mbti_q${i}" value="-2">-2<br>Умер. нет</label><label><input type="radio" name="mbti_q${i}" value="-1">-1<br>Слег. нет</label><label><input type="radio" name="mbti_q${i}" value="0">0<br>Нейтр.</label><label><input type="radio" name="mbti_q${i}" value="1">+1<br>Слег. да</label><label><input type="radio" name="mbti_q${i}" value="2">+2<br>Умер. да</label><label><input type="radio" name="mbti_q${i}" value="3">+3<br>Полн. да</label></div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    async function calculateMbtiResult() {
+        let scoreEnergy = 0, scoreMind = 0, scoreNature = 0, scoreTactics = 0, scoreIdentity = 0;
+        for (let i = 0; i < mbtiQuestions.length; i++) {
+            const selected = document.querySelector(`input[name="mbti_q${i}"]:checked`);
+            if (!selected) return alert("Пожалуйста, ответьте на все 60 вопросов!");
+            const val = parseInt(selected.value);
+            const contrib = val * mbtiQuestions[i].mult;
+            if (i < 12) scoreEnergy += contrib;
+            else if (i < 24) scoreMind += contrib;
+            else if (i < 36) scoreNature += contrib;
+            else if (i < 48) scoreTactics += contrib;
+            else scoreIdentity += contrib;
+        }
+        const typeE = scoreEnergy >= 0 ? 'E' : 'I';
+        const typeN = scoreMind >= 0 ? 'N' : 'S';
+        const typeF = scoreNature >= 0 ? 'F' : 'T';
+        const typeP = scoreTactics >= 0 ? 'P' : 'J';
+        const typeT = scoreIdentity >= 0 ? '-T' : '-A';
+        
+        const type4 = typeE + typeN + typeF + typeP;
+        const fullType = type4 + typeT;
+        let desc = mbtiDescriptions[type4] || "Уникальная личность.";
+        if (typeT === '-T') desc += " Вы Турбулентный: склонны к самоанализу, переживаниям и совершенствованию.";
+        else desc += " Вы Уверенный: стабильны, спокойны и стрессоустойчивы.";
+
+        try {
+            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ mbti: fullType }) });
+            myProfile.mbti = fullType; viewProfile.mbti = fullType;
+            alert(`🧠 Ваш тип личности: ${fullType}\n\n${desc}`);
+            openCabinet(myProfile, false, false);
+        } catch(e) { alert("Ошибка сохранения результата."); }
+    }
+</script>
+</body>
+</html>
