@@ -313,46 +313,44 @@
     function showRegister() { hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
     function showDirectorLogin() { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
 
-    // --- НОВАЯ ФУНКЦИЯ ДЛЯ ОПРЕДЕЛЕНИЯ ID ПО ССЫЛКЕ ---
+    // --- УМНЫЙ ПОИСК ID (СНАЧАЛА ЦИФРЫ, ПОТОМ БАЗА) ---
     async function resolveVkId(input) {
-        if (!isNaN(input) && input.trim() !== "") return Number(input); // Если это цифры
+        // Если это цифры, возвращаем сразу
+        if (!isNaN(input) && input.trim() !== "") return Number(input);
 
-        let screenName = input.trim();
-        if (screenName.includes('/')) screenName = screenName.split('/').pop(); // Отрезаем https://vk.ru/
-        screenName = screenName.split('?')[0]; // Убираем лишние параметры
+        // Если это ссылка, ищем в Firebase того, у кого она указана в профиле
+        let screenName = input.trim().toLowerCase();
+        if (screenName.includes('/')) screenName = screenName.split('/').pop(); // достаем nott_cr
+        screenName = screenName.split('?')[0]; // убираем параметры
 
         try {
-            const res = await fetch(`https://api.vk.com/method/utils.resolveScreenName?screen_name=${screenName}&v=5.131`);
-            const data = await res.json();
-            if (data.response && data.response.type === 'user') {
-                return data.response.object_id;
+            const res = await fetch(`${DB_URL}/students.json`);
+            const allStudents = await res.json() || {};
+            
+            for (let id in allStudents) {
+                const student = allStudents[id];
+                if (student.vkLink && student.vkLink.toLowerCase().includes(screenName)) {
+                    return Number(id); // Нашли! Возвращаем реальный ID
+                }
             }
         } catch (e) {
-            console.error("Ошибка при получении ID:", e);
+            console.error("Ошибка поиска в базе:", e);
         }
         return null;
     }
 
-    // Обновленная функция checkVk (теперь асинхронная и понимает ссылки)
     async function checkVk() {
         if (!vkUser) {
-            const testInput = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID (например, 836264843) ИЛИ ссылку на профиль (например, https://vk.ru/nott_cr):");
+            const testInput = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID (например, 836264843) ИЛИ ссылку из профиля (например, https://vk.ru/nott_cr):");
             if (!testInput) return false;
-
-            // Временно показываем, что идет загрузка
-            const btn = event ? event.target : null;
-            let oldText = "";
-            if(btn) { oldText = btn.innerText; btn.innerText = "Поиск..."; btn.disabled = true; }
 
             const id = await resolveVkId(testInput);
             
-            if(btn) { btn.innerText = oldText; btn.disabled = false; }
-
             if (id) {
                 vkUser = { id: id, first_name: "Пользователь", last_name: id };
                 return true;
             } else {
-                alert("Не удалось найти пользователя по этой ссылке. Попробуйте ввести цифровой ID.");
+                alert("Профиль не найден. Убедитесь, что вы зарегистрировались в приложении и указали эту ссылку при регистрации, либо введите цифровой ID.");
                 return false;
             }
         }
