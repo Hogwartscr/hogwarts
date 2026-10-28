@@ -80,7 +80,6 @@
         input[type="file"] { display: none; }
         .custom-file-upload { border: 1px dashed var(--primary); display: inline-block; padding: 10px; cursor: pointer; border-radius: 4px; text-align: center; width: 100%; color: var(--primary); margin-top: 10px;}
         
-        /* Стили для теста */
         .quiz-question { margin-bottom: 15px; text-align: left; }
         .quiz-question label { display: block; margin-top: 5px; cursor: pointer; }
         .quiz-question input[type="radio"] { margin-right: 10px; }
@@ -148,10 +147,9 @@
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
-<!-- ЭКРАН ТЕСТА -->
 <div id="quiz-screen" class="center-menu hidden" style="max-width: 500px; margin: 0 auto;">
     <h1>Распределение палочки</h1>
-    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, чтобы олливандер подобрал вам палочку и патронуса.</p>
+    <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Ответьте на вопросы, чтобы мистер Олливандер подобрал вам палочку и патронуса.</p>
     
     <div id="quiz-content">
         <div class="quiz-question">
@@ -315,20 +313,54 @@
     function showRegister() { hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
     function showDirectorLogin() { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
 
-    function checkVk() {
-        if (!vkUser) {
-            const testId = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID для входа (например, 836264843):");
-            if (testId && !isNaN(testId)) {
-                vkUser = { id: Number(testId), first_name: "Пользователь", last_name: testId };
-                return true;
+    // --- НОВАЯ ФУНКЦИЯ ДЛЯ ОПРЕДЕЛЕНИЯ ID ПО ССЫЛКЕ ---
+    async function resolveVkId(input) {
+        if (!isNaN(input) && input.trim() !== "") return Number(input); // Если это цифры
+
+        let screenName = input.trim();
+        if (screenName.includes('/')) screenName = screenName.split('/').pop(); // Отрезаем https://vk.ru/
+        screenName = screenName.split('?')[0]; // Убираем лишние параметры
+
+        try {
+            const res = await fetch(`https://api.vk.com/method/utils.resolveScreenName?screen_name=${screenName}&v=5.131`);
+            const data = await res.json();
+            if (data.response && data.response.type === 'user') {
+                return data.response.object_id;
             }
-            return false;
+        } catch (e) {
+            console.error("Ошибка при получении ID:", e);
+        }
+        return null;
+    }
+
+    // Обновленная функция checkVk (теперь асинхронная и понимает ссылки)
+    async function checkVk() {
+        if (!vkUser) {
+            const testInput = prompt("Вы открыли приложение вне ВКонтакте.\nВведите ваш VK ID (например, 836264843) ИЛИ ссылку на профиль (например, https://vk.ru/nott_cr):");
+            if (!testInput) return false;
+
+            // Временно показываем, что идет загрузка
+            const btn = event ? event.target : null;
+            let oldText = "";
+            if(btn) { oldText = btn.innerText; btn.innerText = "Поиск..."; btn.disabled = true; }
+
+            const id = await resolveVkId(testInput);
+            
+            if(btn) { btn.innerText = oldText; btn.disabled = false; }
+
+            if (id) {
+                vkUser = { id: id, first_name: "Пользователь", last_name: id };
+                return true;
+            } else {
+                alert("Не удалось найти пользователя по этой ссылке. Попробуйте ввести цифровой ID.");
+                return false;
+            }
         }
         return true;
     }
 
     async function doLogin() {
-        if (!checkVk()) return;
+        if (!(await checkVk())) return;
         const pass = document.getElementById('login-pass').value.trim();
         
         try {
@@ -346,7 +378,7 @@
     }
 
     async function doRegister() {
-        if (!checkVk()) return;
+        if (!(await checkVk())) return;
         const profile = {
             id: vkUser.id, 
             name: document.getElementById('reg-name').value.trim(), 
@@ -369,7 +401,7 @@
     }
 
     async function doDirectorLogin() {
-        if (!checkVk()) return;
+        if (!(await checkVk())) return;
         if (vkUser.id !== DIRECTOR_ID) return alert("Вы не Директор!");
         
         const pass = document.getElementById('dir-pass').value.trim();
@@ -531,7 +563,6 @@
         
         const root = document.getElementById('book-content');
         
-        // ИСПРАВЛЕНИЕ ПРАВ: Профессор может редактировать СВОЙ профиль и карточки. Директор - любые.
         let canEdit = false;
         if (myProfile.role === 'director') {
             canEdit = true; 
@@ -886,45 +917,37 @@
             return alert("Пожалуйста, ответьте на все вопросы!");
         }
 
-        // Логика на основе ваших документов (упрощенная)
         let wood = "";
         let core = "";
         let length = "";
         let flexibility = "";
         let patronus = "";
 
-        // Длина (от роста)
         if (q3.value === 'short') length = "7 - 8 дюймов (Короткая)";
         else if (q3.value === 'mid') length = "9 - 10.5 дюймов (Стандартная)";
         else length = "11 - 13 дюймов (Длинная)";
 
-        // Палочка и Патронус (от характера и магии)
-        if (q1.value === 'brave') { // Смелость
-            wood = "Дуб"; // Мудрость, сила
-            patronus = "Олень"; // Защитник и проводник
+        if (q1.value === 'brave') {
+            wood = "Дуб"; patronus = "Олень";
             if (q2.value === 'fight') { core = "Сердцевина дракона"; flexibility = "Жёсткая"; }
             else { core = "Перо феникса"; flexibility = "Средней гибкости"; }
         } 
-        else if (q1.value === 'wise') { // Мудрость
-            wood = "Орех"; // Мудрость
-            patronus = "Сова"; // Наблюдательность, мудрость
+        else if (q1.value === 'wise') {
+            wood = "Орех"; patronus = "Сова";
             if (q2.value === 'talk') { core = "Грива единорога"; flexibility = "Гибкая"; }
             else { core = "Перо ворона"; flexibility = "Твёрдая"; }
         }
-        else if (q1.value === 'cunning') { // Хитрость
-            wood = "Тис"; // Поиск власти
-            patronus = "Ворон"; // Ночной страж
+        else if (q1.value === 'cunning') {
+            wood = "Тис"; patronus = "Ворон";
             if (q2.value === 'magic') { core = "Зуб василиска"; flexibility = "Несгибаемая"; }
             else { core = "Волос вейлы"; flexibility = "Очень гибкая"; }
         }
-        else { // Верность
-            wood = "Ива"; // Уравновешенность
-            patronus = "Выдра"; // Энергичность, дружелюбие
+        else {
+            wood = "Ива"; patronus = "Выдра";
             if (q2.value === 'avoid') { core = "Волос единорога"; flexibility = "Гибкая"; }
             else { core = "Шерсть пегаса"; flexibility = "Средней гибкости"; }
         }
 
-        // Магия меняет патронуса немного
         if (q4.value === 'attack') patronus = patronus === "Олень" ? "Лев" : patronus;
         else if (q4.value === 'heal') patronus = "Феникс";
         else if (q4.value === 'mind') patronus = patronus === "Сова" ? "Кошка" : patronus;
