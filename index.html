@@ -41,7 +41,6 @@
         .tabs button{border-radius:0;width:auto;background:none;color:var(--accent);font-size:16px;padding:10px 0;margin:0;border-bottom:2px solid transparent}
         .tabs button.active{color:var(--primary);border-color:var(--primary); font-weight:bold;}
         
-        /* КАРТОЧКИ */
         .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
         .product-card { border: 1px solid var(--accent); background: rgba(31,27,61,0.6); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
@@ -62,7 +61,6 @@
         .center-menu button { max-width: 400px; margin: 10px auto; display: block; }
         .hidden { display: none !important; }
 
-        /* КОТ */
         .cat-helper { position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end;}
         .cat-icon { width: 60px; height: 60px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid var(--accent); transition: transform 0.2s;}
         .cat-icon:hover { transform: scale(1.1); }
@@ -85,20 +83,14 @@
 </head>
 <body>
 
-<div id="loading" class="center-menu" style="color: var(--primary); font-size: 18px;">
-    🔮 Загрузка...
-    <div id="error-box" style="color: #ff5555; font-size: 14px; margin-top: 20px; font-family: monospace; text-align: left;"></div>
-</div>
-
-<!-- ГЛАВНОЕ МЕНЮ -->
-<div id="main-menu" class="center-menu hidden">
+<div id="main-menu" class="center-menu">
     <h1>Хогвартс ВГП</h1>
-    <button onclick="showLogin()" style="margin-top: 30px;">🔑 Войти</button>
+    <p id="vk-status" style="color:orange; font-size:12px; margin-bottom:10px;">Проверка ВК...</p>
+    <button onclick="showLogin()" style="margin-top: 20px;">🔑 Войти</button>
     <button onclick="showRegister()" style="margin-top: 15px; background: transparent; border: 1px solid var(--primary); color: var(--primary);">📝 Регистрация</button>
     <button onclick="showDirectorLogin()" style="margin-top: 30px; background: #99564b; color: white;">👑 Вход для Директора</button>
 </div>
 
-<!-- ВХОД -->
 <div id="login-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
     <h1>Вход в профиль</h1>
     <label>Ваш пароль:</label><input type="password" id="login-pass" placeholder="Пароль">
@@ -107,7 +99,6 @@
     <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Назад</a>
 </div>
 
-<!-- РЕГИСТРАЦИЯ -->
 <div id="register-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
     <h1>Регистрация</h1>
     <label>Ваша роль:</label>
@@ -119,7 +110,6 @@
     <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Назад</a>
 </div>
 
-<!-- ВХОД ДИРЕКТОРА -->
 <div id="director-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
     <h1>Вход для Директора</h1>
     <p style="color:var(--accent); font-size:14px; margin-bottom:15px;">Если вы заходите впервые, введите желаемый пароль. Если забыли старый, введите новый, и система предложит его сбросить.</p>
@@ -129,15 +119,13 @@
     <a onclick="showMenu()" class="text-button" style="display:block; margin-top:20px;">← Назад</a>
 </div>
 
-<!-- ФОРМА РЕДАКТИРОВАНИЯ ПРОФИЛЯ -->
 <div id="edit-screen" class="center-menu hidden" style="max-width: 400px; margin: 0 auto;">
     <h1 id="edit-title">Редактирование</h1>
     <label>Имя:</label><input type="text" id="edit-name">
     <label>Ссылка ВК:</label><input type="text" id="edit-link">
     <label>Пароль:</label><input type="text" id="edit-pass">
     
-    <!-- БЛОК ДЛЯ XP И MP, КОТОРЫЙ ВИДЕН ТОЛЬКО ДИРЕКТОРУ -->
-    <div id="admin-only-stats">
+    <div id="admin-only-stats" style="display:none;">
         <label>Опыт (XP):</label><input type="number" id="edit-xp">
         <label>Мана (MP):</label><input type="number" id="edit-mp">
     </div>
@@ -154,7 +142,6 @@
     <a onclick="cancelEdit()" class="text-button" style="display:block; margin-top:20px;">← Отмена</a>
 </div>
 
-<!-- КАБИНЕТ -->
 <div id="cabinet" class="container cabinet hidden">
     <div class="cat-helper" onclick="toggleCat()">
         <div class="cat-bubble" id="cat-bubble"></div>
@@ -210,8 +197,39 @@
 </div>
 
 <script>
-    const errorBox = document.getElementById('error-box');
-    window.onerror = function(msg) { if(errorBox) errorBox.innerText += "ОШИБКА: " + msg + "\n"; return false; };
+    const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
+    const DIRECTOR_ID = 836264843; 
+    
+    let vkUser = null;
+    let myProfile = null;     
+    let viewProfile = null;   
+    let isAdminView = false;
+    let isGuestView = false;
+    let chatTimer = null;
+    let editItemIndex = -1; 
+
+    // СРАЗУ ПОКАЗЫВАЕМ МЕНЮ (чтобы не было вечной загрузки)
+    document.addEventListener("DOMContentLoaded", () => {
+        showMenu();
+    });
+
+    // В ФОНЕ ГРУЗИМ ВК
+    if (window.vkBridge) {
+        vkBridge.send('VKWebAppInit')
+            .then(() => vkBridge.send('VKWebAppGetUserInfo'))
+            .then(info => {
+                vkUser = info;
+                document.getElementById('vk-status').innerText = "✅ ВК подключен. ID: " + vkUser.id;
+                document.getElementById('vk-status').style.color = "lightgreen";
+            })
+            .catch(e => {
+                document.getElementById('vk-status').innerText = "⚠️ Вы не в ВК. Вход не сработает.";
+                document.getElementById('vk-status').style.color = "red";
+            });
+    } else {
+        document.getElementById('vk-status').innerText = "⚠️ VK Bridge не загрузился.";
+        document.getElementById('vk-status').style.color = "red";
+    }
 
     function updateCatText(text) {
         const bubble = document.getElementById('cat-bubble');
@@ -251,29 +269,6 @@
         }
     }
 
-    const DB_URL = "https://hogwartscr-default-rtdb.europe-west1.firebasedatabase.app";
-    const DIRECTOR_ID = 836264843; 
-    
-    let vkUser = null;
-    let myProfile = null;     
-    let viewProfile = null;   
-    let isAdminView = false;
-    let isGuestView = false;
-    let chatTimer = null;
-    let editItemIndex = -1; 
-
-    if (window.vkBridge) {
-        vkBridge.send('VKWebAppInit').then(() => vkBridge.send('VKWebAppGetUserInfo')).then(info => {
-            vkUser = info;
-            document.getElementById('loading').style.display = 'none';
-            showMenu();
-        }).catch(e => {
-            if(errorBox) errorBox.innerText = "Ошибка ВК Bridge: " + e.message;
-        });
-    } else {
-        if(errorBox) errorBox.innerText = "Библиотека VK Bridge не загрузилась!";
-    }
-
     function hideAll() {
         ['main-menu', 'login-screen', 'register-screen', 'director-screen', 'cabinet', 'edit-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
         if(chatTimer) { clearInterval(chatTimer); chatTimer = null; }
@@ -283,17 +278,34 @@
     function showRegister() { hideAll(); document.getElementById('register-screen').classList.remove('hidden'); }
     function showDirectorLogin() { hideAll(); document.getElementById('director-screen').classList.remove('hidden'); }
 
+    function checkVk() {
+        if (!vkUser) {
+            alert("Ошибка: Вы должны открыть приложение через ВКонтакте, чтобы сохранять данные!");
+            return false;
+        }
+        return true;
+    }
+
     async function doLogin() {
+        if (!checkVk()) return;
         const pass = document.getElementById('login-pass').value.trim();
-        const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
-        const data = await res.json();
-        if (data && data.secretCode === pass) {
-            myProfile = data;
-            openCabinet(data, false, false);
-        } else document.getElementById('login-error').style.display = 'block';
+        
+        try {
+            const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
+            const data = await res.json();
+            if (data && data.secretCode === pass) {
+                myProfile = data;
+                openCabinet(data, false, false);
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        } catch(e) {
+            alert("Ошибка базы данных.");
+        }
     }
 
     async function doRegister() {
+        if (!checkVk()) return;
         const profile = {
             id: vkUser.id, 
             name: document.getElementById('reg-name').value.trim(), 
@@ -305,54 +317,54 @@
             spells: [], potions: [], notes: ""
         };
         if(!profile.name || !profile.secretCode) return alert("Заполните поля!");
-        await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
-        myProfile = profile;
-        openCabinet(profile, false, false);
+        
+        try {
+            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
+            myProfile = profile;
+            openCabinet(profile, false, false);
+        } catch(e) {
+            alert("Ошибка сохранения.");
+        }
     }
 
-    // ВХОД ДИРЕКТОРА
     async function doDirectorLogin() {
+        if (!checkVk()) return;
         if (vkUser.id !== DIRECTOR_ID) return alert("Вы не Директор!");
         
         const pass = document.getElementById('dir-pass').value.trim();
         if (!pass) return alert("Введите пароль!");
 
-        const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
-        const existing = await res.json();
+        try {
+            const res = await fetch(`${DB_URL}/students/${vkUser.id}.json`);
+            const existing = await res.json();
 
-        if (existing) {
-            if (existing.secretCode !== pass) {
-                const confirmReset = confirm("Пароль не совпадает. Хотите сбросить его на новый?");
-                if (confirmReset) {
-                    existing.secretCode = pass;
-                    await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ secretCode: pass }) });
-                } else {
-                    return; 
+            if (existing) {
+                if (existing.secretCode !== pass) {
+                    const confirmReset = confirm("Пароль не совпадает. Хотите сбросить его на новый?");
+                    if (confirmReset) {
+                        existing.secretCode = pass;
+                        await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PATCH', body: JSON.stringify({ secretCode: pass }) });
+                    } else {
+                        return; 
+                    }
                 }
+                myProfile = existing;
+            } else {
+                const profile = {
+                    id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
+                    role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "",
+                    skills: [{title: "Травология", desc: "Профессор Травологии", req: 0, img: ""}], 
+                    spells: [], potions: [], notes: ""
+                };
+                await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
+                myProfile = profile;
+                alert("Профиль Директора создан!");
             }
-            myProfile = existing;
-        } else {
-            const profile = {
-                id: vkUser.id, name: "Теодор Нотт", vkLink: "https://vk.ru/nott_cr", 
-                role: 'director', secretCode: pass, xp: 9999, mana: 9999, photo: "",
-                skills: [
-                    {title: "Травология", desc: "Профессор Травологии", req: 0, img: ""},
-                    {title: "Зельеварение", desc: "Подготовка ингредиентов.", req: 80, img: ""}
-                ], 
-                spells: [
-                    {title: "Экспекто Патронум", desc: "Вызывает защитника.", req: 300, img: ""}
-                ], 
-                potions: [
-                    {title: "Зелье силы", desc: "Дает +10 к силе.", req: 0, img: ""}
-                ], 
-                notes: ""
-            };
-            await fetch(`${DB_URL}/students/${vkUser.id}.json`, { method: 'PUT', body: JSON.stringify(profile) });
-            myProfile = profile;
-            alert("Профиль Директора успешно создан!");
+            
+            openCabinet(myProfile, false, false);
+        } catch(e) {
+            alert("Ошибка базы данных.");
         }
-        
-        openCabinet(myProfile, false, false);
     }
 
     function openCabinet(profile, adminMode, guestMode) {
@@ -416,7 +428,6 @@
         document.getElementById('edit-link').value = viewProfile.vkLink || '';
         document.getElementById('edit-pass').value = viewProfile.secretCode || '';
         
-        // Скрываем XP/MP для студентов
         if (myProfile.role === 'director') {
             document.getElementById('admin-only-stats').style.display = 'block';
             document.getElementById('edit-xp').value = viewProfile.xp || 0;
@@ -441,7 +452,6 @@
         viewProfile.vkLink = document.getElementById('edit-link').value;
         viewProfile.secretCode = document.getElementById('edit-pass').value;
         
-        // Сохраняем XP/MP только если это Директор
         if (myProfile.role === 'director') {
             viewProfile.xp = Number(document.getElementById('edit-xp').value) || 0;
             viewProfile.mana = Number(document.getElementById('edit-mp').value) || 0;
@@ -450,11 +460,15 @@
         const newPhoto = document.getElementById('edit-photo-data').value;
         if(newPhoto) viewProfile.photo = newPhoto;
 
-        await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify(viewProfile) });
-        if(!isAdminView && viewProfile.id === vkUser.id) myProfile = viewProfile;
-        
-        openCabinet(viewProfile, isAdminView, isGuestView);
-        alert("Данные сохранены!");
+        try {
+            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify(viewProfile) });
+            if(!isAdminView && viewProfile.id === vkUser.id) myProfile = viewProfile;
+            
+            openCabinet(viewProfile, isAdminView, isGuestView);
+            alert("Данные сохранены!");
+        } catch(e) {
+            alert("Ошибка сохранения.");
+        }
     }
 
     function cancelEdit() { openCabinet(viewProfile, isAdminView, isGuestView); }
@@ -467,7 +481,6 @@
         
         const root = document.getElementById('book-content');
         
-        // Редактировать карточки может ТОЛЬКО Директор (свой профиль или чужой)
         let canEdit = false;
         if (myProfile.role === 'director') {
             if ((!isGuestView && viewProfile.id === vkUser.id) || isAdminView) {
@@ -476,7 +489,7 @@
         }
 
         if (tab === 'skills') {
-            updateCatText("Здесь твои <b>Навыки</b>. Если ты Директор, прокрути вниз, чтобы добавить новый навык.");
+            updateCatText("Здесь твои <b>Навыки</b>. Директор может добавить новые.");
             renderList('skills', 'Навыки', '✦', root, canEdit);
         }
         else if (tab === 'spells') {
@@ -627,23 +640,29 @@
             viewProfile[type].push({ title, desc, req, img });
         }
         
-        await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
-        switchTab(type);
+        try {
+            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
+            switchTab(type);
+        } catch(e) { alert("Ошибка сохранения"); }
     }
 
     async function deleteItem(type, index) {
         if (!confirm("Удалить эту карточку?")) return;
         viewProfile[type].splice(index, 1);
-        await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
-        switchTab(type);
+        try {
+            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [type]: viewProfile[type] }) });
+            switchTab(type);
+        } catch(e) { alert("Ошибка удаления"); }
     }
 
     async function saveText(field) {
         const val = document.getElementById(`edit-${field}`).value;
         viewProfile[field] = val;
-        await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: val }) });
-        alert("Сохранено!");
-        switchTab(field);
+        try {
+            await fetch(`${DB_URL}/students/${viewProfile.id}.json`, { method: 'PATCH', body: JSON.stringify({ [field]: val }) });
+            alert("Сохранено!");
+            switchTab(field);
+        } catch(e) { alert("Ошибка"); }
     }
 
     async function renderStudentsList(container) {
@@ -687,13 +706,15 @@
     }
 
     async function visitProfile(studentId) {
-        const res = await fetch(`${DB_URL}/students/${studentId}.json`);
-        const data = await res.json();
-        
-        if (!data) return alert("Профиль не найден в базе!");
-        
-        if (myProfile.role === 'director') openCabinet(data, true, false); 
-        else openCabinet(data, false, true); 
+        try {
+            const res = await fetch(`${DB_URL}/students/${studentId}.json`);
+            const data = await res.json();
+            
+            if (!data) return alert("Профиль не найден в базе!");
+            
+            if (myProfile.role === 'director') openCabinet(data, true, false); 
+            else openCabinet(data, false, true); 
+        } catch(e) { alert("Ошибка загрузки профиля"); }
     }
 
     function backToStudents() {
@@ -703,22 +724,24 @@
 
     async function renderMessagesList(container) {
         container.innerHTML = `<div class="center-menu">Загрузка диалогов...</div>`;
-        const res = await fetch(`${DB_URL}/students.json`);
-        const allStudents = await res.json() || {};
-        
-        let html = `<h2>Личные сообщения (Совы)</h2><div class="admin-panel">`;
-        Object.keys(allStudents).forEach(vkId => {
-            const student = allStudents[vkId];
-            if(String(vkId) !== String(vkUser.id)) {
-                html += `
-                <div class="admin-card">
-                    <h3 style="margin:0; font-size:18px;">${student.name}</h3>
-                    <button onclick="openChat('${vkId}', '${student.name}')" style="background:var(--accent); color:white; margin-top:10px;">Открыть переписку</button>
-                </div>`;
-            }
-        });
-        html += `</div>`;
-        container.innerHTML = html;
+        try {
+            const res = await fetch(`${DB_URL}/students.json`);
+            const allStudents = await res.json() || {};
+            
+            let html = `<h2>Личные сообщения (Совы)</h2><div class="admin-panel">`;
+            Object.keys(allStudents).forEach(vkId => {
+                const student = allStudents[vkId];
+                if(String(vkId) !== String(vkUser.id)) {
+                    html += `
+                    <div class="admin-card">
+                        <h3 style="margin:0; font-size:18px;">${student.name}</h3>
+                        <button onclick="openChat('${vkId}', '${student.name}')" style="background:var(--accent); color:white; margin-top:10px;">Открыть переписку</button>
+                    </div>`;
+                }
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        } catch(e) { container.innerHTML = `<div style="color:red">Ошибка базы</div>`; }
     }
 
     function getChatId(id1, id2) {
@@ -750,19 +773,21 @@
         
         const loadMsgs = async () => {
             if(!document.getElementById('chat-box')) { clearInterval(chatTimer); return; }
-            const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
-            const msgs = await res.json() || {};
-            let html = '';
-            Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
-                const isMe = m.senderId === vkUser.id;
-                let content = m.text;
-                if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
-                    content = `<img src="${m.text}">`;
-                }
-                html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
-            });
-            chatBox.innerHTML = html;
-            chatBox.scrollTop = chatBox.scrollHeight;
+            try {
+                const res = await fetch(`${DB_URL}/messages/${chatId}.json`);
+                const msgs = await res.json() || {};
+                let html = '';
+                Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
+                    const isMe = m.senderId === vkUser.id;
+                    let content = m.text;
+                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
+                        content = `<img src="${m.text}">`;
+                    }
+                    html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
+                });
+                chatBox.innerHTML = html;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch(e) {}
         };
 
         loadMsgs();
@@ -784,7 +809,9 @@
         };
 
         input.value = '';
-        await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
+        try {
+            await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
+        } catch(e) { alert("Ошибка отправки"); }
     }
 </script>
 </body>
