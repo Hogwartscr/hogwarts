@@ -98,6 +98,51 @@
         .mbti-scale label { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--accent); cursor: pointer; margin: 0; transition: color 0.2s; }
         .mbti-scale label:hover { color: var(--primary); }
         .mbti-scale input[type="radio"] { margin: 0 0 4px 0; accent-color: var(--accent); transform: scale(1.1); cursor: pointer; }
+
+        /* --- СТИЛИ ДЛЯ СТИКЕРОВ --- */
+        .sticker-panel {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.4);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--accent);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .sticker-sprite {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-image: url('stickers.png'); /* Убедитесь, что файл лежит в той же папке */
+            background-size: 400% 500%; /* 4 колонки, 5 строк */
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.1s;
+            border: 1px solid transparent;
+        }
+        .sticker-sprite:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+        .msg .sticker-sprite {
+            width: 120px;
+            height: 120px;
+            cursor: default;
+            border: none;
+            background-color: transparent;
+        }
+        .msg .sticker-sprite:hover {
+            transform: none;
+        }
+
+        /* Координаты для каждого из 20 стикеров */
+        .st-0 { background-position: 0% 0%; } .st-1 { background-position: 33.33% 0%; } .st-2 { background-position: 66.66% 0%; } .st-3 { background-position: 100% 0%; }
+        .st-4 { background-position: 0% 25%; } .st-5 { background-position: 33.33% 25%; } .st-6 { background-position: 66.66% 25%; } .st-7 { background-position: 100% 25%; }
+        .st-8 { background-position: 0% 50%; } .st-9 { background-position: 33.33% 50%; } .st-10 { background-position: 66.66% 50%; } .st-11 { background-position: 100% 50%; }
+        .st-12 { background-position: 0% 75%; } .st-13 { background-position: 33.33% 75%; } .st-14 { background-position: 66.66% 75%; } .st-15 { background-position: 100% 75%; }
+        .st-16 { background-position: 0% 100%; } .st-17 { background-position: 33.33% 100%; } .st-18 { background-position: 66.66% 100%; } .st-19 { background-position: 100% 100%; }
     </style>
 </head>
 <body>
@@ -1010,27 +1055,79 @@
     function startChatFromProfile() { openChat(viewProfile.id, viewProfile.name); }
 
     function openChat(targetId, targetName) {
-        const chatId = getChatId(vkUser.id, targetId); const root = document.getElementById('book-content');
-        root.innerHTML = `<h2>Переписка с ${targetName}</h2><div class="chat-container"><div class="chat-messages" id="chat-box"><div style="text-align:center; color:var(--accent);">Загрузка...</div></div><div class="chat-input-area"><input type="text" id="chat-input" placeholder="Сообщение или ссылка..."><button onclick="sendMsg('${targetId}')">Отправить</button></div></div><button onclick="switchTab('messages')" style="margin-top:15px;">← Назад к диалогам</button>`;
+        const chatId = getChatId(vkUser.id, targetId); 
+        const root = document.getElementById('book-content');
+        
+        let stickerHTML = '';
+        for(let i = 0; i < 20; i++) {
+            stickerHTML += `<div class="sticker-sprite st-${i}" onclick="sendSticker('${targetId}', ${i})" title="Стикер ${i+1}"></div>`;
+        }
+
+        root.innerHTML = `
+            <h2>Переписка с ${targetName}</h2>
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-box"><div style="text-align:center; color:var(--accent);">Загрузка...</div></div>
+                
+                <div id="sticker-panel" class="sticker-panel hidden">
+                    ${stickerHTML}
+                </div>
+
+                <div class="chat-input-area" style="margin-top:10px;">
+                    <button onclick="toggleStickerPanel()" style="background:var(--panel); color:var(--primary); border:1px solid var(--accent); font-size:20px; padding:0 15px;">😊</button>
+                    <input type="text" id="chat-input" placeholder="Сообщение или ссылка..." onkeypress="if(event.key === 'Enter') sendMsg('${targetId}')">
+                    <button onclick="sendMsg('${targetId}')">Отправить</button>
+                </div>
+            </div>
+            <button onclick="switchTab('messages')" style="margin-top:15px;">← Назад к диалогам</button>
+        `;
+
         const chatBox = document.getElementById('chat-box');
+        
         const loadMsgs = async () => {
             if(!document.getElementById('chat-box')) { clearInterval(chatTimer); return; }
             try {
-                const res = await fetch(`${DB_URL}/messages/${chatId}.json`); const msgs = await res.json() || {};
+                const res = await fetch(`${DB_URL}/messages/${chatId}.json`); 
+                const msgs = await res.json() || {};
                 let html = '';
                 Object.values(msgs).sort((a,b) => a.time - b.time).forEach(m => {
-                    const isMe = m.senderId === vkUser.id; let content = m.text;
-                    if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) content = `<img src="${m.text}">`;
+                    const isMe = m.senderId === vkUser.id; 
+                    let content = m.text;
+                    
+                    if (content.startsWith('STICKER:')) {
+                        const index = content.split(':')[1];
+                        content = `<div class="sticker-sprite st-${index}"></div>`;
+                    } 
+                    else if (content.match(/\.(jpeg|jpg|gif|png|webp)$/i) || content.includes('sun9-')) {
+                        content = `<img src="${m.text}">`;
+                    }
+                    
                     html += `<div class="msg ${isMe ? 'my' : 'their'}"><small>${m.senderName}</small><br>${content}</div>`;
                 });
-                chatBox.innerHTML = html; chatBox.scrollTop = chatBox.scrollHeight;
+                chatBox.innerHTML = html; 
+                chatBox.scrollTop = chatBox.scrollHeight;
             } catch(e) {}
         };
         loadMsgs(); if(chatTimer) clearInterval(chatTimer); chatTimer = setInterval(loadMsgs, 2000);
     }
 
+    function toggleStickerPanel() {
+        const panel = document.getElementById('sticker-panel');
+        if (panel) panel.classList.toggle('hidden');
+    }
+
+    async function sendSticker(targetId, index) {
+        const chatId = getChatId(vkUser.id, targetId);
+        const msg = { senderId: vkUser.id, senderName: myProfile.name, text: `STICKER:${index}`, time: Date.now() };
+        try {
+            await fetch(`${DB_URL}/messages/${chatId}.json`, { method: 'POST', body: JSON.stringify(msg) });
+            toggleStickerPanel(); 
+        } catch(e) { alert("Ошибка отправки"); }
+    }
+
     async function sendMsg(targetId) {
-        const input = document.getElementById('chat-input'); const text = input.value.trim(); if (!text) return;
+        const input = document.getElementById('chat-input'); 
+        const text = input.value.trim(); 
+        if (!text) return;
         const chatId = getChatId(vkUser.id, targetId);
         const msg = { senderId: vkUser.id, senderName: myProfile.name, text: text, time: Date.now() };
         input.value = '';
